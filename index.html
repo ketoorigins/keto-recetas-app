@@ -470,42 +470,22 @@
                     4.  Regla de endulzantes para POSTRES: NUNCA uses azúcar. Usa Stevia para postres fríos o que no se hornean. Usa Eritritol para postres que SÍ se hornean. Menciona el endulzante específico en los ingredientes.
                     5.  Cada receta debe tener un título, una lista de ingredientes, instrucciones paso a paso y un "Consejo del chef".
                     
-                    Devuelve la respuesta en formato JSON, siguiendo este esquema exacto.
+                    Devuelve la respuesta en formato JSON, siguiendo este esquema exacto:
+                    {
+                      "recipes": [
+                        {
+                          "title": "Nombre de la Receta",
+                          "ingredients": ["Ingrediente 1", "Ingrediente 2"],
+                          "instructions": ["Paso 1", "Paso 2"],
+                          "chef_tip": "Un consejo útil para esta receta."
+                        }
+                      ]
+                    }
                 `;
 
                 try {
                     let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-                    const payload = {
-                        contents: chatHistory,
-                        generationConfig: {
-                            responseMimeType: "application/json",
-                            responseSchema: {
-                                type: "OBJECT",
-                                properties: {
-                                    recipes: {
-                                        type: "ARRAY",
-                                        items: {
-                                            type: "OBJECT",
-                                            properties: {
-                                                title: { type: "STRING" },
-                                                ingredients: {
-                                                    type: "ARRAY",
-                                                    items: { type: "STRING" }
-                                                },
-                                                instructions: {
-                                                    type: "ARRAY",
-                                                    items: { type: "STRING" }
-                                                },
-                                                chef_tip: { type: "STRING" }
-                                            },
-                                            required: ["title", "ingredients", "instructions", "chef_tip"]
-                                        }
-                                    }
-                                },
-                                required: ["recipes"]
-                            }
-                        }
-                    };
+                    const payload = { contents: chatHistory };
                     const apiKey = ""; // API Key will be injected by the environment
                     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                     
@@ -516,17 +496,29 @@
                     });
 
                     if (!response.ok) {
-                        throw new Error(`Error de red: ${response.statusText}`);
+                        const errorBody = await response.text();
+                        throw new Error(`Error de red: ${response.status} ${response.statusText}. Detalles: ${errorBody}`);
                     }
 
                     const result = await response.json();
                     
                     if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
                         const text = result.candidates[0].content.parts[0].text;
-                        const data = JSON.parse(text);
-                        this.renderRecipes(data.recipes);
+                        const jsonMatch = text.match(/\{[\s\S]*\}/);
+                        if (jsonMatch && jsonMatch[0]) {
+                            const jsonString = jsonMatch[0];
+                            const data = JSON.parse(jsonString);
+                            this.renderRecipes(data.recipes);
+                        } else {
+                             throw new Error("La respuesta de la API no contenía un formato JSON válido.");
+                        }
                     } else {
-                        throw new Error("No se recibieron recetas válidas.");
+                        // Handle cases where the response structure is unexpected (e.g., safety blocks)
+                        let errorMessage = "No se recibieron recetas válidas.";
+                        if (result.promptFeedback && result.promptFeedback.blockReason) {
+                            errorMessage += ` Motivo: ${result.promptFeedback.blockReason}`;
+                        }
+                        throw new Error(errorMessage);
                     }
 
                 } catch (error) {
