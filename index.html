@@ -503,61 +503,73 @@
                 // EL MODELO HA SIDO ACTUALIZADO a gemini-2.5-flash-preview-09-2025 para corregir el error 404.
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
                 
-                // Implementación de reintentos con backoff exponencial
+                // Implementación de reintentos con backoff exponencial Y TIEMPO LÍMITE (TIMEOUT)
                 const maxRetries = 3;
                 let attempt = 0;
                 let response;
 
-                while (attempt < maxRetries) {
-                    try {
-                        response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
+                // Control de AbortController para manejar el tiempo límite (timeout)
+                const controller = new AbortController();
+                // Tiempo límite de 30 segundos
+                const timeoutId = setTimeout(() => controller.abort(), 30000); 
 
-                        if (response.ok) {
-                            break; // Success! Exit the loop
-                        }
+                try { // Encapsular todo el bucle while en un try-catch principal
+                    while (attempt < maxRetries) {
+                        try {
+                            // Ejecutar la solicitud con el controlador de señal
+                            response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload),
+                                signal: controller.signal // Agregar la señal para el timeout
+                            });
 
-                        // If response is not OK, but we can retry (e.g., 429 rate limit)
-                        if (response.status === 429 || response.status >= 500) {
-                            attempt++;
+                            if (response.ok) {
+                                clearTimeout(timeoutId); // Limpiar el timeout al tener una respuesta exitosa
+                                break; // Éxito! Salir del bucle
+                            }
+
+                            // Si la respuesta no es OK, pero puede reintentarse (ej: 429, 5xx)
+                            if (response.status === 429 || response.status >= 500) {
+                                attempt++;
+                                if (attempt < maxRetries) {
+                                    const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                                    await new Promise(resolve => setTimeout(resolve, delay));
+                                    continue;
+                                }
+                            }
+                            
+                            // Para otros errores no reintentables (ej: 400, 404)
+                            const errorBody = await response.text();
+                            throw new Error(`Error de red: ${response.status} ${response.statusText}. Detalles: ${errorBody}`);
+
+                        } catch (error) {
+                            if (error.name === 'AbortError') {
+                                // Re-lanzar el AbortError fuera del bucle para manejarlo como un fallo de timeout
+                                throw new Error("La solicitud a la API ha tardado demasiado (30 segundos) y fue cancelada. Intenta de nuevo.");
+                            }
+
                             if (attempt < maxRetries) {
+                                attempt++;
                                 const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
                                 await new Promise(resolve => setTimeout(resolve, delay));
-                                continue;
+                            } else {
+                                throw error;
                             }
                         }
-                        
-                        // For other non-retryable errors (e.g., 400 Bad Request, 404 Not Found)
-                        const errorBody = await response.text();
-                        throw new Error(`Error de red: ${response.status} ${response.statusText}. Detalles: ${errorBody}`);
+                    } // Fin del bucle while
 
-                    } catch (error) {
-                        if (attempt < maxRetries) {
-                            attempt++;
-                            const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                        } else {
-                             // If all retries fail
-                            throw error;
-                        }
+                    // Si salimos del bucle sin respuesta OK
+                    if (!response || !response.ok) {
+                        throw new Error("Fallo la conexión con la API después de múltiples intentos.");
                     }
-                }
-                
-                if (!response || !response.ok) {
-                    throw new Error("Fallo la conexión con la API después de múltiples intentos.");
-                }
 
-                try {
+                    // --- PROCESAMIENTO DE RESPUESTA EXITOSA ---
                     const result = await response.json();
                     
                     if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
                         const rawText = result.candidates[0].content.parts[0].text;
                         
-                        // CORRECCIÓN: Usamos una expresión regular más robusta para encontrar el bloque JSON.
-                        // Esto es crucial porque el modelo puede anteponer o posponer texto explicativo al JSON.
                         const jsonMatch = rawText.match(/\{[\s\S]*\}/);
 
                         if (jsonMatch && jsonMatch[0]) {
@@ -581,8 +593,9 @@
                         }
                         throw new Error(errorMessage);
                     }
-
+                    
                 } catch (error) {
+                    clearTimeout(timeoutId); // Asegurar que el timeout se limpie en caso de error
                     console.error('Error al generar recetas o parsear JSON:', error);
                     contentDiv.innerHTML = `
                         <div class="bg-red-900 border border-red-600 text-white p-6 rounded-xl text-center">
