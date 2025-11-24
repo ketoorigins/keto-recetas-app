@@ -500,16 +500,6 @@
                     Genera la respuesta estrictamente en el formato JSON definido en el esquema.
                 `;
 
-                // --- PAYLOAD CON CONFIGURACIÓN ESTRUCTURADA ---
-                const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-                const payload = {
-                    contents: chatHistory,
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: recipeSchema
-                    }
-                };
-
                 // EL MODELO HA SIDO ACTUALIZADO a gemini-2.5-flash-preview-09-2025 para corregir el error 404.
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
                 
@@ -557,7 +547,6 @@
                 }
                 
                 if (!response || !response.ok) {
-                    // This should be caught by the catch block, but kept for safety
                     throw new Error("Fallo la conexión con la API después de múltiples intentos.");
                 }
 
@@ -565,15 +554,30 @@
                     const result = await response.json();
                     
                     if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
-                        const jsonString = result.candidates[0].content.parts[0].text;
-                        // Ya no necesitamos la regex, JSON.parse() lo maneja directamente
-                        const data = JSON.parse(jsonString); 
-                        this.renderRecipes(data.recipes);
+                        const rawText = result.candidates[0].content.parts[0].text;
+                        
+                        // CORRECCIÓN: Usamos una expresión regular más robusta para encontrar el bloque JSON.
+                        // Esto es crucial porque el modelo puede anteponer o posponer texto explicativo al JSON.
+                        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+
+                        if (jsonMatch && jsonMatch[0]) {
+                            const jsonString = jsonMatch[0];
+                            const data = JSON.parse(jsonString);
+                            // Verificamos la estructura esperada
+                            if (data.recipes && Array.isArray(data.recipes)) {
+                                this.renderRecipes(data.recipes);
+                            } else {
+                                throw new Error("La respuesta JSON es válida, pero no contiene la estructura 'recipes' esperada.");
+                            }
+                        } else {
+                            throw new Error(`La respuesta de la API no contenía un formato JSON válido. Texto recibido: "${rawText.substring(0, 100)}..."`);
+                        }
+
                     } else {
                         // Handle cases where the response structure is unexpected (e.g., safety blocks)
                         let errorMessage = "No se recibieron recetas válidas.";
                         if (result.promptFeedback && result.promptFeedback.blockReason) {
-                            errorMessage += ` Motivo: ${result.promptFeedback.blockReason}`;
+                            errorMessage += ` Motivo de bloqueo: ${result.promptFeedback.blockReason}`;
                         }
                         throw new Error(errorMessage);
                     }
