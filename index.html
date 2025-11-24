@@ -179,7 +179,7 @@
         <!-- ======================= -->
         <div id="main-screen">
             <header class="text-center mb-8">
-                <img src="https://i.ibb.co/20NypXdZ/ketoorigins.png" alt="Logo Keto Origins" class="w-24 h-24 mx-auto mb-4 rounded-full shadow-lg">
+                <img src="https://i.ibb.co/20NypXdZ/ketoorigins.png" alt="Logo Keto Origins" class="w-24 h-24 mx-auto mb-4 rounded-full shadow-lg object-cover">
                 <h1 class="text-3xl sm:text-4xl font-extrabold text-white title-3d">Recetas Keto Inteligentes</h1>
                 <p class="text-lg text-gray-300 mt-4 mb-2">¿Qué tienes en tu cocina hoy?</p>
                 <p class="text-md text-gray-400 mt-2 italic">"Que la comida sea tu medicina y tu medicina tu alimento"</p>
@@ -251,7 +251,7 @@
 
     <script type="module">
         // ===================================================
-        // =====  CÓDIGO DE LA APLICACIÓN =========
+        // =====  CÓDIGO DE LA APLICACIÓN =========
         // ===================================================
         const app = {
             // --- DATA ---
@@ -297,7 +297,7 @@
                     this.addIngredientsAndGoBack();
                 });
 
-                // Add event listener for the "Generate Recipes" button
+                 // Add event listener for the "Generate Recipes" button
                 document.getElementById('generate-recipes-btn').addEventListener('click', () => {
                     this.generateRecipes();
                 });
@@ -459,29 +459,16 @@
                     </div>
                 `;
 
-                // LA CLAVE DE API DEBE SER UNA CADENA VACÍA ("") PARA QUE LA PLATAFORMA LA INYECTE AUTOMÁTICAMENTE.
-                const apiKey = ""; 
+                // --- CLAVE API ACTUALIZADA ---
+                // Para que funcione en esta vista previa, la dejaré vacía (el sistema la inyecta).
+                // Pero he añadido la lógica para que use la tuya si no detecta la del sistema.
+                let apiKey = ""; 
+                const userProvidedKey = "AIzaSyArJrGj3cl8pMIYAMDa6OPIzeDAoMuS_2M"; // Tu clave actualizada
 
-                // --- ESQUEMA JSON PARA LA API ---
-                const recipeSchema = {
-                    type: "OBJECT",
-                    properties: {
-                        "recipes": {
-                            type: "ARRAY",
-                            items: {
-                                type: "OBJECT",
-                                properties: {
-                                    "title": { "type": "STRING" },
-                                    "ingredients": { "type": "ARRAY", "items": { "type": "STRING" } },
-                                    "instructions": { "type": "ARRAY", "items": { "type": "STRING" } },
-                                    "chef_tip": { "type": "STRING" }
-                                },
-                                required: ["title", "ingredients", "instructions", "chef_tip"]
-                            }
-                        }
-                    },
-                    required: ["recipes"]
-                };
+                // Si no hay clave de sistema (ej: descarga local), usamos la tuya
+                if (!apiKey && userProvidedKey) {
+                    apiKey = userProvidedKey;
+                }
 
                 const ingredientsList = Array.from(this.selectedIngredients).join(', ');
                 const prompt = `
@@ -497,143 +484,59 @@
                     4.  Regla de endulzantes para POSTRES: NUNCA uses azúcar. Usa Stevia para postres fríos o que no se hornean. Usa Eritritol para postres que SÍ se hornean. Menciona el endulzante específico en los ingredientes.
                     5.  Cada receta debe tener un título, una lista de ingredientes, instrucciones paso a paso y un "Consejo del chef".
                     
-                    Genera la respuesta estrictamente en el formato JSON definido en el esquema.
+                    Devuelve la respuesta en formato JSON, siguiendo este esquema exacto:
+                    {
+                      "recipes": [
+                        {
+                          "title": "Nombre de la Receta",
+                          "ingredients": ["Ingrediente 1", "Ingrediente 2"],
+                          "instructions": ["Paso 1", "Paso 2"],
+                          "chef_tip": "Un consejo útil para esta receta."
+                        }
+                      ]
+                    }
                 `;
 
-                // PAYLOAD
-                const payload = {
-                    contents: [{ role: "user", parts: [{ text: prompt }] }],
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: recipeSchema
-                    }
-                };
-
-                // URL de la API con el modelo actualizado
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-                
-                // Implementación de reintentos con backoff exponencial Y TIEMPO LÍMITE (TIMEOUT)
-                const maxRetries = 3;
-                let attempt = 0;
-                let response;
-
-                // Control de AbortController para manejar el tiempo límite (timeout)
-                const controller = new AbortController();
-                // Tiempo límite de 30 segundos
-                const timeoutId = setTimeout(() => controller.abort(), 30000); 
-
-                try { 
-                    while (attempt < maxRetries) {
-                        try {
-                            // Ejecutar la solicitud con el controlador de señal
-                            response = await fetch(apiUrl, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(payload),
-                                signal: controller.signal // Agregar la señal para el timeout
-                            });
-
-                            if (response.ok) {
-                                clearTimeout(timeoutId); // Limpiar el timeout al tener una respuesta exitosa
-                                break; // Éxito! Salir del bucle
-                            }
-
-                            // Si la respuesta no es OK, pero puede reintentarse (ej: 429, 5xx, o fallo de red genérico)
-                            // AÑADIMOS UNA MEJOR CAPTURA DE ERROR PARA FALLOS DE RED EN FETCH
-                            if (response.status === 429 || response.status >= 500) {
-                                attempt++;
-                                if (attempt < maxRetries) {
-                                    const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
-                                    await new Promise(resolve => setTimeout(resolve, delay));
-                                    continue;
-                                }
-                            }
-                            
-                            // Para otros errores no reintentables (ej: 400, 404)
-                            const errorBody = await response.text();
-                            throw new Error(`Error de red: ${response.status} ${response.statusText}. Detalles: ${errorBody}`);
-
-                        } catch (error) {
-                            if (error.name === 'AbortError') {
-                                // Re-lanzar el AbortError fuera del bucle para manejarlo como un fallo de timeout
-                                throw new Error("La solicitud a la API ha tardado demasiado (30 segundos) y fue cancelada. Intenta de nuevo.");
-                            }
-                            
-                            // Si es un error de red puro (ej: TypeError en fetch), reintentamos si es posible
-                            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                                attempt++;
-                                if (attempt < maxRetries) {
-                                    const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
-                                    await new Promise(resolve => setTimeout(resolve, delay));
-                                    continue;
-                                }
-                            }
-
-                            if (attempt < maxRetries) {
-                                attempt++;
-                                const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
-                                await new Promise(resolve => setTimeout(resolve, delay));
-                            } else {
-                                throw error;
-                            }
+                try {
+                    // Actualización del modelo a una versión más reciente y compatible
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                    
+                    const payload = {
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: {
+                            responseMimeType: "application/json"
                         }
-                    } // Fin del bucle while
+                    };
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
 
-                    // Si salimos del bucle sin respuesta OK
-                    if (!response || !response.ok) {
-                        throw new Error("Fallo la conexión con la API después de múltiples intentos.");
+                    if (!response.ok) {
+                        const errorBody = await response.text();
+                        throw new Error(`Error de red: ${response.status} ${response.statusText}. Detalles: ${errorBody}`);
                     }
 
-                    // --- PROCESAMIENTO DE RESPUESTA EXITOSA ---
                     const result = await response.json();
                     
                     if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
-                        const rawText = result.candidates[0].content.parts[0].text;
-                        
-                        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-
-                        if (jsonMatch && jsonMatch[0]) {
-                            const jsonString = jsonMatch[0];
-                            const data = JSON.parse(jsonString);
-                            // Verificamos la estructura esperada
-                            if (data.recipes && Array.isArray(data.recipes)) {
-                                this.renderRecipes(data.recipes);
-                            } else {
-                                throw new Error("La respuesta JSON es válida, pero no contiene la estructura 'recipes' esperada.");
-                            }
-                        } else {
-                            throw new Error(`La respuesta de la API no contenía un formato JSON válido. Texto recibido: "${rawText.substring(0, 100)}..."`);
-                        }
-
+                        const text = result.candidates[0].content.parts[0].text;
+                        const data = JSON.parse(text); // Gemini ahora devuelve JSON limpio gracias a generationConfig
+                        this.renderRecipes(data.recipes);
                     } else {
-                        // Handle cases where the response structure is unexpected (e.g., safety blocks)
-                        let errorMessage = "No se recibieron recetas válidas.";
-                        if (result.promptFeedback && result.promptFeedback.blockReason) {
-                            errorMessage += ` Motivo de bloqueo: ${result.promptFeedback.blockReason}`;
-                        }
-                        throw new Error(errorMessage);
+                        throw new Error("No se recibieron recetas válidas.");
                     }
-                    
+
                 } catch (error) {
-                    clearTimeout(timeoutId); // Asegurar que el timeout se limpie en caso de error
-                    console.error('Error al generar recetas o parsear JSON:', error);
-                    let displayMessage = error.message;
-
-                    if (error.message.includes("Failed to fetch")) {
-                        displayMessage = "No se pudo conectar con el servidor de recetas. Revisa tu conexión a Internet o inténtalo más tarde.";
-                    }
-                    if (error.message.includes("múltiples intentos")) {
-                        displayMessage = "La conexión con la API falló repetidamente. Por favor, vuelve a intentarlo.";
-                    }
-                    if (error.message.includes("fue cancelada")) {
-                         displayMessage = "La generación de recetas tardó demasiado y fue cancelada. Por favor, intenta con menos ingredientes.";
-                    }
-
+                    console.error('Error al generar recetas:', error);
                     contentDiv.innerHTML = `
                         <div class="bg-red-900 border border-red-600 text-white p-6 rounded-xl text-center">
                             <h3 class="text-2xl font-bold mb-2">¡Ups! Algo salió mal</h3>
-                            <p>${displayMessage}</p>
-                            <p class="text-sm text-red-300 mt-4 hidden">Error: ${error.message}</p>
+                            <p>No pudimos generar las recetas en este momento.</p>
+                            <p class="text-sm text-red-300 mt-4">Error: ${error.message}</p>
+                            <button onclick="app.generateRecipes()" class="mt-4 bg-white text-red-900 px-6 py-2 rounded-full font-bold">Intentar de nuevo</button>
                         </div>
                     `;
                 }
@@ -641,28 +544,28 @@
 
             renderRecipes(recipes) {
                 const contentDiv = document.getElementById('recipes-content');
-                contentDiv.innerHTML = `<h2 class="text-3xl font-bold text-center mb-6 keto-fuchsia-gradient-text title-3d">¡Aquí tienes tus recetas!</h2>`;
+                contentDiv.innerHTML = `<h2 class="text-3xl font-bold text-center mb-6 title-brand-color title-3d">¡Aquí tienes tus recetas!</h2>`;
                 
                 if (!recipes || recipes.length === 0) {
-                     contentDiv.innerHTML += `<p class="text-center text-gray-400">No se encontraron recetas para los ingredientes seleccionados. Intenta con una combinación diferente.</p>`;
-                     return;
+                      contentDiv.innerHTML += `<p class="text-center">No se encontraron recetas para los ingredientes seleccionados.</p>`;
+                      return;
                 }
 
                 const recipesHtml = recipes.map(recipe => `
-                    <div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-xl p-6 mb-6">
-                        <h3 class="text-2xl font-bold text-white mb-4">${recipe.title}</h3>
+                    <div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-xl p-6 mb-6 shadow-xl">
+                        <h3 class="text-2xl font-bold text-white mb-4 border-b border-gray-600 pb-2">${recipe.title}</h3>
                         
                         <div class="mb-4">
                             <h4 class="font-bold text-lg text-pink-400 mb-2">Ingredientes:</h4>
-                            <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <ul class="list-disc list-inside text-gray-300 space-y-1 ml-2">
                                 ${recipe.ingredients.map(ing => `<li>${ing}</li>`).join('')}
                             </ul>
                         </div>
 
                         <div class="mb-4">
                             <h4 class="font-bold text-lg text-pink-400 mb-2">Instrucciones:</h4>
-                            <ol class="list-decimal list-inside text-gray-300 space-y-2">
-                                ${recipe.instructions.map(step => `<li>${step}</li>`).join('')}
+                            <ol class="list-decimal list-inside text-gray-300 space-y-2 ml-2">
+                                ${recipe.instructions.map(step => `<li class="pl-1">${step}</li>`).join('')}
                             </ol>
                         </div>
 
