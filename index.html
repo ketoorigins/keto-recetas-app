@@ -500,7 +500,16 @@
                     Genera la respuesta estrictamente en el formato JSON definido en el esquema.
                 `;
 
-                // EL MODELO HA SIDO ACTUALIZADO a gemini-2.5-flash-preview-09-2025 para corregir el error 404.
+                // PAYLOAD
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: recipeSchema
+                    }
+                };
+
+                // URL de la API con el modelo actualizado
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
                 
                 // Implementación de reintentos con backoff exponencial Y TIEMPO LÍMITE (TIMEOUT)
@@ -513,7 +522,7 @@
                 // Tiempo límite de 30 segundos
                 const timeoutId = setTimeout(() => controller.abort(), 30000); 
 
-                try { // Encapsular todo el bucle while en un try-catch principal
+                try { 
                     while (attempt < maxRetries) {
                         try {
                             // Ejecutar la solicitud con el controlador de señal
@@ -529,7 +538,8 @@
                                 break; // Éxito! Salir del bucle
                             }
 
-                            // Si la respuesta no es OK, pero puede reintentarse (ej: 429, 5xx)
+                            // Si la respuesta no es OK, pero puede reintentarse (ej: 429, 5xx, o fallo de red genérico)
+                            // AÑADIMOS UNA MEJOR CAPTURA DE ERROR PARA FALLOS DE RED EN FETCH
                             if (response.status === 429 || response.status >= 500) {
                                 attempt++;
                                 if (attempt < maxRetries) {
@@ -547,6 +557,16 @@
                             if (error.name === 'AbortError') {
                                 // Re-lanzar el AbortError fuera del bucle para manejarlo como un fallo de timeout
                                 throw new Error("La solicitud a la API ha tardado demasiado (30 segundos) y fue cancelada. Intenta de nuevo.");
+                            }
+                            
+                            // Si es un error de red puro (ej: TypeError en fetch), reintentamos si es posible
+                            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                                attempt++;
+                                if (attempt < maxRetries) {
+                                    const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                                    await new Promise(resolve => setTimeout(resolve, delay));
+                                    continue;
+                                }
                             }
 
                             if (attempt < maxRetries) {
@@ -597,11 +617,23 @@
                 } catch (error) {
                     clearTimeout(timeoutId); // Asegurar que el timeout se limpie en caso de error
                     console.error('Error al generar recetas o parsear JSON:', error);
+                    let displayMessage = error.message;
+
+                    if (error.message.includes("Failed to fetch")) {
+                        displayMessage = "No se pudo conectar con el servidor de recetas. Revisa tu conexión a Internet o inténtalo más tarde.";
+                    }
+                    if (error.message.includes("múltiples intentos")) {
+                        displayMessage = "La conexión con la API falló repetidamente. Por favor, vuelve a intentarlo.";
+                    }
+                    if (error.message.includes("fue cancelada")) {
+                         displayMessage = "La generación de recetas tardó demasiado y fue cancelada. Por favor, intenta con menos ingredientes.";
+                    }
+
                     contentDiv.innerHTML = `
                         <div class="bg-red-900 border border-red-600 text-white p-6 rounded-xl text-center">
                             <h3 class="text-2xl font-bold mb-2">¡Ups! Algo salió mal</h3>
-                            <p>No pudimos generar las recetas en este momento. Por favor, intenta con otros ingredientes o vuelve a intentarlo más tarde.</p>
-                            <p class="text-sm text-red-300 mt-4">Error: ${error.message}</p>
+                            <p>${displayMessage}</p>
+                            <p class="text-sm text-red-300 mt-4 hidden">Error: ${error.message}</p>
                         </div>
                     `;
                 }
