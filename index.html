@@ -251,7 +251,7 @@
 
     <script type="module">
         // ===================================================
-        // =====  CÓDIGO DE LA APLICACIÓN =========
+        // =====  CÓDIGO DE LA APLICACIÓN =========
         // ===================================================
         const app = {
             // --- DATA ---
@@ -297,7 +297,7 @@
                     this.addIngredientsAndGoBack();
                 });
 
-                 // Add event listener for the "Generate Recipes" button
+                // Add event listener for the "Generate Recipes" button
                 document.getElementById('generate-recipes-btn').addEventListener('click', () => {
                     this.generateRecipes();
                 });
@@ -459,21 +459,29 @@
                     </div>
                 `;
 
-                // --- ¡IMPORTANTE! ---
-                // Reemplaza el siguiente texto con tu propia API Key de Google Gemini.
-                // Puedes obtener una gratis en Google AI Studio.
-                const apiKey = "AIzaSyAlnT-BoAzdJ_te3RYebXyXbQNCV1DYL8g";
+                // LA CLAVE DE API DEBE SER UNA CADENA VACÍA ("") PARA QUE LA PLATAFORMA LA INYECTE AUTOMÁTICAMENTE.
+                const apiKey = ""; 
 
-                if (apiKey === "REEMPLAZA_ESTO_CON_TU_API_KEY_DE_GEMINI") {
-                    contentDiv.innerHTML = `
-                        <div class="bg-red-900 border border-red-600 text-white p-6 rounded-xl text-center">
-                            <h3 class="text-2xl font-bold mb-2">Error de Configuración</h3>
-                            <p>Por favor, abre el archivo <code>index.html</code> y reemplaza el texto "REEMPLAZA_ESTO_CON_TU_API_KEY_DE_GEMINI" con tu clave de API real de Google Gemini para que la aplicación funcione.</p>
-                        </div>
-                    `;
-                    return;
-                }
-
+                // --- ESQUEMA JSON PARA LA API ---
+                const recipeSchema = {
+                    type: "OBJECT",
+                    properties: {
+                        "recipes": {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    "title": { "type": "STRING" },
+                                    "ingredients": { "type": "ARRAY", "items": { "type": "STRING" } },
+                                    "instructions": { "type": "ARRAY", "items": { "type": "STRING" } },
+                                    "chef_tip": { "type": "STRING" }
+                                },
+                                required: ["title", "ingredients", "instructions", "chef_tip"]
+                            }
+                        }
+                    },
+                    required: ["recipes"]
+                };
 
                 const ingredientsList = Array.from(this.selectedIngredients).join(', ');
                 const prompt = `
@@ -489,47 +497,78 @@
                     4.  Regla de endulzantes para POSTRES: NUNCA uses azúcar. Usa Stevia para postres fríos o que no se hornean. Usa Eritritol para postres que SÍ se hornean. Menciona el endulzante específico en los ingredientes.
                     5.  Cada receta debe tener un título, una lista de ingredientes, instrucciones paso a paso y un "Consejo del chef".
                     
-                    Devuelve la respuesta en formato JSON, siguiendo este esquema exacto:
-                    {
-                      "recipes": [
-                        {
-                          "title": "Nombre de la Receta",
-                          "ingredients": ["Ingrediente 1", "Ingrediente 2"],
-                          "instructions": ["Paso 1", "Paso 2"],
-                          "chef_tip": "Un consejo útil para esta receta."
-                        }
-                      ]
-                    }
+                    Genera la respuesta estrictamente en el formato JSON definido en el esquema.
                 `;
 
-                try {
-                    let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-                    const payload = { contents: chatHistory };
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-                    
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
+                // --- PAYLOAD CON CONFIGURACIÓN ESTRUCTURADA ---
+                const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = {
+                    contents: chatHistory,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: recipeSchema
+                    }
+                };
 
-                    if (!response.ok) {
+                // EL MODELO HA SIDO ACTUALIZADO a gemini-2.5-flash-preview-09-2025 para corregir el error 404.
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                
+                // Implementación de reintentos con backoff exponencial
+                const maxRetries = 3;
+                let attempt = 0;
+                let response;
+
+                while (attempt < maxRetries) {
+                    try {
+                        response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (response.ok) {
+                            break; // Success! Exit the loop
+                        }
+
+                        // If response is not OK, but we can retry (e.g., 429 rate limit)
+                        if (response.status === 429 || response.status >= 500) {
+                            attempt++;
+                            if (attempt < maxRetries) {
+                                const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                                await new Promise(resolve => setTimeout(resolve, delay));
+                                continue;
+                            }
+                        }
+                        
+                        // For other non-retryable errors (e.g., 400 Bad Request, 404 Not Found)
                         const errorBody = await response.text();
                         throw new Error(`Error de red: ${response.status} ${response.statusText}. Detalles: ${errorBody}`);
-                    }
 
+                    } catch (error) {
+                        if (attempt < maxRetries) {
+                            attempt++;
+                            const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                        } else {
+                             // If all retries fail
+                            throw error;
+                        }
+                    }
+                }
+                
+                if (!response || !response.ok) {
+                    // This should be caught by the catch block, but kept for safety
+                    throw new Error("Fallo la conexión con la API después de múltiples intentos.");
+                }
+
+                try {
                     const result = await response.json();
                     
                     if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
-                        const jsonMatch = text.match(/\{[\s\S]*\}/);
-                        if (jsonMatch && jsonMatch[0]) {
-                            const jsonString = jsonMatch[0];
-                            const data = JSON.parse(jsonString);
-                            this.renderRecipes(data.recipes);
-                        } else {
-                             throw new Error("La respuesta de la API no contenía un formato JSON válido.");
-                        }
+                        const jsonString = result.candidates[0].content.parts[0].text;
+                        // Ya no necesitamos la regex, JSON.parse() lo maneja directamente
+                        const data = JSON.parse(jsonString); 
+                        this.renderRecipes(data.recipes);
                     } else {
                         // Handle cases where the response structure is unexpected (e.g., safety blocks)
                         let errorMessage = "No se recibieron recetas válidas.";
@@ -540,7 +579,7 @@
                     }
 
                 } catch (error) {
-                    console.error('Error al generar recetas:', error);
+                    console.error('Error al generar recetas o parsear JSON:', error);
                     contentDiv.innerHTML = `
                         <div class="bg-red-900 border border-red-600 text-white p-6 rounded-xl text-center">
                             <h3 class="text-2xl font-bold mb-2">¡Ups! Algo salió mal</h3>
@@ -553,10 +592,10 @@
 
             renderRecipes(recipes) {
                 const contentDiv = document.getElementById('recipes-content');
-                contentDiv.innerHTML = `<h2 class="text-3xl font-bold text-center mb-6 title-brand-color title-3d">¡Aquí tienes tus recetas!</h2>`;
+                contentDiv.innerHTML = `<h2 class="text-3xl font-bold text-center mb-6 keto-fuchsia-gradient-text title-3d">¡Aquí tienes tus recetas!</h2>`;
                 
                 if (!recipes || recipes.length === 0) {
-                     contentDiv.innerHTML += `<p class="text-center">No se encontraron recetas para los ingredientes seleccionados.</p>`;
+                     contentDiv.innerHTML += `<p class="text-center text-gray-400">No se encontraron recetas para los ingredientes seleccionados. Intenta con una combinación diferente.</p>`;
                      return;
                 }
 
