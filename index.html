@@ -378,35 +378,37 @@
                 contentDiv.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-64">
                         <div class="loader mb-4"></div>
-                        <p class="text-white text-lg font-bold">Chef Keto trabajando...</p>
-                        <p id="retry-status" class="text-gray-400">Revisando tu despensa personalizada.</p>
+                        <p class="text-white text-lg font-bold">Chef Keto Origins trabajando...</p>
+                        <p id="retry-status" class="text-gray-400">Verificando ingredientes permitidos.</p>
                     </div>
                 `;
 
                 const ingredientsList = Array.from(this.selectedIngredients).join(', ');
                 
-                // RESTAURADO EL PROMPT DETALLADO Y ESTRICTO
+                // --- PROMPT CORREGIDO CON DIRECTRICES ESTRICTAS DE KETO ORIGINS ---
                 const prompt = `
-                    Eres un chef experto en cocina Keto y estás creando recetas para usuarios en Chile.
-                    Usa un lenguaje y unidades de medida comunes en Chile (gramos, tazas, cucharadas, etc.).
+                    Eres un chef experto en cocina Keto exclusivo de la marca "Keto Origins" en Chile.
+                    Usa un lenguaje y unidades de medida chilenas (gramos, tazas, cucharadas).
                     
-                    BASADO ESTRICTAMENTE en la siguiente lista de ingredientes: [${ingredientsList}], genera 3 recetas Keto distintas.
+                    BASADO ESTRICTAMENTE en esta lista de ingredientes: [${ingredientsList}], genera 3 recetas Keto.
                     
-                    Reglas fundamentales:
-                    1.  NO inventes ingredientes principales. Usa principalmente los ingredientes proporcionados en la lista. 
-                    2.  Puedes asumir básicos (sal, pimienta, aceite).
-                    3.  Si hay bayas o cacao, prioriza postres.
-                    4.  Regla de endulzantes para POSTRES: NUNCA uses azúcar. Usa Stevia para postres fríos. Usa Eritritol para horneados.
-                    5.  Cada receta debe tener un título, ingredientes, instrucciones y un "Consejo del chef".
+                    REGLAS OBLIGATORIAS DE ENDULZANTES:
+                    1. NUNCA uses azúcar ni endulzantes en gotas.
+                    2. REGLA DE LA STEVIA: Para postres fríos o preparaciones que NO necesitan hornear/leudar/subir, usa ÚNICAMENTE "Stevia Pura en polvo".
+                    3. REGLA DEL ERITRITOL: Para postres o preparaciones que SÍ van al horno o necesitan leudar/subir, usa ÚNICAMENTE "Eritritol".
+                    4. CANTIDAD SIEMPRE "A GUSTO": Jamás des una medida exacta (gramos, gotas, cucharaditas) para el endulzante. Indica siempre "a gusto".
                     
-                    Devuelve la respuesta en formato JSON exacto:
+                    OTRAS REGLAS:
+                    - Usa principalmente los ingredientes seleccionados.
+                    - Si hay ingredientes dulces, genera postres.
+                    - Formato de respuesta JSON:
                     {
                       "recipes": [
                         {
-                          "title": "Nombre de la Receta",
-                          "ingredients": ["Ingrediente 1", "Ingrediente 2"],
+                          "title": "Nombre",
+                          "ingredients": ["100g de X", "Stevia Pura en polvo (a gusto)"],
                           "instructions": ["Paso 1", "Paso 2"],
-                          "chef_tip": "Un consejo útil para esta receta."
+                          "chef_tip": "Consejo"
                         }
                       ]
                     }
@@ -426,7 +428,7 @@
 
                         if (response.status === 503 && attempt < maxRetries - 1) {
                             attempt++;
-                            document.getElementById('retry-status').textContent = `Mucha demanda, reintentando (${attempt}/${maxRetries})...`;
+                            document.getElementById('retry-status').textContent = `Mucha demanda en la cocina, reintentando (${attempt}/${maxRetries})...`;
                             await new Promise(resolve => setTimeout(resolve, 2500));
                             continue; 
                         }
@@ -443,15 +445,15 @@
                                 return;
                             }
                         }
-                        throw new Error("No pudimos leer la receta correctamente.");
+                        throw new Error("Formato de receta no reconocido.");
 
                     } catch (error) {
                         if (attempt >= maxRetries - 1) {
                             contentDiv.innerHTML = `
                                 <div class="bg-red-900/50 border border-red-600 text-white p-6 rounded-xl text-center">
-                                    <h3 class="text-xl font-bold mb-2">¡Chef Ocupado!</h3>
-                                    <p>La IA de Google está sobrecargada ahora mismo.</p>
-                                    <button onclick="app.generateRecipes()" class="mt-4 bg-white text-red-900 px-6 py-2 rounded-full font-bold">Reintentar Ahora</button>
+                                    <h3 class="text-xl font-bold mb-2">¡Servidores de Google Sobrecargados!</h3>
+                                    <p>Intentamos 3 veces pero la IA de Google no responde.</p>
+                                    <button onclick="app.generateRecipes()" class="mt-4 bg-white text-red-900 px-6 py-2 rounded-full font-bold">Intentar de nuevo</button>
                                 </div>
                             `;
                             return;
@@ -464,7 +466,7 @@
 
             renderRecipes(recipes) {
                 const contentDiv = document.getElementById('recipes-content');
-                contentDiv.innerHTML = `<h2 class="text-3xl font-bold text-center mb-6 title-brand-color title-3d">¡Tus Recetas Personalizadas!</h2>`;
+                contentDiv.innerHTML = `<h2 class="text-3xl font-bold text-center mb-6 title-brand-color title-3d">¡Tus Recetas Keto Origins!</h2>`;
                 
                 contentDiv.innerHTML += recipes.map(recipe => `
                     <div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-xl p-6 mb-6">
