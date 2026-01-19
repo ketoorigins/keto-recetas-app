@@ -372,21 +372,45 @@
                 }
             },
 
-            // --- LÓGICA DE GENERACIÓN MEJORADA ---
             async generateRecipes() {
                 this.showScreen('recipes-screen');
                 const contentDiv = document.getElementById('recipes-content');
                 contentDiv.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-64">
                         <div class="loader mb-4"></div>
-                        <p class="text-white text-lg">Cocinando tus recetas...</p>
-                        <p id="retry-status" class="text-gray-400">Esto puede tomar un momento.</p>
+                        <p class="text-white text-lg font-bold">Chef Keto trabajando...</p>
+                        <p id="retry-status" class="text-gray-400">Revisando tu despensa personalizada.</p>
                     </div>
                 `;
 
                 const ingredientsList = Array.from(this.selectedIngredients).join(', ');
-                const prompt = `Chef Keto experto en Chile. Genera 3 recetas Keto usando: [${ingredientsList}]. 
-                Unidades chilenas. Postres: Stevia/Eritritol. Formato JSON: {"recipes": [{"title": "", "ingredients": [], "instructions": [], "chef_tip": ""}]}`;
+                
+                // RESTAURADO EL PROMPT DETALLADO Y ESTRICTO
+                const prompt = `
+                    Eres un chef experto en cocina Keto y estás creando recetas para usuarios en Chile.
+                    Usa un lenguaje y unidades de medida comunes en Chile (gramos, tazas, cucharadas, etc.).
+                    
+                    BASADO ESTRICTAMENTE en la siguiente lista de ingredientes: [${ingredientsList}], genera 3 recetas Keto distintas.
+                    
+                    Reglas fundamentales:
+                    1.  NO inventes ingredientes principales. Usa principalmente los ingredientes proporcionados en la lista. 
+                    2.  Puedes asumir básicos (sal, pimienta, aceite).
+                    3.  Si hay bayas o cacao, prioriza postres.
+                    4.  Regla de endulzantes para POSTRES: NUNCA uses azúcar. Usa Stevia para postres fríos. Usa Eritritol para horneados.
+                    5.  Cada receta debe tener un título, ingredientes, instrucciones y un "Consejo del chef".
+                    
+                    Devuelve la respuesta en formato JSON exacto:
+                    {
+                      "recipes": [
+                        {
+                          "title": "Nombre de la Receta",
+                          "ingredients": ["Ingrediente 1", "Ingrediente 2"],
+                          "instructions": ["Paso 1", "Paso 2"],
+                          "chef_tip": "Un consejo útil para esta receta."
+                        }
+                      ]
+                    }
+                `;
 
                 const maxRetries = 3;
                 let attempt = 0;
@@ -400,11 +424,10 @@
                             body: JSON.stringify(payload)
                         });
 
-                        // Si el error es 503 (Sobrecarga), lo manejamos aquí
                         if (response.status === 503 && attempt < maxRetries - 1) {
                             attempt++;
-                            document.getElementById('retry-status').textContent = `La cocina está llena, reintentando (${attempt}/${maxRetries})...`;
-                            await new Promise(resolve => setTimeout(resolve, 2500)); // Espera 2.5 seg
+                            document.getElementById('retry-status').textContent = `Mucha demanda, reintentando (${attempt}/${maxRetries})...`;
+                            await new Promise(resolve => setTimeout(resolve, 2500));
                             continue; 
                         }
 
@@ -417,19 +440,17 @@
                             if (jsonMatch) {
                                 const data = JSON.parse(jsonMatch[0]);
                                 this.renderRecipes(data.recipes);
-                                return; // Éxito, salimos de la función
+                                return;
                             }
                         }
                         throw new Error("No pudimos leer la receta correctamente.");
 
                     } catch (error) {
                         if (attempt >= maxRetries - 1) {
-                            console.error('Final Error:', error);
                             contentDiv.innerHTML = `
                                 <div class="bg-red-900/50 border border-red-600 text-white p-6 rounded-xl text-center">
                                     <h3 class="text-xl font-bold mb-2">¡Chef Ocupado!</h3>
-                                    <p>Parece que hay mucha gente en la cocina de Google ahora mismo.</p>
-                                    <p class="text-sm text-red-300 mt-4">No te preocupes, no es tu culpa. Por favor, intenta de nuevo en unos segundos.</p>
+                                    <p>La IA de Google está sobrecargada ahora mismo.</p>
                                     <button onclick="app.generateRecipes()" class="mt-4 bg-white text-red-900 px-6 py-2 rounded-full font-bold">Reintentar Ahora</button>
                                 </div>
                             `;
@@ -443,13 +464,8 @@
 
             renderRecipes(recipes) {
                 const contentDiv = document.getElementById('recipes-content');
-                contentDiv.innerHTML = `<h2 class="text-3xl font-bold text-center mb-6 title-brand-color title-3d">¡Aquí tienes tus recetas!</h2>`;
+                contentDiv.innerHTML = `<h2 class="text-3xl font-bold text-center mb-6 title-brand-color title-3d">¡Tus Recetas Personalizadas!</h2>`;
                 
-                if (!recipes || recipes.length === 0) {
-                      contentDiv.innerHTML += `<p class="text-center">No se encontraron recetas.</p>`;
-                      return;
-                }
-
                 contentDiv.innerHTML += recipes.map(recipe => `
                     <div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-xl p-6 mb-6">
                         <h3 class="text-2xl font-bold text-white mb-4">${recipe.title}</h3>
