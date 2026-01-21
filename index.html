@@ -30,7 +30,7 @@
             background-clip: text;
         }
         .title-3d { text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4); }
-        .btn-disabled { background-image: none; background-color: #4a4a6a; cursor: not-allowed; opacity: 0.6; }
+        .btn-disabled { background-image: none !important; background-color: #4a4a6a !important; cursor: not-allowed; opacity: 0.6; }
         .category-btn, .ingredient-btn {
             background-color: #3a2d57;
             border: 1px solid #4a4a6a;
@@ -147,7 +147,7 @@
 
         <!-- PANTALLA CATEGORIA -->
         <div id="category-screen" class="hidden">
-            <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver</button>
+            <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Categorías</button>
             <h2 id="category-title" class="text-3xl font-bold text-center mb-4 title-brand-color title-3d"></h2>
             <div id="ingredients-list" class="space-y-3 mb-6"></div>
             <button id="add-ingredients-btn" class="mx-auto block px-12 py-3 rounded-full font-bold text-white text-lg btn-disabled btn-3d" disabled>
@@ -184,6 +184,7 @@
             },
             selectedIngredients: new Set(),
             tempSelectedCategoryIngredients: new Set(),
+            initialCategoryState: new Set(),
             currentCategory: null,
             lastGeneratedRecipes: [],
             numPeople: 1,
@@ -215,20 +216,37 @@
                 this.updateMainScreen();
             },
 
+            areSetsEqual(setA, setB) {
+                if (setA.size !== setB.size) return false;
+                for (const item of setA) if (!setB.has(item)) return false;
+                return true;
+            },
+
             showCategory(categoryName) {
                 this.currentCategory = categoryName;
-                this.tempSelectedCategoryIngredients = new Set(
+                
+                // Guardar estado inicial para comparar y saber si activar el botón
+                this.initialCategoryState = new Set(
                     this.ingredientsData[categoryName].items.filter(i => this.selectedIngredients.has(i))
                 );
+                
+                // Trabajar sobre una copia temporal
+                this.tempSelectedCategoryIngredients = new Set(this.initialCategoryState);
+                
                 document.getElementById('category-title').textContent = categoryName;
                 const list = document.getElementById('ingredients-list');
                 list.innerHTML = '';
+                
                 this.ingredientsData[categoryName].items.forEach(item => {
                     const div = document.createElement('div');
-                    div.className = `ingredient-btn p-4 rounded-full flex items-center cursor-pointer`;
-                    const checked = this.selectedIngredients.has(item);
-                    div.innerHTML = `<input type="checkbox" value="${item}" class="custom-radio mr-4" ${checked ? 'checked' : ''}><label class="flex-grow cursor-pointer">${item}</label>`;
+                    const isChecked = this.initialCategoryState.has(item);
+                    div.className = `ingredient-btn p-4 rounded-full flex items-center cursor-pointer ${isChecked ? 'selected' : ''}`;
+                    div.innerHTML = `
+                        <input type="checkbox" value="${item}" class="custom-radio mr-4" ${isChecked ? 'checked' : ''}>
+                        <label class="flex-grow cursor-pointer">${item}</label>
+                    `;
                     const cb = div.querySelector('input');
+                    
                     div.addEventListener('click', (e) => {
                         if (e.target !== cb) cb.checked = !cb.checked;
                         if (cb.checked) this.tempSelectedCategoryIngredients.add(item);
@@ -237,15 +255,28 @@
                     });
                     list.appendChild(div);
                 });
+                
                 this.updateCategoryScreen();
                 this.showScreen('category-screen');
             },
 
             updateCategoryScreen() {
                 const addBtn = document.getElementById('add-ingredients-btn');
-                addBtn.disabled = false;
-                addBtn.classList.remove('btn-disabled');
-                addBtn.classList.add('add-btn-gradient');
+                
+                // El botón solo se activa si la selección actual es diferente a la inicial
+                const hasChanged = !this.areSetsEqual(this.initialCategoryState, this.tempSelectedCategoryIngredients);
+                
+                if (hasChanged) {
+                    addBtn.disabled = false;
+                    addBtn.classList.remove('btn-disabled');
+                    addBtn.classList.add('add-btn-gradient');
+                } else {
+                    addBtn.disabled = true;
+                    addBtn.classList.add('btn-disabled');
+                    addBtn.classList.remove('add-btn-gradient');
+                }
+
+                // Actualizar clases visuales de los items
                 document.querySelectorAll('#ingredients-list .ingredient-btn').forEach(div => {
                     const cb = div.querySelector('input');
                     if (this.tempSelectedCategoryIngredients.has(cb.value)) div.classList.add('selected');
@@ -254,6 +285,7 @@
             },
 
             addIngredientsAndGoBack() {
+                // Sincronizar selección global
                 this.ingredientsData[this.currentCategory].items.forEach(i => this.selectedIngredients.delete(i));
                 this.tempSelectedCategoryIngredients.forEach(i => this.selectedIngredients.add(i));
                 this.showMainScreen();
@@ -262,8 +294,11 @@
             updateMainScreen() {
                 const display = document.getElementById('selected-ingredients-display');
                 const btn = document.getElementById('generate-recipes-btn');
-                if (this.selectedIngredients.size === 0) display.innerHTML = '<p class="text-gray-500">Selecciona tus ingredientes...</p>';
-                else display.innerHTML = Array.from(this.selectedIngredients).map(ing => `<span class="inline-block bg-[#4a4a6a] text-white rounded-full px-3 py-1 text-sm mr-2 mb-2">${ing}</span>`).join('');
+                if (this.selectedIngredients.size === 0) {
+                    display.innerHTML = '<p class="text-gray-500">Selecciona tus ingredientes...</p>';
+                } else {
+                    display.innerHTML = Array.from(this.selectedIngredients).map(ing => `<span class="inline-block bg-[#4a4a6a] text-white rounded-full px-3 py-1 text-sm mr-2 mb-2">${ing}</span>`).join('');
+                }
                 
                 if (this.selectedIngredients.size >= 2) {
                     btn.disabled = false; btn.classList.remove('btn-disabled'); btn.classList.add('generate-btn-gradient');
@@ -275,23 +310,29 @@
             async generateRecipes() {
                 this.showScreen('recipes-screen');
                 const content = document.getElementById('recipes-content');
-                content.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-center"><div class="loader mb-4"></div><p class="font-bold">Chef Keto Origins trabajando para ${this.numPeople} persona(s)...</p><p id="retry-msg" class="text-gray-400 text-sm mt-2"></p></div>`;
+                content.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-center"><div class="loader mb-4"></div><p class="font-bold">Chef Keto Origins creando recetas personalizadas...</p><p id="retry-msg" class="text-gray-400 text-sm mt-2"></p></div>`;
 
+                const ingredientsList = Array.from(this.selectedIngredients).join(', ');
+                
                 const prompt = `
                     SISTEMA DE CONTROL ESTRICTO KETO ORIGINS CHILE.
                     OBJETIVO: Generar 3 propuestas culinarias para ${this.numPeople} persona(s).
                     
-                    REGLA DE ORO: Cada una de las 3 recetas DEBE UTILIZAR LA TOTALIDAD de estos ingredientes seleccionados: [${Array.from(this.selectedIngredients).join(', ')}]. No omitas ninguno.
-                    
-                    LUBRICANTES: Solo Sal y Pimienta a gusto. PROHIBIDO sugerir "Aceite" si no está en la lista. Si seleccionó "Mantequilla", usa solo Mantequilla. Si no hay grasas, cocina en seco.
-                    
-                    TECNICISMOS:
-                    - TÍTULOS: Profesionales, sin raciones ni cantidades.
-                    - HUEVOS: Si es base, usa exactamente ${this.numPeople * 3} unidades.
-                    - NOTA DEPORTISTAS: Al lado de proteínas y huevos pon siempre: "(puedes aumentar la cantidad si eres deportista o requieres más proteína)".
-                    - DULZOR: Stevia (frío) o Eritritol (horno) siempre "a gusto".
-                    
-                    RESPONDE SOLO JSON: {"recipes": [{"title": "", "ingredients": [], "instructions": [], "chef_tip": ""}]}
+                    REGLA DE ORO DE INGREDIENTES:
+                    Cada una de las 3 recetas DEBE UTILIZAR LA TOTALIDAD de los siguientes ingredientes seleccionados por el usuario: [${ingredientsList}]. 
+                    No omitas ninguno. Cada receta debe ser una forma distinta de combinar TODO este conjunto de materiales.
+
+                    REGLAS INVIOLABLES DE LUBRICANTES Y BÁSICOS:
+                    1. BÁSICOS: Solo Sal y Pimienta a gusto.
+                    2. GRASAS: PROHIBIDO sugerir "Aceite" si no está en la lista. Si el usuario seleccionó "Mantequilla", es la ÚNICA grasa permitida para dorar o freír. Si no hay grasas marcadas, cocina en seco o con la grasa propia de la proteína.
+
+                    REGLAS DE REDACCIÓN TÉCNICA:
+                    - TÍTULOS LIMPIOS: El título debe ser profesional (ej: "Frittata Origins"). PROHIBIDO incluir cantidades de huevos, gramos o porciones en el nombre del plato.
+                    - REGLA DE HUEVOS: Si el huevo es el ingrediente base, usa exactamente ${this.numPeople * 3} unidades en total. 
+                    - NOTA DE PROTEÍNA: Añade siempre: "(puedes aumentar la cantidad si eres deportista o requieres más proteína)" al lado de carnes, pescados y huevos en la lista de ingredientes.
+                    - DULZORES: Fríos = "Stevia Pura en polvo (a gusto)". Horno = "Eritritol (a gusto)".
+
+                    JSON: {"recipes": [{"title": "", "ingredients": [], "instructions": [], "chef_tip": ""}]}
                 `;
 
                 const maxRetries = 3;
@@ -306,7 +347,7 @@
                         
                         if (response.status === 503) {
                             attempt++;
-                            document.getElementById('retry-msg').textContent = `Mucha demanda, reintentando (${attempt}/${maxRetries})...`;
+                            document.getElementById('retry-msg').textContent = `Mucha demanda en Google, reintentando (${attempt}/${maxRetries})...`;
                             await new Promise(r => setTimeout(r, 2000));
                             continue;
                         }
@@ -324,7 +365,7 @@
                         return;
                     } catch (e) {
                         if (attempt >= maxRetries - 1) {
-                            content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">Error al conectar con Google. Por favor, reintenta.</div>`;
+                            content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">Error al conectar con el Chef de Google. Reintenta por favor.</div>`;
                             return;
                         }
                         attempt++;
@@ -380,8 +421,12 @@
                              <p class="italic">"${r.chef_tip}"</p>
                         </div>
                         <div class="mt-6 pt-4 border-t border-[#4a4a6a] flex gap-3">
-                            <button onclick="app.shareWhatsApp(${i})" class="btn-action bg-[#25D366] text-white hover:bg-[#128C7E]"><i class="fab fa-whatsapp mr-2"></i> WhatsApp</button>
-                            <button onclick="app.copyToClipboard(${i})" class="btn-action bg-[#4a4a6a] text-white hover:bg-[#5a5a7a]"><i class="fas fa-copy mr-2"></i> Copiar</button>
+                            <button onclick="app.shareWhatsApp(${i})" class="btn-action bg-[#25D366] text-white hover:bg-[#128C7E]">
+                                <i class="fab fa-whatsapp mr-2"></i> WhatsApp
+                            </button>
+                            <button onclick="app.copyToClipboard(${i})" class="btn-action bg-[#4a4a6a] text-white hover:bg-[#5a5a7a]">
+                                <i class="fas fa-copy mr-2"></i> Copiar
+                            </button>
                         </div>
                     </div>
                 `).join('');
