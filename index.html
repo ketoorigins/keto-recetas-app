@@ -410,22 +410,22 @@
                 
                 const prompt = `
                     SISTEMA DE CONTROL ESTRICTO KETO ORIGINS CHILE.
-                    OBJETIVO: Generar 3 recetas INDEPENDIENTES para ${this.numPeople} persona(s).
+                    OBJETIVO: Generar 3 propuestas culinarias para ${this.numPeople} persona(s).
                     
-                    DESPENSA DISPONIBLE (SOLO ESTO TIENE EL USUARIO): [${ingredientsList}].
-                    
-                    REGLAS INVIOLABLES DE INGREDIENTES:
-                    1. BÁSICOS PERMITIDOS: Solo Sal y Pimienta a gusto.
-                    2. GRASAS DE COCCIÓN (CRÍTICO): PROHIBIDO usar "Aceite" si no está en la lista. Si el usuario seleccionó "Mantequilla", debes usar Mantequilla para todas las instrucciones de dorar o freír. Si no hay grasas en la lista, indica cocinar en seco o en la grasa propia de la proteína.
-                    3. SIN EXTRAS: No añadas vegetales, condimentos, harinas o proteínas que NO estén en la lista [${ingredientsList}].
-                    
-                    REGLAS DE REDACCIÓN:
-                    - TÍTULOS LIMPIOS: Sin cantidades ni números en el nombre del plato.
-                    - DESPENSA TOTAL: Cada receta debe aprovechar al máximo la mayoría de los ingredientes seleccionados.
-                    - REGLA DE HUEVOS: Si el huevo es el ingrediente base (Omelet/Revueltos), usa exactamente ${this.numPeople * 3} huevos. 
-                    - NOTA DE PROTEÍNA: Añade siempre: "(puedes aumentar la cantidad si eres deportista o requieres más proteína)" al lado de carnes y huevos.
+                    REGLA DE ORO DE INGREDIENTES:
+                    Cada una de las 3 recetas DEBE UTILIZAR LA TOTALIDAD de los siguientes ingredientes seleccionados por el usuario: [${ingredientsList}]. 
+                    No omitas ninguno. Cada receta debe ser una forma distinta de combinar TODO este conjunto de materiales.
+
+                    REGLAS INVIOLABLES DE LUBRICANTES Y BÁSICOS:
+                    1. BÁSICOS: Solo Sal y Pimienta a gusto.
+                    2. GRASAS: PROHIBIDO sugerir "Aceite" si no está en la lista. Si el usuario seleccionó "Mantequilla", es la ÚNICA grasa permitida para dorar o freír. Si no hay grasas marcadas, cocina en seco o con la grasa propia de la proteína.
+
+                    REGLAS DE REDACCIÓN TÉCNICA:
+                    - TÍTULOS LIMPIOS: El título debe ser profesional (ej: "Frittata Origins"). PROHIBIDO incluir cantidades de huevos, gramos o porciones en el nombre del plato.
+                    - REGLA DE HUEVOS: Si el huevo es el ingrediente base, usa exactamente ${this.numPeople * 3} unidades en total. 
+                    - NOTA DE PROTEÍNA: Añade siempre: "(puedes aumentar la cantidad si eres deportista o requieres más proteína)" al lado de carnes, pescados y huevos en la lista de ingredientes.
                     - DULZORES: Fríos = "Stevia Pura en polvo (a gusto)". Horno = "Eritritol (a gusto)".
-                    
+
                     JSON: {"recipes": [{"title": "", "ingredients": [], "instructions": [], "chef_tip": ""}]}
                 `;
 
@@ -442,14 +442,14 @@
                     this.lastGeneratedRecipes = json.recipes;
                     this.renderRecipes(json.recipes);
                 } catch (e) {
-                    content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">Error al conectar. Reintenta.</div>`;
+                    content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">Error de conexión. Reintenta por favor.</div>`;
                 }
             },
 
             renderRecipes(recipes) {
                 const content = document.getElementById('recipes-content');
                 let html = `
-                    <h2 class="text-3xl font-bold text-center mb-6 title-brand-color">Recetas Keto para ${this.numPeople} pers.</h2>
+                    <h2 class="text-3xl font-bold text-center mb-6 title-brand-color">Recetas Keto (${this.numPeople} pers.)</h2>
                     <div class="text-center mb-8">
                         <button onclick="app.generateRecipes()" class="regenerate-btn-gradient btn-3d text-white px-8 py-3 rounded-full font-bold"><i class="fas fa-sync-alt mr-2"></i> Generar otras 3</button>
                     </div>
@@ -481,7 +481,7 @@
                     </div>
                 `).join('');
 
-                html += `<div class="disclaimer-box text-center">⚠️ Cantidades estimadas. Guía flexible ajustable para deportistas.</div>`;
+                html += `<div class="disclaimer-box text-center">⚠️ Cantidades sugeridas según tu selección. Guía flexible ajustable para cada persona.</div>`;
                 content.innerHTML = html;
             },
 
