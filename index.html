@@ -228,7 +228,7 @@
     <div id="toast">¡Receta copiada al portapapeles!</div>
 
     <main id="app-container" class="w-full max-w-2xl mx-auto">
-        <!-- MAIN SCREEN -->
+        <!-- PANTALLA INICIAL -->
         <div id="main-screen">
             <header class="text-center mb-8">
                 <img src="https://i.ibb.co/20NypXdZ/ketoorigins.png" alt="Logo Keto Origins" class="w-24 h-24 mx-auto mb-4 rounded-full shadow-lg">
@@ -265,15 +265,17 @@
             <p id="generate-recipes-hint" class="text-center text-gray-500 mt-2 text-sm">Selecciona al menos 2 ingredientes</p>
         </div>
 
+        <!-- CATEGORÍAS -->
         <div id="category-screen" class="hidden">
-            <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Categorías</button>
-            <h2 id="category-title" class="text-3xl font-bold text-center mb-2 title-brand-color title-3d"></h2>
+            <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver</button>
+            <h2 id="category-title" class="text-3xl font-bold text-center mb-4 title-brand-color title-3d"></h2>
             <div id="ingredients-list" class="space-y-3 mb-6"></div>
             <button id="add-ingredients-btn" class="mx-auto block px-12 py-3 rounded-full font-bold text-white text-lg btn-disabled btn-3d" disabled>
                 Añadir y Volver
             </button>
         </div>
 
+        <!-- RECETAS -->
         <div id="recipes-screen" class="hidden">
              <button onclick="app.showMainScreen(true)" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Empezar</button>
              <div id="recipes-content"></div>
@@ -342,196 +344,150 @@
                     this.ingredientsData[this.currentCategory].items.filter(item => this.selectedIngredients.has(item))
                 );
                 document.getElementById('category-title').textContent = categoryName;
-                const ingredientsList = document.getElementById('ingredients-list');
-                ingredientsList.innerHTML = '';
+                const list = document.getElementById('ingredients-list');
+                list.innerHTML = '';
                 this.ingredientsData[categoryName].items.forEach(item => {
-                    const isSelected = this.selectedIngredients.has(item);
                     const div = document.createElement('div');
-                    div.className = `ingredient-btn p-4 rounded-full flex items-center justify-start cursor-pointer`;
-                    div.innerHTML = `<input type="checkbox" id="${item}" value="${item}" class="custom-radio mr-4"><label for="${item}" class="flex-grow cursor-pointer">${item}</label>`;
-                    const checkbox = div.querySelector('input[type="checkbox"]');
-                    checkbox.checked = isSelected;
+                    div.className = `ingredient-btn p-4 rounded-full flex items-center cursor-pointer`;
+                    div.innerHTML = `<input type="checkbox" id="${item}" value="${item}" class="custom-radio mr-4"><label class="flex-grow cursor-pointer">${item}</label>`;
+                    const cb = div.querySelector('input');
+                    cb.checked = this.selectedIngredients.has(item);
                     div.addEventListener('click', (e) => {
-                        if (e.target !== checkbox) checkbox.checked = !checkbox.checked;
-                        this.toggleTempIngredient(item, checkbox.checked);
+                        if (e.target !== cb) cb.checked = !cb.checked;
+                        this.toggleTempIngredient(item, cb.checked);
                     });
-                    ingredientsList.appendChild(div);
+                    list.appendChild(div);
                 });
                 this.updateCategoryScreen();
                 this.showScreen('category-screen');
             },
 
-            toggleTempIngredient(ingredient, isChecked) {
-                if (isChecked) this.tempSelectedCategoryIngredients.add(ingredient);
-                else this.tempSelectedCategoryIngredients.delete(ingredient);
+            toggleTempIngredient(ing, checked) {
+                if (checked) this.tempSelectedCategoryIngredients.add(ing);
+                else this.tempSelectedCategoryIngredients.delete(ing);
                 this.updateCategoryScreen();
             },
 
+            updateCategoryScreen() {
+                const addBtn = document.getElementById('add-ingredients-btn');
+                addBtn.disabled = false;
+                addBtn.classList.remove('btn-disabled');
+                addBtn.classList.add('add-btn-gradient');
+                document.querySelectorAll('#ingredients-list .ingredient-btn').forEach(div => {
+                    const cb = div.querySelector('input');
+                    if (this.tempSelectedCategoryIngredients.has(cb.value)) div.classList.add('selected');
+                    else div.classList.remove('selected');
+                });
+            },
+
             addIngredientsAndGoBack() {
-                this.ingredientsData[this.currentCategory].items.forEach(item => this.selectedIngredients.delete(item));
-                this.tempSelectedCategoryIngredients.forEach(item => this.selectedIngredients.add(item));
+                this.ingredientsData[this.currentCategory].items.forEach(i => this.selectedIngredients.delete(i));
+                this.tempSelectedCategoryIngredients.forEach(i => this.selectedIngredients.add(i));
                 this.showMainScreen();
             },
 
             updateMainScreen() {
                 const display = document.getElementById('selected-ingredients-display');
-                const generateBtn = document.getElementById('generate-recipes-btn');
-                const hint = document.getElementById('generate-recipes-hint');
-                if (this.selectedIngredients.size === 0) {
-                    display.innerHTML = '<p class="text-gray-500">Tus ingredientes aparecerán aquí...</p>';
-                } else {
-                    display.innerHTML = Array.from(this.selectedIngredients).map(ing => `<span class="inline-block bg-[#4a4a6a] text-white rounded-full px-3 py-1 text-sm mr-2 mb-2">${ing}</span>`).join('');
-                }
+                const btn = document.getElementById('generate-recipes-btn');
+                if (this.selectedIngredients.size === 0) display.innerHTML = '<p class="text-gray-500">Selecciona ingredientes...</p>';
+                else display.innerHTML = Array.from(this.selectedIngredients).map(i => `<span class="inline-block bg-[#4a4a6a] text-white rounded-full px-3 py-1 text-sm mr-2 mb-2">${i}</span>`).join('');
+                
                 if (this.selectedIngredients.size >= 2) {
-                    generateBtn.disabled = false;
-                    generateBtn.classList.remove('btn-disabled');
-                    generateBtn.classList.add('generate-btn-gradient');
-                    hint.classList.add('hidden');
+                    btn.disabled = false;
+                    btn.classList.remove('btn-disabled');
+                    btn.classList.add('generate-btn-gradient');
                 } else {
-                    generateBtn.disabled = true;
-                    generateBtn.classList.add('btn-disabled');
-                    generateBtn.classList.remove('generate-btn-gradient');
-                    hint.classList.remove('hidden');
+                    btn.disabled = true;
+                    btn.classList.add('btn-disabled');
+                    btn.classList.remove('generate-btn-gradient');
                 }
-            },
-            
-            updateCategoryScreen() {
-                const addBtn = document.getElementById('add-ingredients-btn');
-                document.querySelectorAll('#ingredients-list .ingredient-btn').forEach(div => {
-                    const checkbox = div.querySelector('input');
-                    if (this.tempSelectedCategoryIngredients.has(checkbox.value)) {
-                        checkbox.checked = true;
-                        div.classList.add('selected');
-                    } else {
-                        checkbox.checked = false;
-                        div.classList.remove('selected');
-                    }
-                });
-                addBtn.disabled = false;
-                addBtn.classList.remove('btn-disabled');
-                addBtn.classList.add('add-btn-gradient');
             },
 
             async generateRecipes() {
                 this.showScreen('recipes-screen');
-                const contentDiv = document.getElementById('recipes-content');
-                contentDiv.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-center"><div class="loader mb-4"></div><p class="text-white text-lg font-bold px-4">Chef Keto Origins adaptando las porciones para ${this.numPeople} persona(s)...</p><p id="retry-status" class="text-gray-400">Verificando tu despensa personalizada.</p></div>`;
+                const content = document.getElementById('recipes-content');
+                content.innerHTML = `<div class="flex flex-col items-center justify-center h-64"><div class="loader mb-4"></div><p class="font-bold">Generando recetas para ${this.numPeople} persona(s)...</p></div>`;
 
-                const ingredientsList = Array.from(this.selectedIngredients).join(', ');
-                
-                // PROMPT ACTUALIZADO CON REGLAS ESTRICTAS DE HUEVOS Y MENSAJE DE DEPORTISTAS
                 const prompt = `
-                    Eres el chef principal de "Keto Origins" Chile.
-                    Debes crear 3 recetas para ${this.numPeople} persona(s).
+                    SISTEMA DE CONTROL ESTRICTO KETO ORIGINS.
+                    OBJETIVO: 3 recetas para ${this.numPeople} persona(s).
+                    LISTA PERMITIDA: [${Array.from(this.selectedIngredients).join(', ')}].
                     
-                    RESTRICCIÓN ABSOLUTA DE INGREDIENTES:
-                    Usa ÚNICAMENTE los ingredientes de esta lista: [${ingredientsList}]. 
-                    PROHIBIDO añadir cualquier otro ingrediente principal que NO esté en la lista.
+                    REGLAS INVIOLABLES:
+                    1. PROHIBIDO: No añadas cebolla, ajo, harinas, polvos de hornear, ni NADA que no esté en la lista permitida. Solo usa sal, pimienta y aceite.
+                    2. REGLA DE HUEVOS: Si la receta es a base de huevos (omelet, revuelto), DEBES usar exactamente ${this.numPeople * 3} huevos. 
+                    3. NOTA DEPORTISTAS: Al lado de CADA proteína (huevos, carnes), escribe SIEMPRE: "(puedes aumentar la cantidad si eres deportista o requieres más proteína)".
+                    4. DULZORES: Fríos = "Stevia Pura en polvo (a gusto)". Horno = "Eritritol (a gusto)". Siempre "a gusto".
                     
-                    LÓGICA DE CANTIDADES PARA ${this.numPeople} PERSONA(S):
-                    - Si el HUEVO es el protagonista de la receta (omelet, huevos revueltos, fritatta, etc.), DEBES usar EXACTAMENTE 3 huevos POR PERSONA (Total: ${this.numPeople * 3} huevos).
-                    - Si el HUEVO es secundario (solo para ligar o acompañar), usa una cantidad lógica mínima.
-                    - Para proteínas principales y huevos: Añadir siempre la frase exacta "(puedes aumentar la cantidad si eres deportista o requieres más proteína)" al lado del ingrediente en la lista.
-                    
-                    DULZORES (OBLIGATORIO):
-                    - Postres fríos: Usar "Stevia Pura en polvo (a gusto)".
-                    - Postres al horno: Usar "Eritritol (a gusto)".
-                    - JAMÁS des medidas exactas de endulzante, siempre escribe "a gusto".
-                    
-                    Formato JSON: {"recipes": [{"title": "", "ingredients": [], "instructions": [], "chef_tip": ""}]}
+                    JSON: {"recipes": [{"title": "", "ingredients": [], "instructions": [], "chef_tip": ""}]}
                 `;
 
-                const maxRetries = 3;
-                let attempt = 0;
-
-                while (attempt < maxRetries) {
-                    try {
-                        const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                        const response = await fetch(`/.netlify/functions/generate_recipes`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-
-                        if (response.status === 503 && attempt < maxRetries - 1) {
-                            attempt++;
-                            document.getElementById('retry-status').textContent = `Mucha demanda en Google, reintentando (${attempt}/${maxRetries})...`;
-                            await new Promise(res => setTimeout(res, 2500));
-                            continue; 
-                        }
-
-                        if (!response.ok) throw new Error("Servicio no disponible.");
-                        const result = await response.json();
-                        const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                        const jsonMatch = text.match(/\{[\s\S]*\}/);
-                        if (jsonMatch) {
-                            const data = JSON.parse(jsonMatch[0]);
-                            this.lastGeneratedRecipes = data.recipes;
-                            this.renderRecipes(data.recipes);
-                            return;
-                        }
-                        throw new Error("Formato inválido.");
-                    } catch (error) {
-                        if (attempt >= maxRetries - 1) {
-                            contentDiv.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">No pudimos conectar con el chef de Google. Por favor, reintenta.</div>`;
-                            return;
-                        }
-                        attempt++;
-                        await new Promise(res => setTimeout(res, 2000));
-                    }
+                try {
+                    const response = await fetch(`/.netlify/functions/generate_recipes`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
+                    });
+                    
+                    const result = await response.json();
+                    const text = result.candidates[0].content.parts[0].text;
+                    const json = JSON.parse(text.match(/\{[\s\S]*\}/)[0]);
+                    this.lastGeneratedRecipes = json.recipes;
+                    this.renderRecipes(json.recipes);
+                } catch (e) {
+                    content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">Hubo un error al conectar con Google. Por favor, reintenta.</div>`;
                 }
             },
 
-            formatRecipeText(recipe) {
-                let text = `🍳 *${recipe.title}*\n_Receta de Keto Origins para ${this.numPeople} pers._\n\n`;
-                text += `*Ingredientes:*\n${recipe.ingredients.map(i => `• ${i}`).join('\n')}\n\n`;
-                text += `*Instrucciones:*\n${recipe.instructions.map((s, idx) => `${idx + 1}. ${s}`).join('\n')}\n\n`;
-                text += `💡 *Consejo del Chef:* _"${recipe.chef_tip}"_\n\n`;
-                text += `⚠️ *Nota:* Las cantidades son estimadas. Modifícalas según tus objetivos personales.`;
-                return text;
-            },
-
-            async copyToClipboard(index) {
-                const recipe = this.lastGeneratedRecipes[index];
-                const text = this.formatRecipeText(recipe);
-                try {
-                    const textArea = document.createElement("textarea");
-                    textArea.value = text;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                    const toast = document.getElementById("toast");
-                    toast.className = "show";
-                    setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
-                } catch (err) { console.error(err); }
-            },
-
-            shareWhatsApp(index) {
-                const recipe = this.lastGeneratedRecipes[index];
-                const text = encodeURIComponent(this.formatRecipeText(recipe));
-                window.open(`https://wa.me/?text=${text}`, '_blank');
-            },
-
             renderRecipes(recipes) {
-                const contentDiv = document.getElementById('recipes-content');
-                let html = `<h2 class="text-3xl font-bold text-center mb-4 title-brand-color title-3d">Recetas para ${this.numPeople} persona(s)</h2><div class="text-center mb-8"><button onclick="app.generateRecipes()" class="regenerate-btn-gradient btn-3d text-white px-8 py-3 rounded-full font-bold text-md"><i class="fas fa-sync-alt mr-2"></i> Generar otras 3 recetas</button></div>`;
-                html += recipes.map((recipe, idx) => `
+                const content = document.getElementById('recipes-content');
+                let html = `
+                    <h2 class="text-3xl font-bold text-center mb-6 title-brand-color">Recetas para ${this.numPeople} persona(s)</h2>
+                    <div class="text-center mb-8">
+                        <button onclick="app.generateRecipes()" class="regenerate-btn-gradient btn-3d text-white px-8 py-3 rounded-full font-bold"><i class="fas fa-sync-alt mr-2"></i> Generar otras 3</button>
+                    </div>
+                `;
+                
+                html += recipes.map((r, i) => `
                     <div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-xl p-6 mb-6">
-                        <h3 class="text-2xl font-bold text-white mb-4">${recipe.title}</h3>
-                        <div class="mb-4"><h4 class="font-bold text-lg text-pink-400 mb-2">Ingredientes:</h4><ul class="list-disc list-inside text-gray-300 space-y-1">${recipe.ingredients.map(ing => `<li>${ing}</li>`).join('')}</ul></div>
-                        <div class="mb-4"><h4 class="font-bold text-lg text-pink-400 mb-2">Instrucciones:</h4><ol class="list-decimal list-inside text-gray-300 space-y-2">${recipe.instructions.map(step => `<li>${step}</li>`).join('')}</ol></div>
-                        <div class="chef-tip-box"><h4 class="font-bold text-lg keto-fuchsia-gradient-text mb-2">Consejo del Chef <i class="fas fa-hat-chef"></i></h4><p class="text-gray-300 italic">"${recipe.chef_tip}"</p></div>
-                        <div class="mt-6 pt-4 border-t border-[#4a4a6a] flex flex-wrap gap-3">
-                            <button onclick="app.shareWhatsApp(${idx})" class="btn-action bg-[#25D366] text-white hover:bg-[#128C7E]"><i class="fab fa-whatsapp mr-2"></i> WhatsApp</button>
-                            <button onclick="app.copyToClipboard(${idx})" class="btn-action bg-[#4a4a6a] text-white hover:bg-[#5a5a7a]"><i class="fas fa-copy mr-2"></i> Copiar</button>
+                        <h3 class="text-2xl font-bold text-white mb-4">${r.title}</h3>
+                        <div class="mb-4">
+                            <h4 class="font-bold text-pink-400 mb-2">Ingredientes:</h4>
+                            <ul class="list-disc list-inside text-gray-300 space-y-1">${r.ingredients.map(ing => `<li>${ing}</li>`).join('')}</ul>
+                        </div>
+                        <div class="mb-4">
+                            <h4 class="font-bold text-pink-400 mb-2">Instrucciones:</h4>
+                            <ol class="list-decimal list-inside text-gray-300 space-y-2">${r.instructions.map(s => `<li>${s}</li>`).join('')}</ol>
+                        </div>
+                        <div class="chef-tip-box italic text-gray-300">"${r.chef_tip}"</div>
+                        <div class="mt-6 pt-4 border-t border-[#4a4a6a] flex gap-3">
+                            <button onclick="app.shareWhatsApp(${i})" class="btn-action bg-[#25D366] text-white"><i class="fab fa-whatsapp mr-2"></i> WhatsApp</button>
+                            <button onclick="app.copyToClipboard(${i})" class="btn-action bg-[#4a4a6a] text-white"><i class="fas fa-copy mr-2"></i> Copiar</button>
                         </div>
                     </div>
                 `).join('');
-                html += `<div class="disclaimer-box text-center"><p class="font-bold mb-2">⚠️ AVISO IMPORTANTE</p><p>Las cantidades indicadas son estimadas y sugerencias base. Pueden modificarse al gusto de cada persona (especialmente deportistas con mayores requerimientos nutricionales). Estas recetas son solo una guía culinaria.</p></div><div class="h-10"></div>`;
-                contentDiv.innerHTML = html;
+
+                html += `<div class="disclaimer-box text-center">⚠️ Cantidades estimadas. Guía flexible ajustable para deportistas.</div>`;
+                content.innerHTML = html;
+            },
+
+            async copyToClipboard(idx) {
+                const r = this.lastGeneratedRecipes[idx];
+                const text = `🍳 *${r.title}*\n\n*Ingredientes:*\n${r.ingredients.join('\n')}\n\n*Instrucciones:*\n${r.instructions.join('\n')}\n\nNota: Las cantidades son estimadas.`;
+                const area = document.createElement("textarea");
+                area.value = text; document.body.appendChild(area);
+                area.select(); document.execCommand('copy'); document.body.removeChild(area);
+                const t = document.getElementById("toast");
+                t.className = "show"; setTimeout(() => t.className = "", 3000);
+            },
+
+            shareWhatsApp(idx) {
+                const r = this.lastGeneratedRecipes[idx];
+                const text = encodeURIComponent(`🍳 *${r.title}*\n\n*Ingredientes:*\n${r.ingredients.join('\n')}`);
+                window.open(`https://wa.me/?text=${text}`, '_blank');
             }
         };
+
         window.app = app;
         app.init();
     </script>
