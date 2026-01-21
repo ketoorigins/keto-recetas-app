@@ -234,10 +234,14 @@
             showCategory(categoryName) {
                 this.currentCategory = categoryName;
                 const categoryItems = this.ingredientsData[categoryName].items;
+                
+                // Reiniciar estado inicial para esta sesión de categoría
                 this.initialCategoryState = new Set();
                 categoryItems.forEach(item => {
                     if (this.selectedIngredients.has(item)) this.initialCategoryState.add(item);
                 });
+
+                // Clonar al temporal
                 this.tempSelectedCategoryIngredients = new Set(this.initialCategoryState);
                 
                 document.getElementById('category-title').textContent = categoryName;
@@ -253,24 +257,28 @@
                         <label class="flex-grow cursor-pointer font-medium">${item}</label>
                     `;
                     const cb = div.querySelector('input');
+                    
                     div.addEventListener('click', (e) => {
-                        if (e.target.tagName !== 'INPUT') cb.checked = !cb.checked;
+                        if (e.target !== cb) cb.checked = !cb.checked;
+                        
                         if (cb.checked) this.tempSelectedCategoryIngredients.add(item);
                         else this.tempSelectedCategoryIngredients.delete(item);
+                        
                         this.updateCategoryScreen();
                     });
                     list.appendChild(div);
                 });
-                const addBtn = document.getElementById('add-ingredients-btn');
-                addBtn.disabled = true;
-                addBtn.classList.add('btn-disabled');
-                addBtn.classList.remove('add-btn-gradient');
+                
+                this.updateCategoryScreen(); // Esto lo apagará por defecto al entrar
                 this.showScreen('category-screen');
             },
 
             updateCategoryScreen() {
                 const addBtn = document.getElementById('add-ingredients-btn');
+                
+                // Solo se enciende si hay diferencias con el estado al entrar
                 const hasChanged = !this.areSetsEqual(this.initialCategoryState, this.tempSelectedCategoryIngredients);
+                
                 if (hasChanged) {
                     addBtn.disabled = false;
                     addBtn.classList.remove('btn-disabled');
@@ -280,6 +288,7 @@
                     addBtn.classList.add('btn-disabled');
                     addBtn.classList.remove('add-btn-gradient');
                 }
+
                 document.querySelectorAll('#ingredients-list .ingredient-btn').forEach(div => {
                     const cb = div.querySelector('input');
                     if (this.tempSelectedCategoryIngredients.has(cb.value)) div.classList.add('selected');
@@ -288,6 +297,7 @@
             },
 
             addIngredientsAndGoBack() {
+                // Actualizar globalmente
                 this.ingredientsData[this.currentCategory].items.forEach(i => this.selectedIngredients.delete(i));
                 this.tempSelectedCategoryIngredients.forEach(i => this.selectedIngredients.add(i));
                 this.showMainScreen();
@@ -297,11 +307,13 @@
                 const display = document.getElementById('selected-ingredients-display');
                 const btn = document.getElementById('generate-recipes-btn');
                 const hint = document.getElementById('generate-recipes-hint');
+
                 if (this.selectedIngredients.size === 0) {
                     display.innerHTML = '<p class="text-gray-500 text-center py-4">Selecciona tus ingredientes...</p>';
                 } else {
                     display.innerHTML = Array.from(this.selectedIngredients).map(ing => `<span class="inline-block bg-[#4a4a6a] text-white rounded-full px-3 py-1 text-sm mr-2 mb-2 border border-white/10 shadow-sm">${ing}</span>`).join('');
                 }
+                
                 if (this.selectedIngredients.size >= 2) {
                     btn.disabled = false; btn.classList.remove('btn-disabled'); btn.classList.add('generate-btn-gradient');
                     hint.classList.add('hidden');
@@ -325,22 +337,22 @@
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            contents: [{ parts: [{ text: "Crea las 3 recetas ahora usando: " + ingredientsList }] }],
+                            contents: [{ parts: [{ text: "Genera las recetas basadas en el sistema instruido." }] }],
                             systemInstruction: { parts: [{ text: systemPrompt }] },
                             generationConfig: { 
                                 responseMimeType: "application/json",
                                 responseSchema: {
-                                    type: "OBJECT",
+                                    type: "object",
                                     properties: {
                                         recipes: {
-                                            type: "ARRAY",
+                                            type: "array",
                                             items: {
-                                                type: "OBJECT",
+                                                type: "object",
                                                 properties: {
-                                                    title: { type: "STRING" },
-                                                    ingredients: { type: "ARRAY", items: { type: "STRING" } },
-                                                    instructions: { type: "ARRAY", items: { type: "STRING" } },
-                                                    chef_tip: { type: "STRING" }
+                                                    title: { type: "string" },
+                                                    ingredients: { type: "array", items: { type: "string" } },
+                                                    instructions: { type: "array", items: { type: "string" } },
+                                                    chef_tip: { type: "string" }
                                                 },
                                                 required: ["title", "ingredients", "instructions", "chef_tip"]
                                             }
@@ -359,7 +371,7 @@
                     return JSON.parse(text);
                 } catch (error) {
                     if (attempt < maxRetries) {
-                        const delay = Math.pow(2, attempt) * 1000;
+                        const delay = [1000, 2000, 4000, 8000, 16000][attempt];
                         const retryMsg = document.getElementById('retry-msg');
                         if(retryMsg) retryMsg.textContent = `Buscando en la despensa, reintentando en ${delay/1000}s...`;
                         await new Promise(res => setTimeout(res, delay));
@@ -381,8 +393,8 @@
                     this.renderRecipes(data.recipes);
                 } catch (e) {
                     content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center border border-red-500 shadow-2xl">
-                        <p class="font-bold mb-4">La conexión con el Chef se ha perdido.</p>
-                        <button onclick="app.generateRecipes()" class="bg-white text-red-900 px-8 py-2 rounded-full font-bold shadow-lg active:scale-95 transition-transform">Volver a intentar</button>
+                        <p class="font-bold mb-4">La cocina está saturada. Por favor, intenta de nuevo.</p>
+                        <button onclick="app.generateRecipes()" class="bg-white text-red-900 px-8 py-2 rounded-full font-bold shadow-lg active:scale-95 transition-transform">Reintentar</button>
                     </div>`;
                 }
             },
