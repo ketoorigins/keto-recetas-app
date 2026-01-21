@@ -343,17 +343,14 @@
                 // Lo que ya estaba guardado en el global antes de entrar
                 const savedAlready = Array.from(this.selectedIngredients).filter(i => itemsInCat.includes(i));
                 
-                // ¿Hay cambios respecto a lo que había al entrar?
+                // ¿Hay cambios respecto a lo que había guardado?
                 const isDifferent = this.tempSelectedCategoryIngredients.size !== savedAlready.length || 
                                    ![...this.tempSelectedCategoryIngredients].every(i => savedAlready.includes(i));
 
-                // REGLA: El botón se activa SI hay cambios Y la selección actual no está vacía (según tu queja de activarse sin selección)
-                const shouldEnable = isDifferent && this.tempSelectedCategoryIngredients.size > 0;
+                // REGLA: El botón se habilita SI hay cambios Y la selección actual tiene al menos 1 ingrediente
+                const hasSelection = this.tempSelectedCategoryIngredients.size > 0;
                 
-                // Si el usuario desmarcó todo (está vacío) pero ANTES tenía algo, permitimos guardar el vacío (isDifferent = true)
-                // Pero si entra y está vacío y no toca nada, NO se activa.
-                
-                btn.disabled = !isDifferent; 
+                btn.disabled = !isDifferent || !hasSelection;
                 
                 if(!btn.disabled) {
                     btn.classList.remove('btn-disabled');
@@ -409,18 +406,20 @@
                     </div>
                 `;
 
-                const systemPrompt = `Eres un chef experto Keto de la marca "Keto Origins" en Chile. Genera 3 recetas para ${this.numPeople} personas. 
-                Reglas críticas:
-                - Usa unidades chilenas (gramos, tazas, cucharadas).
-                - Endulzante frío: "Stevia Pura en polvo (a gusto)".
-                - Endulzante horno: "Eritritol (a gusto)".
-                - NUNCA uses medidas exactas de endulzante, siempre "a gusto".
-                - NUNCA uses azúcar ni gotas.`;
+                const systemInstruction = `Eres un chef experto en cocina Keto de la marca "Keto Origins" en Chile. 
+                Genera 3 recetas para ${this.numPeople} personas. 
+                Usa lenguaje y unidades de medida chilenas (gramos, tazas, cucharadas).
+                
+                REGLAS DE ENDULZANTES:
+                1. NUNCA uses azúcar ni endulzantes en gotas.
+                2. REGLA DE LA STEVIA: Para postres fríos o preparaciones que NO necesitan hornear/leudar, usa ÚNICAMENTE "Stevia Pura en polvo".
+                3. REGLA DEL ERITRITOL: Para preparaciones que SÍ van al horno o necesitan subir, usa ÚNICAMENTE "Eritritol".
+                4. CANTIDAD SIEMPRE "A GUSTO": Jamás des una medida exacta para el endulzante. Indica siempre "a gusto".`;
 
-                const userPrompt = `Ingredientes disponibles: [${Array.from(this.selectedIngredients).join(', ')}]. Genera 3 recetas en formato JSON.`;
+                const prompt = `Ingredientes disponibles: [${Array.from(this.selectedIngredients).join(', ')}]. Genera 3 recetas Keto.`;
 
                 try {
-                    const data = await this.callAI(userPrompt, systemPrompt);
+                    const data = await this.callAI(prompt, systemInstruction);
                     if (data && data.recipes) {
                         this.lastGeneratedRecipes = data.recipes;
                         this.renderRecipes(data.recipes);
@@ -431,8 +430,8 @@
                     content.innerHTML = `
                         <div class="bg-red-900/40 p-6 rounded-2xl text-center border border-red-500/50">
                             <i class="fas fa-exclamation-triangle text-4xl mb-4 text-white"></i>
-                            <p class="text-white font-bold mb-4">¡El Chef está saturado o hay un error en la conexión!</p>
-                            <button onclick="app.generateRecipes()" class="bg-white text-red-900 px-10 py-3 rounded-full font-bold shadow-lg hover:bg-gray-200 transition-all">Reintentar Ahora</button>
+                            <p class="text-white font-bold mb-4">¡El Chef no pudo conectar! Revisa tu conexión.</p>
+                            <button onclick="app.generateRecipes()" class="bg-white text-red-900 px-10 py-3 rounded-full font-bold shadow-lg">Reintentar Ahora</button>
                         </div>
                     `;
                 }
@@ -468,7 +467,6 @@
                     }
                 };
 
-                // Reintentos automáticos si falla (Exponencial backoff)
                 for (let i = 0; i < 5; i++) {
                     try {
                         const res = await fetch(url, { 
@@ -476,15 +474,16 @@
                             headers: {'Content-Type': 'application/json'}, 
                             body: JSON.stringify(payload) 
                         });
-                        if (!res.ok) throw new Error();
-                        const result = await res.json();
-                        const textResponse = result.candidates[0].content.parts[0].text;
-                        return JSON.parse(textResponse);
-                    } catch (e) {
-                        if (i === 4) throw e;
-                        await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
-                    }
+                        
+                        if (res.ok) {
+                            const result = await res.json();
+                            const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                            if (text) return JSON.parse(text);
+                        }
+                    } catch (e) { }
+                    await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
                 }
+                throw new Error();
             },
 
             renderRecipes(recipes) {
@@ -493,7 +492,7 @@
                     <h2 class="text-3xl font-bold text-center mb-6 text-blue-400 title-3d">¡Tus Recetas Están Listas!</h2>
                     <div class="text-center mb-8">
                         <button onclick="app.generateRecipes()" class="regenerate-btn-gradient btn-3d text-white px-8 py-3 rounded-full font-bold shadow-lg">
-                            <i class="fas fa-magic mr-2"></i> Ver otras opciones
+                            <i class="fas fa-magic mr-2"></i> Generar otras opciones
                         </button>
                     </div>
                 `;
@@ -530,7 +529,7 @@
                     </div>
                 `).join('');
                 
-                html += `<div class="disclaimer-box p-4 text-center italic text-sm mb-10">Generado para ${this.numPeople} persona(s) por Keto Origins Chile.</div>`;
+                html += `<div class="disclaimer-box p-4 text-center italic text-sm mb-10">Recetas generadas para ${this.numPeople} persona(s) por Keto Origins Chile.</div>`;
                 div.innerHTML = html;
             },
 
