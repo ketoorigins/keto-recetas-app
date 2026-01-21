@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
+    <!-- Font Awesome for social icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <style>
@@ -25,11 +25,22 @@
             min-height: 100vh;
         }
 
-        .generate-btn-gradient { background-image: linear-gradient(to right, #f000b8, #ef4444); }
-        .add-btn-gradient { background-image: linear-gradient(to right, #f97316, #dc2626); }
-        .regenerate-btn-gradient { background-image: linear-gradient(to right, #3b82f6, #8b5cf6); }
+        .generate-btn-gradient {
+            background-image: linear-gradient(to right, #f000b8, #ef4444);
+        }
+        
+        .add-btn-gradient {
+             background-image: linear-gradient(to right, #f97316, #dc2626);
+        }
 
-        .title-brand-color { color: #3161f1; }
+        .regenerate-btn-gradient {
+            background-image: linear-gradient(to right, #3b82f6, #8b5cf6); /* Blue to Violet */
+        }
+
+        .title-brand-color {
+            color: #3161f1;
+        }
+
         .keto-fuchsia-gradient-text {
             background: linear-gradient(to right, #f472b6, #d946ef);
             -webkit-background-clip: text;
@@ -37,11 +48,13 @@
             background-clip: text;
         }
         
-        .title-3d { text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4); }
+        .title-3d {
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+        }
 
         .btn-disabled {
-            background-image: none !important;
-            background-color: #4a4a6a !important;
+            background-image: none;
+            background-color: #4a4a6a;
             cursor: not-allowed;
             opacity: 0.6;
         }
@@ -73,11 +86,19 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         }
 
-        .btn-3d { transition: all 0.15s ease-out; }
-        .btn-3d:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.5); }
-        .generate-btn-gradient.btn-3d { box-shadow: 0 4px 0 #991b1b; }
-        .add-btn-gradient.btn-3d { box-shadow: 0 4px 0 #b91c1c; }
-        .regenerate-btn-gradient.btn-3d { box-shadow: 0 4px 0 #1e3a8a; }
+        .btn-3d {
+            transition: all 0.15s ease-out;
+        }
+        .generate-btn-gradient.btn-3d, .regenerate-btn-gradient.btn-3d {
+            box-shadow: 0 4px 0 #1e3a8a; /* Base shadow */
+        }
+        .generate-btn-gradient.btn-3d {
+            box-shadow: 0 4px 0 #991b1b;
+        }
+        .generate-btn-gradient.btn-3d:active, .regenerate-btn-gradient.btn-3d:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #1e3a8a;
+        }
 
         .custom-radio {
             appearance: none;
@@ -90,7 +111,6 @@
             cursor: pointer;
             transition: all 0.2s;
             flex-shrink: 0;
-            pointer-events: none;
         }
 
         .custom-radio:checked {
@@ -108,83 +128,70 @@
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
         
         .chef-tip-box {
-            background-color: #312350;
+            background-color: #3a2d57;
             border-left: 4px solid;
             border-image: linear-gradient(to bottom, #a855f7, #ec4899) 1;
             padding: 1rem;
             margin-top: 1.5rem;
             border-radius: 0 8px 8px 0;
-        }
-
-        .people-selector {
-            background-color: #3a2d57;
-            border: 1px solid #4a4a6a;
-            border-radius: 1rem;
-            padding: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-        }
-        .people-btn {
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            background-color: #4a4a6a;
-            color: white;
-            font-weight: bold;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-        .people-btn.active {
-            background-image: linear-gradient(to bottom right, #38bdf8, #a855f7);
-            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
-            transform: scale(1.1);
-        }
-
-        .btn-action {
-            display: inline-flex; align-items: center; justify-content: center;
-            padding: 0.6rem 1.2rem; border-radius: 9999px;
-            font-weight: 600; transition: all 0.2s;
-            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
         }
 
         #toast {
-            visibility: hidden; min-width: 250px; background-color: #ec4899; color: #fff;
-            text-align: center; border-radius: 50px; padding: 12px;
-            position: fixed; z-index: 100; left: 50%; bottom: 30px;
-            transform: translateX(-50%); font-weight: bold;
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #ec4899;
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 12px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        .disclaimer-box {
-            background-color: rgba(58, 45, 87, 0.5); border: 1px dashed #4a4a6a;
-            padding: 1rem; border-radius: 0.75rem; margin-top: 2rem;
-            font-size: 0.85rem; color: #a0a0c0; line-height: 1.4;
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.1);
         }
-
-        .social-icon { transition: color 0.3s ease; }
-        .tiktok-hover:hover { color: #00f2ea; }
-        .instagram-hover:hover { color: #e1306c; }
-        .whatsapp-hover:hover { color: #25d366; }
-        .web-hover:hover { color: #38bdf8; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-4 sm:p-6">
 
-    <div id="toast">¡Receta copiada!</div>
+    <div id="toast">¡Receta copiada al portapapeles!</div>
 
     <main id="app-container" class="w-full max-w-2xl mx-auto">
+        <!-- PANTALLA PRINCIPAL -->
         <div id="main-screen">
             <header class="text-center mb-8">
                 <img src="https://i.ibb.co/20NypXdZ/ketoorigins.png" alt="Logo Keto Origins" class="w-24 h-24 mx-auto mb-4 rounded-full shadow-lg">
                 <h1 class="text-3xl sm:text-4xl font-extrabold text-white title-3d">Recetas Keto Inteligentes</h1>
-                <p class="text-lg text-gray-300 mt-4 mb-2 text-center">¿Qué tienes en tu cocina hoy?</p>
+                <p class="text-lg text-gray-300 mt-4 mb-2">¿Qué tienes en tu cocina hoy?</p>
                 <p class="text-md text-gray-400 mt-2 italic">"Que la comida sea tu medicina y tu medicina tu alimento"</p>
             </header>
 
@@ -197,18 +204,11 @@
                 <button onclick="app.showCategory('Frutas y Bayas')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white"><span class="w-6 text-center mr-2">🍓</span>Frutas y Bayas</button>
             </div>
 
-            <div class="text-center my-6 flex flex-col items-center">
-                <img src="https://i.ibb.co/xtWMQ9mm/Copia-de-Logo-500-x-500-px.png" alt="Gorro de Chef" class="mx-auto w-16 mb-4">
-                <p class="text-white font-bold mb-3">¿Para cuántas personas cocinas?</p>
-                <div class="people-selector">
-                    <button onclick="app.setPeople(1)" id="p-1" class="people-btn active">1</button>
-                    <button onclick="app.setPeople(2)" id="p-2" class="people-btn">2</button>
-                    <button onclick="app.setPeople(3)" id="p-3" class="people-btn">3</button>
-                    <button onclick="app.setPeople(4)" id="p-4" class="people-btn">4+</button>
-                </div>
+            <div class="text-center my-6">
+                <img src="https://i.ibb.co/xtWMQ9mm/Copia-de-Logo-500-x-500-px.png" alt="Gorro de Chef" class="mx-auto w-20">
             </div>
 
-            <div id="selected-ingredients-display" class="w-full min-h-[100px] border border-[#4a4a6a] rounded-xl p-4 mb-6 text-gray-300 flex flex-wrap content-start"></div>
+            <div id="selected-ingredients-display" class="w-full min-h-[100px] border border-[#4a4a6a] rounded-xl p-4 mb-6 text-gray-300"></div>
 
             <button id="generate-recipes-btn" class="mx-auto block w-2/3 p-3 rounded-full font-bold text-white text-lg btn-disabled btn-3d" disabled>
                 GENERAR MIS RECETAS
@@ -216,24 +216,27 @@
             <p id="generate-recipes-hint" class="text-center text-gray-500 mt-2 text-sm">Selecciona al menos 2 ingredientes</p>
         </div>
 
+        <!-- PANTALLA DE CATEGORÍA -->
         <div id="category-screen" class="hidden">
             <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Categorías</button>
             <h2 id="category-title" class="text-3xl font-bold text-center mb-2 title-brand-color title-3d"></h2>
-            <p id="category-description" class="text-center text-gray-400 mb-6 max-w-md mx-auto italic"></p>
-            <div id="ingredients-list" class="space-y-3 mb-6 max-h-[45vh] overflow-y-auto pr-2"></div>
+            <p id="category-description" class="text-center text-gray-400 mb-6 max-w-md mx-auto"></p>
+            <p class="text-center text-white mb-4">Selecciona los ingredientes que tienes para cocinar hoy:</p>
+            <div id="ingredients-list" class="space-y-3 mb-6"></div>
             <button id="add-ingredients-btn" class="mx-auto block px-12 py-3 rounded-full font-bold text-white text-lg btn-disabled btn-3d" disabled>
                 Añadir Ingredientes y Volver
             </button>
         </div>
 
+        <!-- PANTALLA DE RECETAS -->
         <div id="recipes-screen" class="hidden">
-             <button onclick="app.showMainScreen(true)" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-undo mr-2"></i>Volver a Empezar</button>
+             <button onclick="app.showMainScreen(true)" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Empezar</button>
              <div id="recipes-content"></div>
         </div>
     </main>
 
-    <footer class="text-center text-gray-500 mt-12 pb-8">
-        <p class="font-bold">Keto Origins Chile</p>
+    <footer class="text-center text-gray-500 mt-12">
+        <p class="font-bold">Keto Origins</p>
         <div class="flex justify-center space-x-6 mt-2">
             <a href="https://www.tiktok.com/@keto.origins" target="_blank" class="social-icon tiktok-hover"><i class="fab fa-tiktok fa-lg"></i></a>
             <a href="https://instagram.com/keto.origins" target="_blank" class="social-icon instagram-hover"><i class="fab fa-instagram fa-lg"></i></a>
@@ -245,32 +248,41 @@
     <script type="module">
         const app = {
             ingredientsData: {
-                'Grasas': { description: 'Las grasas son nuestra principal fuente de energía en keto.', items: ['Aceite de coco', 'Aceite de oliva', 'Aceitunas', 'Palta', 'Aceite de palta', 'Mayonesa casera', 'Mantequilla', 'Mantequilla de coco', 'Ghee', 'Cacao 100%', 'Chocolate negro puro', 'Chicharrones'] },
-                'Proteínas': { description: 'Fundamentales para la reparación de tejidos y músculos.', items: ['Salmón', 'Salmón ahumado', 'Sardinas', 'Caballa', 'Atún', 'Palometa', 'Bonito', 'Anguila', 'Pez espada', 'Mariscos', 'Huevos', 'Carne de res', 'Tocino', 'Pollo', 'Pavo', 'Cerdo', 'Cordero'] },
-                'Frutos Secos y Semillas': { description: 'Potencias nutricionales: grasas saludables, fibra y minerales.', items: ['Almendras', 'Avellanas', 'Nueces pecanas', 'Nueces de castilla', 'Nueces de Brasil', 'Nueces de macadamia', 'Pistachos', 'Semillas de maravilla', 'Semillas de zapallo', 'Chía', 'Cáñamo', 'Sésamo', 'Lino', 'Harina de almendras', 'Harina de coco', 'Harina de lino'] },
-                'Lácteos': { description: 'Excelente fuente de grasas y proteínas de alta calidad.', items: ['Queso Mozzarella', 'Queso Gouda', 'Queso Crema', 'Queso Chanco', 'Queso Fresco', 'Queso Parmesano', 'Queso Dubliner', 'Queso Cheddar', 'Queso Brie', 'Queso Feta', 'Crema espesa / Nata de montar', 'Yogurt de pajaritos (Kéfir)'] },
-                'Carbohidratos (Verduras)': { description: 'Verduras de bajo índice glucémico ricas en fibra y vitaminas.', items: ['Acelga', 'Algas', 'Apio', 'Ajo', 'Ají', 'Alcachofa', 'Berenjena', 'Brócoli', 'Cebolla', 'Coliflor', 'Espárragos', 'Espinaca', 'Lechuga', 'Pimentón', 'Rúcula', 'Repollo fermentado', 'Setas y hongos', 'Tomates', 'Zapallo italiano', 'Pepino', 'Rábanos'] },
-                'Frutas y Bayas': { description: 'Bayas antioxidantes con bajo impacto en el azúcar en sangre.', items: ['Coco', 'Limón', 'Frutillas', 'Moras', 'Frambuesas', 'Arándanos', 'Grosellas'] }
+                'Grasas': {
+                    description: 'Las grasas son nuestra principal fuente de energía en keto. Son la base estructural de las células y un medio de transporte de vitaminas.',
+                    items: ['Aceite de coco', 'Aceite de oliva', 'Aceitunas', 'Palta', 'Aceite de palta', 'Mayonesa casera', 'Mantequilla', 'Mantequilla de coco', 'Ghee', 'Cacao 100%', 'Chocolate negro puro', 'Chicharrones']
+                },
+                'Proteínas': {
+                    description: 'Fundamentales para la reparación y construcción de tejidos. Las proteínas también son necesarias para la masa muscular y la pérdida de peso.',
+                    items: ['Salmón', 'Salmón ahumado', 'Sardinas', 'Caballa', 'Atún', 'Palometa', 'Bonito', 'Anguila', 'Pez espada', 'Mariscos', 'Huevos', 'Carne de res', 'Tocino', 'Pollo', 'Pavo', 'Cerdo', 'Cordero']
+                },
+                'Frutos Secos y Semillas': {
+                    description: 'Son potencias nutricionales. Aportan grasas saludables, fibra, vitaminas y minerales cruciales.',
+                    items: ['Almendras', 'Avellanas', 'Nueces pecanas', 'Nueces de castilla', 'Nueces de Brasil', 'Nueces de macadamia', 'Pistachos', 'Semillas de maravilla', 'Semillas de zapallo', 'Chía', 'Cáñamo', 'Sésamo', 'Lino', 'Harina de almendras', 'Harina de coco', 'Harina de lino']
+                },
+                'Lácteos': {
+                    description: 'Una excelente fuente de grasas y proteínas de alta calidad. Los lácteos fermentados son ricos en probióticos.',
+                    items: ['Queso Mozzarella', 'Queso Gouda', 'Queso Crema', 'Queso Chanco', 'Queso Fresco', 'Queso Parmesano', 'Queso Dubliner', 'Queso Cheddar', 'Queso Brie', 'Queso Feta', 'Crema espesa / Nata de montar', 'Yogurt de pajaritos (Kéfir)']
+                },
+                'Carbohidratos (Verduras)': {
+                    description: 'Las verduras de bajo índice glucémico son nuestra principal fuente de fibra, vitaminas y minerales.',
+                    items: ['Acelga', 'Algas', 'Apio', 'Ajo', 'Ají', 'Alcachofa', 'Berenjena', 'Brócoli', 'Cebolla', 'Coliflor', 'Espárragos', 'Espinaca', 'Lechuga', 'Pimentón', 'Rúcula', 'Repollo fermentado', 'Setas y hongos', 'Tomates', 'Zapallo italiano', 'Pepino', 'Rábanos']
+                },
+                'Frutas y Bayas': {
+                    description: 'En moderación, las bayas son nuestras aliadas. Aportan antioxidantes con bajo impacto en el azúcar.',
+                    items: ['Coco', 'Limón', 'Frutillas', 'Moras', 'Frambuesas', 'Arándanos', 'Grosellas']
+                }
             },
             
             selectedIngredients: new Set(),
             tempSelectedCategoryIngredients: new Set(),
             currentCategory: null,
-            numPeople: 1,
             lastGeneratedRecipes: [],
 
             init() {
                 this.updateMainScreen();
                 document.getElementById('add-ingredients-btn').addEventListener('click', () => this.addIngredientsAndGoBack());
                 document.getElementById('generate-recipes-btn').addEventListener('click', () => this.generateRecipes());
-                window.app = this;
-            },
-
-            setPeople(num) {
-                this.numPeople = num;
-                document.querySelectorAll('.people-btn').forEach(btn => btn.classList.remove('active'));
-                const target = document.getElementById(`p-${num}`);
-                if(target) target.classList.add('active');
             },
 
             showScreen(screenName) {
@@ -278,7 +290,6 @@
                 document.getElementById('category-screen').classList.add('hidden');
                 document.getElementById('recipes-screen').classList.add('hidden');
                 document.getElementById(screenName).classList.remove('hidden');
-                window.scrollTo(0, 0);
             },
 
             showMainScreen(clearRecipes = false) {
@@ -293,10 +304,8 @@
 
             showCategory(categoryName) {
                 this.currentCategory = categoryName;
-                const itemsInCat = this.ingredientsData[categoryName].items;
-                
                 this.tempSelectedCategoryIngredients = new Set(
-                    itemsInCat.filter(item => this.selectedIngredients.has(item))
+                    this.ingredientsData[this.currentCategory].items.filter(item => this.selectedIngredients.has(item))
                 );
                 
                 const categoryData = this.ingredientsData[categoryName];
@@ -307,26 +316,19 @@
                 ingredientsList.innerHTML = '';
 
                 categoryData.items.forEach(item => {
-                    const isSelected = this.tempSelectedCategoryIngredients.has(item);
+                    const isSelected = this.selectedIngredients.has(item);
                     const div = document.createElement('div');
-                    div.className = `ingredient-btn p-4 rounded-full flex items-center justify-start cursor-pointer transition-all ${isSelected ? 'selected' : ''}`;
+                    div.className = `ingredient-btn p-4 rounded-full flex items-center justify-start cursor-pointer`;
                     div.innerHTML = `
-                        <input type="checkbox" class="custom-radio mr-4" ${isSelected ? 'checked' : ''}>
-                        <label class="flex-grow cursor-pointer text-white font-medium">${item}</label>
+                        <input type="checkbox" id="${item}" value="${item}" class="custom-radio mr-4">
+                        <label for="${item}" class="flex-grow cursor-pointer">${item}</label>
                     `;
+                    const checkbox = div.querySelector('input[type="checkbox"]');
+                    checkbox.checked = isSelected;
                     
-                    div.addEventListener('click', () => {
-                        const checkbox = div.querySelector('input');
-                        if (this.tempSelectedCategoryIngredients.has(item)) {
-                            this.tempSelectedCategoryIngredients.delete(item);
-                            div.classList.remove('selected');
-                            checkbox.checked = false;
-                        } else {
-                            this.tempSelectedCategoryIngredients.add(item);
-                            div.classList.add('selected');
-                            checkbox.checked = true;
-                        }
-                        this.updateCategoryScreen();
+                    div.addEventListener('click', (e) => {
+                        if (e.target !== checkbox) checkbox.checked = !checkbox.checked;
+                        this.toggleTempIngredient(item, checkbox.checked);
                     });
                     ingredientsList.appendChild(div);
                 });
@@ -335,9 +337,14 @@
                 this.showScreen('category-screen');
             },
 
+            toggleTempIngredient(ingredient, isChecked) {
+                if (isChecked) this.tempSelectedCategoryIngredients.add(ingredient);
+                else this.tempSelectedCategoryIngredients.delete(ingredient);
+                this.updateCategoryScreen();
+            },
+
             addIngredientsAndGoBack() {
-                const itemsInCat = this.ingredientsData[this.currentCategory].items;
-                itemsInCat.forEach(item => this.selectedIngredients.delete(item));
+                this.ingredientsData[this.currentCategory].items.forEach(item => this.selectedIngredients.delete(item));
                 this.tempSelectedCategoryIngredients.forEach(item => this.selectedIngredients.add(item));
                 this.showMainScreen();
             },
@@ -348,9 +355,9 @@
                 const hint = document.getElementById('generate-recipes-hint');
 
                 if (this.selectedIngredients.size === 0) {
-                    display.innerHTML = '<p class="text-gray-500 italic w-full text-center py-4">Tus ingredientes seleccionados aparecerán aquí...</p>';
+                    display.innerHTML = '<p class="text-gray-500">Tus ingredientes aparecerán aquí...</p>';
                 } else {
-                    display.innerHTML = Array.from(this.selectedIngredients).map(ing => `<span class="inline-block bg-[#4a4a6a] text-white rounded-full px-4 py-1.5 text-sm mr-2 mb-2 border border-white/10 shadow-sm">${ing}</span>`).join('');
+                    display.innerHTML = Array.from(this.selectedIngredients).map(ing => `<span class="inline-block bg-[#4a4a6a] text-white rounded-full px-3 py-1 text-sm mr-2 mb-2">${ing}</span>`).join('');
                 }
 
                 if (this.selectedIngredients.size >= 2) {
@@ -374,13 +381,22 @@
 
             updateCategoryScreen() {
                 const addBtn = document.getElementById('add-ingredients-btn');
-                const itemsInCat = this.ingredientsData[this.currentCategory].items;
-                const savedAlready = new Set(Array.from(this.selectedIngredients).filter(i => itemsInCat.includes(i)));
-                const hasChanged = !this.areSetsEqual(savedAlready, this.tempSelectedCategoryIngredients);
-                const hasSelection = this.tempSelectedCategoryIngredients.size > 0;
+                const ingredientDivs = document.querySelectorAll('#ingredients-list .ingredient-btn');
+                ingredientDivs.forEach(div => {
+                    const checkbox = div.querySelector('input');
+                    if (this.tempSelectedCategoryIngredients.has(checkbox.value)) {
+                        checkbox.checked = true;
+                        div.classList.add('selected');
+                    } else {
+                        checkbox.checked = false;
+                        div.classList.remove('selected');
+                    }
+                });
 
-                // ACTIVACIÓN: Solo si ha cambiado Y (hay al menos 1 seleccionado O antes había algo y ahora no).
-                if (hasChanged && (hasSelection || savedAlready.size > 0)) {	
+                const originalSelection = new Set(this.ingredientsData[this.currentCategory].items.filter(item => this.selectedIngredients.has(item)));
+                const selectionChanged = !this.areSetsEqual(originalSelection, this.tempSelectedCategoryIngredients);
+
+                if (selectionChanged) {	
                     addBtn.disabled = false;
                     addBtn.classList.remove('btn-disabled');
                     addBtn.classList.add('add-btn-gradient');
@@ -395,40 +411,28 @@
                 this.showScreen('recipes-screen');
                 const contentDiv = document.getElementById('recipes-content');
                 contentDiv.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-64 text-center">
+                    <div class="flex flex-col items-center justify-center h-64">
                         <div class="loader mb-4"></div>
-                        <p class="text-white text-lg font-bold">Chef Keto Origins trabajando para ${this.numPeople} persona(s)...</p>
-                        <p id="retry-status" class="text-gray-400 italic">Verificando ingredientes permitidos.</p>
+                        <p class="text-white text-lg font-bold">Chef Keto Origins trabajando...</p>
+                        <p id="retry-status" class="text-gray-400">Verificando ingredientes permitidos.</p>
                     </div>
                 `;
 
                 const ingredientsList = Array.from(this.selectedIngredients).join(', ');
                 
-                // MANTENEMOS EL PROMPT ORIGINAL FUNCIONAL DEL CÓDIGO N°1
                 const prompt = `
                     Eres un chef experto en cocina Keto exclusivo de la marca "Keto Origins" en Chile.
                     Usa un lenguaje y unidades de medida chilenas (gramos, tazas, cucharadas).
-                    BASADO ESTRICTAMENTE en esta lista de ingredientes: [${ingredientsList}], genera 3 recetas Keto para ${this.numPeople} personas.
+                    
+                    BASADO ESTRICTAMENTE en esta lista de ingredientes: [${ingredientsList}], genera 3 recetas Keto.
                     
                     REGLAS OBLIGATORIAS DE ENDULZANTES:
                     1. NUNCA uses azúcar ni endulzantes en gotas.
                     2. REGLA DE LA STEVIA: Para postres fríos o preparaciones que NO necesitan hornear/leudar/subir, usa ÚNICAMENTE "Stevia Pura en polvo".
                     3. REGLA DEL ERITRITOL: Para postres o preparaciones que SÍ van al horno o necesitan leudar/subir, usa ÚNICAMENTE "Eritritol".
-                    4. CANTIDAD SIEMPRE "A GUSTO": Jamás des una medida exacta (gramos, gotas, cucharaditas) para el endulzante. Indica siempre "a gusto".
+                    4. CANTIDAD SIEMPRE "A GUSTO": Jamás des una medida exacta para el endulzante. Indica siempre "a gusto".
                     
-                    OTRAS REGLAS:
-                    - Usa principalmente los ingredientes seleccionados.
-                    - Formato de respuesta JSON:
-                    {
-                      "recipes": [
-                        {
-                          "title": "Nombre",
-                          "ingredients": ["100g de X", "Stevia Pura en polvo (a gusto)"],
-                          "instructions": ["Paso 1", "Paso 2"],
-                          "chef_tip": "Consejo"
-                        }
-                      ]
-                    }
+                    Formato JSON: {"recipes": [{"title": "", "ingredients": [], "instructions": [], "chef_tip": ""}]}
                 `;
 
                 const maxRetries = 3;
@@ -450,7 +454,7 @@
                             continue; 
                         }
 
-                        if (!response.ok) throw new Error();
+                        if (!response.ok) throw new Error("Servicio momentáneamente no disponible.");
 
                         const result = await response.json();
                         if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
@@ -463,15 +467,14 @@
                                 return;
                             }
                         }
-                        throw new Error();
+                        throw new Error("Formato de receta no reconocido.");
 
                     } catch (error) {
                         if (attempt >= maxRetries - 1) {
                             contentDiv.innerHTML = `
                                 <div class="bg-red-900/50 border border-red-600 text-white p-6 rounded-xl text-center">
-                                    <h3 class="text-xl font-bold mb-2">¡Mucha demanda en la cocina!</h3>
-                                    <p class="text-sm">El Chef no pudo responder tras ${maxRetries} intentos.</p>
-                                    <button onclick="app.generateRecipes()" class="mt-4 bg-white text-red-900 px-6 py-2 rounded-full font-bold shadow-lg">Reintentar Ahora</button>
+                                    <h3 class="text-xl font-bold mb-2">¡Google está ocupado!</h3>
+                                    <button onclick="app.generateRecipes()" class="mt-4 bg-white text-red-900 px-6 py-2 rounded-full font-bold">Intentar de nuevo</button>
                                 </div>
                             `;
                             return;
@@ -482,83 +485,91 @@
                 }
             },
 
+            formatRecipeText(recipe) {
+                let text = `🍳 *${recipe.title}*\n_Receta de Keto Origins_\n\n`;
+                text += `*Ingredientes:*\n${recipe.ingredients.map(i => `• ${i}`).join('\n')}\n\n`;
+                text += `*Instrucciones:*\n${recipe.instructions.map((s, idx) => `${idx + 1}. ${s}`).join('\n')}\n\n`;
+                text += `💡 *Consejo del Chef:* _"${recipe.chef_tip}"_`;
+                return text;
+            },
+
+            async copyToClipboard(index) {
+                const recipe = this.lastGeneratedRecipes[index];
+                const text = this.formatRecipeText(recipe);
+                
+                try {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    const toast = document.getElementById("toast");
+                    toast.className = "show";
+                    setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+                } catch (err) {
+                    console.error('Error al copiar:', err);
+                }
+            },
+
+            shareWhatsApp(index) {
+                const recipe = this.lastGeneratedRecipes[index];
+                const text = encodeURIComponent(this.formatRecipeText(recipe));
+                window.open(`https://wa.me/?text=${text}`, '_blank');
+            },
+
             renderRecipes(recipes) {
                 const contentDiv = document.getElementById('recipes-content');
+                
+                // Construimos la cabecera con el botón de REGENERAR
                 let html = `
-                    <h2 class="text-3xl font-bold text-center mb-6 title-brand-color title-3d">¡Tus Recetas Keto Origins!</h2>
+                    <h2 class="text-3xl font-bold text-center mb-4 title-brand-color title-3d">¡Tus Recetas Keto Origins!</h2>
                     <div class="text-center mb-8">
-                        <button onclick="app.generateRecipes()" class="regenerate-btn-gradient btn-3d text-white px-8 py-3 rounded-full font-bold shadow-lg">
-                            <i class="fas fa-sync-alt mr-2"></i> Generar otras opciones
+                        <button onclick="app.generateRecipes()" class="regenerate-btn-gradient btn-3d text-white px-8 py-3 rounded-full font-bold text-md">
+                            <i class="fas fa-sync-alt mr-2"></i> Generar otras 3 recetas
                         </button>
+                        <p class="text-gray-400 text-xs mt-2 italic">Usando los mismos ingredientes seleccionados</p>
                     </div>
                 `;
                 
                 html += recipes.map((recipe, idx) => `
-                    <div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-xl p-6 mb-6 shadow-xl text-left">
-                        <h3 class="text-2xl font-bold text-white mb-4 border-b border-white/10 pb-2">${recipe.title}</h3>
-                        <div class="mb-5">
-                            <h4 class="font-bold text-lg text-pink-400 mb-2 uppercase text-xs tracking-widest">Ingredientes:</h4>
-                            <ul class="list-disc list-inside text-gray-300 space-y-1 text-sm">
+                    <div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-xl p-6 mb-6">
+                        <h3 class="text-2xl font-bold text-white mb-4">${recipe.title}</h3>
+                        <div class="mb-4">
+                            <h4 class="font-bold text-lg text-pink-400 mb-2">Ingredientes:</h4>
+                            <ul class="list-disc list-inside text-gray-300 space-y-1">
                                 ${recipe.ingredients.map(ing => `<li>${ing}</li>`).join('')}
                             </ul>
                         </div>
-                        <div class="mb-5">
-                            <h4 class="font-bold text-lg text-pink-400 mb-2 uppercase text-xs tracking-widest">Instrucciones:</h4>
-                            <ol class="list-decimal list-inside text-gray-300 space-y-2 text-sm">
+                        <div class="mb-4">
+                            <h4 class="font-bold text-lg text-pink-400 mb-2">Instrucciones:</h4>
+                            <ol class="list-decimal list-inside text-gray-300 space-y-2">
                                 ${recipe.instructions.map(step => `<li>${step}</li>`).join('')}
                             </ol>
                         </div>
-                        <div class="chef-tip-box text-sm italic text-gray-300 shadow-inner">
-                            <h4 class="font-bold text-pink-400 not-italic mb-1 flex items-center">
-                                <i class="fas fa-hat-chef mr-2"></i> Consejo del Chef Keto Origins:
-                            </h4>
-                            "${recipe.chef_tip}"
+                        <div class="chef-tip-box">
+                            <h4 class="font-bold text-lg keto-fuchsia-gradient-text mb-2">Consejo del Chef <i class="fas fa-hat-chef"></i></h4>
+                            <p class="text-gray-300 italic">"${recipe.chef_tip}"</p>
                         </div>
-                        <div class="mt-8 flex gap-3">
-                            <button onclick="app.share(${idx})" class="btn-action bg-[#25D366] text-white hover:opacity-90 shadow-md flex-1">
+                        
+                        <div class="mt-6 pt-4 border-t border-[#4a4a6a] flex flex-wrap gap-3">
+                            <button onclick="app.shareWhatsApp(${idx})" class="btn-action bg-[#25D366] text-white hover:bg-[#128C7E]">
                                 <i class="fab fa-whatsapp mr-2"></i> WhatsApp
                             </button>
-                            <button onclick="app.copy(${idx})" class="btn-action bg-[#4a4a6a] text-white hover:opacity-90 shadow-md flex-1">
-                                <i class="fas fa-copy mr-2"></i> Copiar
+                            <button onclick="app.copyToClipboard(${idx})" class="btn-action bg-[#4a4a6a] text-white hover:bg-[#5a5a7a]">
+                                <i class="fas fa-copy mr-2"></i> Copiar Receta
                             </button>
                         </div>
                     </div>
                 `).join('');
 
-                html += `
-                    <div class="disclaimer-box text-center mb-10 italic">
-                        Las cantidades indicadas son estimadas y solo representan una recomendación base para ${this.numPeople} persona(s). Pueden modificarse al gusto y necesidad de cada persona. Estas recetas son una guía exclusiva brindada por Keto Origins Chile.
-                    </div>
-                `;
-                
                 contentDiv.innerHTML = html;
-            },
-
-            copy(idx) {
-                const r = this.lastGeneratedRecipes[idx];
-                const text = `🍳 *${r.title}* - Keto Origins Chile\n\n🛒 Ingredientes:\n${r.ingredients.join('\n')}\n\n🥣 Preparación:\n${r.instructions.join('\n')}\n\n💡 Tip: ${r.chef_tip}`;
-                const area = document.createElement("textarea");
-                area.value = text;
-                area.style.position = "fixed"; area.style.left = "-9999px";
-                document.body.appendChild(area);
-                area.select();
-                document.execCommand('copy');
-                document.body.removeChild(area);
-                const toast = document.getElementById("toast");
-                toast.className = "show";
-                setTimeout(() => toast.className = "", 3000);
-            },
-
-            share(idx) {
-                const r = this.lastGeneratedRecipes[idx];
-                const text = encodeURIComponent(`🍳 *${r.title}*\nReceta Keto Origins Chile\n\n🛒 Ingredientes:\n${r.ingredients.join('\n')}\n\n¡Sigue a @keto.origins en Instagram!`);
-                window.open(`https://wa.me/?text=${text}`, '_blank');
             }
         };
 
-        window.onload = () => {
-            app.init();
-        };
+        window.app = app;
+        app.init();
     </script>
 </body>
 </html>
