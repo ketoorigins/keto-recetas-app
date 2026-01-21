@@ -446,6 +446,37 @@
                 }
             },
 
+            formatRecipeText(recipe) {
+                let text = `🍳 *${recipe.title}*\n_Receta de Keto Origins para ${this.numPeople} pers._\n\n`;
+                text += `*Ingredientes:*\n${recipe.ingredients.map(i => `• ${i}`).join('\n')}\n\n`;
+                text += `*Instrucciones:*\n${recipe.instructions.map((s, idx) => `${idx + 1}. ${s}`).join('\n')}\n\n`;
+                text += `💡 *Consejo del Chef:* _"${recipe.chef_tip}"_\n\n`;
+                text += `⚠️ *Nota:* Las cantidades son una recomendación base ajustable según tus objetivos personales o entrenamiento.`;
+                return text;
+            },
+
+            async copyToClipboard(idx) {
+                const r = this.lastGeneratedRecipes[idx];
+                const text = this.formatRecipeText(r);
+                try {
+                    const area = document.createElement("textarea");
+                    area.value = text;
+                    document.body.appendChild(area);
+                    area.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(area);
+                    const t = document.getElementById("toast");
+                    t.className = "show"; 
+                    setTimeout(() => t.className = "", 3000);
+                } catch (err) { console.error(err); }
+            },
+
+            shareWhatsApp(idx) {
+                const r = this.lastGeneratedRecipes[idx];
+                const text = encodeURIComponent(this.formatRecipeText(r));
+                window.open(`https://wa.me/?text=${text}`, '_blank');
+            },
+
             renderRecipes(recipes) {
                 const content = document.getElementById('recipes-content');
                 let html = `
@@ -483,22 +514,6 @@
 
                 html += `<div class="disclaimer-box text-center">⚠️ Cantidades sugeridas según tu selección. Guía flexible ajustable para cada persona.</div>`;
                 content.innerHTML = html;
-            },
-
-            async copyToClipboard(idx) {
-                const r = this.lastGeneratedRecipes[idx];
-                const text = `🍳 *${r.title}*\n\n*Ingredientes:*\n${r.ingredients.join('\n')}\n\n*Instrucciones:*\n${r.instructions.join('\n')}\n\nNota: Las porciones son una recomendación base ajustable.`;
-                const area = document.createElement("textarea");
-                area.value = text; document.body.appendChild(area);
-                area.select(); document.execCommand('copy'); document.body.removeChild(area);
-                const t = document.getElementById("toast");
-                t.className = "show"; setTimeout(() => t.className = "", 3000);
-            },
-
-            shareWhatsApp(idx) {
-                const r = this.lastGeneratedRecipes[idx];
-                const text = encodeURIComponent(`🍳 *${r.title}*\n\n*Ingredientes:*\n${r.ingredients.join('\n')}\n\n*Instrucciones:*\n${r.instructions.join('\n')}`);
-                window.open(`https://wa.me/?text=${text}`, '_blank');
             }
         };
 
