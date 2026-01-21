@@ -34,7 +34,7 @@
         }
 
         .regenerate-btn-gradient {
-            background-image: linear-gradient(to right, #3b82f6, #8b5cf6); /* Blue to Violet */
+            background-image: linear-gradient(to right, #3b82f6, #8b5cf6);
         }
 
         .title-brand-color {
@@ -90,7 +90,7 @@
             transition: all 0.15s ease-out;
         }
         .generate-btn-gradient.btn-3d, .regenerate-btn-gradient.btn-3d {
-            box-shadow: 0 4px 0 #1e3a8a; /* Base shadow */
+            box-shadow: 0 4px 0 #1e3a8a;
         }
         .generate-btn-gradient.btn-3d {
             box-shadow: 0 4px 0 #991b1b;
@@ -179,6 +179,49 @@
             transition: all 0.2s;
             border: 1px solid rgba(255,255,255,0.1);
         }
+
+        /* Selector de personas styling */
+        .people-selector {
+            background-color: #3a2d57;
+            border: 1px solid #4a4a6a;
+            border-radius: 1rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .people-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #4a4a6a;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .people-btn.active {
+            background-image: linear-gradient(to bottom right, #38bdf8, #a855f7);
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+            transform: scale(1.1);
+        }
+
+        .disclaimer-box {
+            background-color: rgba(58, 45, 87, 0.5);
+            border: 1px dashed #4a4a6a;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: #a0a0c0;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-4 sm:p-6">
@@ -195,6 +238,7 @@
                 <p class="text-md text-gray-400 mt-2 italic">"Que la comida sea tu medicina y tu medicina tu alimento"</p>
             </header>
 
+            <!-- Categorías -->
             <div class="grid grid-cols-2 gap-4 mb-6">
                 <button onclick="app.showCategory('Grasas')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white"><span class="w-6 text-center mr-2">🥑</span>Grasas</button>
                 <button onclick="app.showCategory('Proteínas')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white"><span class="w-6 text-center mr-2">🥩</span>Proteínas</button>
@@ -204,10 +248,20 @@
                 <button onclick="app.showCategory('Frutas y Bayas')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white"><span class="w-6 text-center mr-2">🍓</span>Frutas y Bayas</button>
             </div>
 
-            <div class="text-center my-6">
-                <img src="https://i.ibb.co/xtWMQ9mm/Copia-de-Logo-500-x-500-px.png" alt="Gorro de Chef" class="mx-auto w-20">
+            <!-- Gorro de Chef y Selector de Personas -->
+            <div class="text-center my-6 flex flex-col items-center">
+                <img src="https://i.ibb.co/xtWMQ9mm/Copia-de-Logo-500-x-500-px.png" alt="Gorro de Chef" class="w-16 mb-4">
+                
+                <p class="text-white font-bold mb-3">¿Para cuántas personas cocinas?</p>
+                <div class="people-selector">
+                    <button onclick="app.setPeople(1)" id="p-1" class="people-btn active">1</button>
+                    <button onclick="app.setPeople(2)" id="p-2" class="people-btn">2</button>
+                    <button onclick="app.setPeople(3)" id="p-3" class="people-btn">3</button>
+                    <button onclick="app.setPeople(4)" id="p-4" class="people-btn">4+</button>
+                </div>
             </div>
 
+            <!-- Ingredientes Seleccionados -->
             <div id="selected-ingredients-display" class="w-full min-h-[100px] border border-[#4a4a6a] rounded-xl p-4 mb-6 text-gray-300"></div>
 
             <button id="generate-recipes-btn" class="mx-auto block w-2/3 p-3 rounded-full font-bold text-white text-lg btn-disabled btn-3d" disabled>
@@ -235,7 +289,7 @@
         </div>
     </main>
 
-    <footer class="text-center text-gray-500 mt-12">
+    <footer class="text-center text-gray-500 mt-12 pb-8">
         <p class="font-bold">Keto Origins</p>
         <div class="flex justify-center space-x-6 mt-2">
             <a href="https://www.tiktok.com/@keto.origins" target="_blank" class="social-icon tiktok-hover"><i class="fab fa-tiktok fa-lg"></i></a>
@@ -278,11 +332,18 @@
             tempSelectedCategoryIngredients: new Set(),
             currentCategory: null,
             lastGeneratedRecipes: [],
+            numPeople: 1,
 
             init() {
                 this.updateMainScreen();
                 document.getElementById('add-ingredients-btn').addEventListener('click', () => this.addIngredientsAndGoBack());
                 document.getElementById('generate-recipes-btn').addEventListener('click', () => this.generateRecipes());
+            },
+
+            setPeople(num) {
+                this.numPeople = num;
+                document.querySelectorAll('.people-btn').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(`p-${num}`).classList.add('active');
             },
 
             showScreen(screenName) {
@@ -411,9 +472,9 @@
                 this.showScreen('recipes-screen');
                 const contentDiv = document.getElementById('recipes-content');
                 contentDiv.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-64">
+                    <div class="flex flex-col items-center justify-center h-64 text-center">
                         <div class="loader mb-4"></div>
-                        <p class="text-white text-lg font-bold">Chef Keto Origins trabajando...</p>
+                        <p class="text-white text-lg font-bold px-4">Chef Keto Origins adaptando las cantidades para ${this.numPeople} persona(s)...</p>
                         <p id="retry-status" class="text-gray-400">Verificando ingredientes permitidos.</p>
                     </div>
                 `;
@@ -422,15 +483,16 @@
                 
                 const prompt = `
                     Eres un chef experto en cocina Keto exclusivo de la marca "Keto Origins" en Chile.
-                    Usa un lenguaje y unidades de medida chilenas (gramos, tazas, cucharadas).
+                    Debes generar recetas para EXACTAMENTE ${this.numPeople} persona(s).
+                    Usa lenguaje y unidades de medida chilenas.
                     
-                    BASADO ESTRICTAMENTE en esta lista de ingredientes: [${ingredientsList}], genera 3 recetas Keto.
+                    BASADO ESTRICTAMENTE en esta lista: [${ingredientsList}]. NO añadidas otros ingredientes.
                     
-                    REGLAS OBLIGATORIAS DE ENDULZANTES:
-                    1. NUNCA uses azúcar ni endulzantes en gotas.
-                    2. REGLA DE LA STEVIA: Para postres fríos o preparaciones que NO necesitan hornear/leudar/subir, usa ÚNICAMENTE "Stevia Pura en polvo".
-                    3. REGLA DEL ERITRITOL: Para postres o preparaciones que SÍ van al horno o necesitan leudar/subir, usa ÚNICAMENTE "Eritritol".
-                    4. CANTIDAD SIEMPRE "A GUSTO": Jamás des una medida exacta para el endulzante. Indica siempre "a gusto".
+                    LÓGICA DE CANTIDADES (CRÍTICO):
+                    1. Si el HUEVO es el protagonista (omelet, revuelto), usa 2-3 huevos POR PERSONA.
+                    2. Si el HUEVO es secundario (ligar, tortilla verduras), usa 1-2 huevos TOTALES o según lógica de consistencia.
+                    3. Calcula todas las porciones (gramos, unidades) de forma coherente para ${this.numPeople} persona(s).
+                    4. Para POSTRES: Fríos = "Stevia Pura en polvo (a gusto)". Horneados = "Eritritol (a gusto)". Jamás des medidas exactas de dulce.
                     
                     Formato JSON: {"recipes": [{"title": "", "ingredients": [], "instructions": [], "chef_tip": ""}]}
                 `;
@@ -449,12 +511,12 @@
 
                         if (response.status === 503 && attempt < maxRetries - 1) {
                             attempt++;
-                            document.getElementById('retry-status').textContent = `Mucha demanda en la cocina, reintentando (${attempt}/${maxRetries})...`;
+                            document.getElementById('retry-status').textContent = `Mucha demanda, reintentando (${attempt}/${maxRetries})...`;
                             await new Promise(resolve => setTimeout(resolve, 2500));
                             continue; 
                         }
 
-                        if (!response.ok) throw new Error("Servicio momentáneamente no disponible.");
+                        if (!response.ok) throw new Error("Servicio no disponible.");
 
                         const result = await response.json();
                         if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
@@ -467,16 +529,11 @@
                                 return;
                             }
                         }
-                        throw new Error("Formato de receta no reconocido.");
+                        throw new Error("Formato inválido.");
 
                     } catch (error) {
                         if (attempt >= maxRetries - 1) {
-                            contentDiv.innerHTML = `
-                                <div class="bg-red-900/50 border border-red-600 text-white p-6 rounded-xl text-center">
-                                    <h3 class="text-xl font-bold mb-2">¡Google está ocupado!</h3>
-                                    <button onclick="app.generateRecipes()" class="mt-4 bg-white text-red-900 px-6 py-2 rounded-full font-bold">Intentar de nuevo</button>
-                                </div>
-                            `;
+                            contentDiv.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">Hubo un error de conexión con Google. Inténtalo de nuevo.</div>`;
                             return;
                         }
                         attempt++;
@@ -486,17 +543,17 @@
             },
 
             formatRecipeText(recipe) {
-                let text = `🍳 *${recipe.title}*\n_Receta de Keto Origins_\n\n`;
+                let text = `🍳 *${recipe.title}*\n_Receta de Keto Origins para ${this.numPeople} pers._\n\n`;
                 text += `*Ingredientes:*\n${recipe.ingredients.map(i => `• ${i}`).join('\n')}\n\n`;
                 text += `*Instrucciones:*\n${recipe.instructions.map((s, idx) => `${idx + 1}. ${s}`).join('\n')}\n\n`;
-                text += `💡 *Consejo del Chef:* _"${recipe.chef_tip}"_`;
+                text += `💡 *Consejo del Chef:* _"${recipe.chef_tip}"_\n\n`;
+                text += `⚠️ *Nota:* Las cantidades son estimadas y sugerencias base. Puedes modificarlas a tu gusto según tus objetivos personales o entrenamiento.`;
                 return text;
             },
 
             async copyToClipboard(index) {
                 const recipe = this.lastGeneratedRecipes[index];
                 const text = this.formatRecipeText(recipe);
-                
                 try {
                     const textArea = document.createElement("textarea");
                     textArea.value = text;
@@ -504,13 +561,10 @@
                     textArea.select();
                     document.execCommand('copy');
                     document.body.removeChild(textArea);
-                    
                     const toast = document.getElementById("toast");
                     toast.className = "show";
                     setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
-                } catch (err) {
-                    console.error('Error al copiar:', err);
-                }
+                } catch (err) { console.error(err); }
             },
 
             shareWhatsApp(index) {
@@ -521,15 +575,12 @@
 
             renderRecipes(recipes) {
                 const contentDiv = document.getElementById('recipes-content');
-                
-                // Construimos la cabecera con el botón de REGENERAR
                 let html = `
-                    <h2 class="text-3xl font-bold text-center mb-4 title-brand-color title-3d">¡Tus Recetas Keto Origins!</h2>
+                    <h2 class="text-3xl font-bold text-center mb-4 title-brand-color title-3d">Recetas para ${this.numPeople} persona(s)</h2>
                     <div class="text-center mb-8">
                         <button onclick="app.generateRecipes()" class="regenerate-btn-gradient btn-3d text-white px-8 py-3 rounded-full font-bold text-md">
                             <i class="fas fa-sync-alt mr-2"></i> Generar otras 3 recetas
                         </button>
-                        <p class="text-gray-400 text-xs mt-2 italic">Usando los mismos ingredientes seleccionados</p>
                     </div>
                 `;
                 
@@ -552,7 +603,6 @@
                             <h4 class="font-bold text-lg keto-fuchsia-gradient-text mb-2">Consejo del Chef <i class="fas fa-hat-chef"></i></h4>
                             <p class="text-gray-300 italic">"${recipe.chef_tip}"</p>
                         </div>
-                        
                         <div class="mt-6 pt-4 border-t border-[#4a4a6a] flex flex-wrap gap-3">
                             <button onclick="app.shareWhatsApp(${idx})" class="btn-action bg-[#25D366] text-white hover:bg-[#128C7E]">
                                 <i class="fab fa-whatsapp mr-2"></i> WhatsApp
@@ -563,6 +613,15 @@
                         </div>
                     </div>
                 `).join('');
+
+                // Añadimos el DISCLAIMER solicitado al final
+                html += `
+                    <div class="disclaimer-box text-center">
+                        <p class="font-bold mb-2">⚠️ AVISO IMPORTANTE</p>
+                        <p>Las cantidades indicadas son estimadas y solo representan una recomendación base. Pueden modificarse al gusto y necesidad de cada persona (especialmente deportistas con mayores requerimientos nutricionales). Estas recetas son una guía para brindarte más opciones culinarias en tu camino Keto.</p>
+                    </div>
+                    <div class="h-10"></div>
+                `;
 
                 contentDiv.innerHTML = html;
             }
