@@ -151,9 +151,60 @@
         .instagram-hover:hover { color: #e1306c; }
         .whatsapp-hover:hover { color: #25d366; }
         .web-hover:hover { color: #38bdf8; }
+
+        /* Toast notification for copy */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #ec4899;
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 12px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .btn-action:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-4 sm:p-6">
+
+    <div id="toast">¡Receta copiada al portapapeles!</div>
 
     <main id="app-container" class="w-full max-w-2xl mx-auto">
         <div id="main-screen">
@@ -244,6 +295,7 @@
             selectedIngredients: new Set(),
             tempSelectedCategoryIngredients: new Set(),
             currentCategory: null,
+            lastGeneratedRecipes: [],
 
             init() {
                 this.updateMainScreen();
@@ -262,6 +314,7 @@
                 if(clearRecipes) {
                     document.getElementById('recipes-content').innerHTML = '';
                     this.selectedIngredients.clear();
+                    this.lastGeneratedRecipes = [];
                 }
                 this.showScreen('main-screen');
                 this.updateMainScreen();
@@ -385,7 +438,6 @@
 
                 const ingredientsList = Array.from(this.selectedIngredients).join(', ');
                 
-                // --- PROMPT CORREGIDO CON DIRECTRICES ESTRICTAS DE KETO ORIGINS ---
                 const prompt = `
                     Eres un chef experto en cocina Keto exclusivo de la marca "Keto Origins" en Chile.
                     Usa un lenguaje y unidades de medida chilenas (gramos, tazas, cucharadas).
@@ -396,22 +448,9 @@
                     1. NUNCA uses azúcar ni endulzantes en gotas.
                     2. REGLA DE LA STEVIA: Para postres fríos o preparaciones que NO necesitan hornear/leudar/subir, usa ÚNICAMENTE "Stevia Pura en polvo".
                     3. REGLA DEL ERITRITOL: Para postres o preparaciones que SÍ van al horno o necesitan leudar/subir, usa ÚNICAMENTE "Eritritol".
-                    4. CANTIDAD SIEMPRE "A GUSTO": Jamás des una medida exacta (gramos, gotas, cucharaditas) para el endulzante. Indica siempre "a gusto".
+                    4. CANTIDAD SIEMPRE "A GUSTO": Jamás des una medida exacta para el endulzante. Indica siempre "a gusto".
                     
-                    OTRAS REGLAS:
-                    - Usa principalmente los ingredientes seleccionados.
-                    - Si hay ingredientes dulces, genera postres.
-                    - Formato de respuesta JSON:
-                    {
-                      "recipes": [
-                        {
-                          "title": "Nombre",
-                          "ingredients": ["100g de X", "Stevia Pura en polvo (a gusto)"],
-                          "instructions": ["Paso 1", "Paso 2"],
-                          "chef_tip": "Consejo"
-                        }
-                      ]
-                    }
+                    Formato JSON: {"recipes": [{"title": "", "ingredients": [], "instructions": [], "chef_tip": ""}]}
                 `;
 
                 const maxRetries = 3;
@@ -441,6 +480,7 @@
                             const jsonMatch = text.match(/\{[\s\S]*\}/);
                             if (jsonMatch) {
                                 const data = JSON.parse(jsonMatch[0]);
+                                this.lastGeneratedRecipes = data.recipes;
                                 this.renderRecipes(data.recipes);
                                 return;
                             }
@@ -451,8 +491,7 @@
                         if (attempt >= maxRetries - 1) {
                             contentDiv.innerHTML = `
                                 <div class="bg-red-900/50 border border-red-600 text-white p-6 rounded-xl text-center">
-                                    <h3 class="text-xl font-bold mb-2">¡Servidores de Google Sobrecargados!</h3>
-                                    <p>Intentamos 3 veces pero la IA de Google no responde.</p>
+                                    <h3 class="text-xl font-bold mb-2">¡Google está ocupado!</h3>
                                     <button onclick="app.generateRecipes()" class="mt-4 bg-white text-red-900 px-6 py-2 rounded-full font-bold">Intentar de nuevo</button>
                                 </div>
                             `;
@@ -464,11 +503,45 @@
                 }
             },
 
+            formatRecipeText(recipe) {
+                let text = `🍳 *${recipe.title}*\n_Receta de Keto Origins_\n\n`;
+                text += `*Ingredientes:*\n${recipe.ingredients.map(i => `• ${i}`).join('\n')}\n\n`;
+                text += `*Instrucciones:*\n${recipe.instructions.map((s, idx) => `${idx + 1}. ${s}`).join('\n')}\n\n`;
+                text += `💡 *Consejo del Chef:* _"${recipe.chef_tip}"_`;
+                return text;
+            },
+
+            async copyToClipboard(index) {
+                const recipe = this.lastGeneratedRecipes[index];
+                const text = this.formatRecipeText(recipe);
+                
+                try {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    const toast = document.getElementById("toast");
+                    toast.className = "show";
+                    setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+                } catch (err) {
+                    console.error('Error al copiar:', err);
+                }
+            },
+
+            shareWhatsApp(index) {
+                const recipe = this.lastGeneratedRecipes[index];
+                const text = encodeURIComponent(this.formatRecipeText(recipe));
+                window.open(`https://wa.me/?text=${text}`, '_blank');
+            },
+
             renderRecipes(recipes) {
                 const contentDiv = document.getElementById('recipes-content');
                 contentDiv.innerHTML = `<h2 class="text-3xl font-bold text-center mb-6 title-brand-color title-3d">¡Tus Recetas Keto Origins!</h2>`;
                 
-                contentDiv.innerHTML += recipes.map(recipe => `
+                contentDiv.innerHTML += recipes.map((recipe, idx) => `
                     <div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-xl p-6 mb-6">
                         <h3 class="text-2xl font-bold text-white mb-4">${recipe.title}</h3>
                         <div class="mb-4">
@@ -486,6 +559,16 @@
                         <div class="chef-tip-box">
                             <h4 class="font-bold text-lg keto-fuchsia-gradient-text mb-2">Consejo del Chef <i class="fas fa-hat-chef"></i></h4>
                             <p class="text-gray-300 italic">"${recipe.chef_tip}"</p>
+                        </div>
+                        
+                        <!-- BOTONES DE ACCIÓN -->
+                        <div class="mt-6 pt-4 border-t border-[#4a4a6a] flex flex-wrap gap-3">
+                            <button onclick="app.shareWhatsApp(${idx})" class="btn-action bg-[#25D366] text-white hover:bg-[#128C7E]">
+                                <i class="fab fa-whatsapp mr-2"></i> WhatsApp
+                            </button>
+                            <button onclick="app.copyToClipboard(${idx})" class="btn-action bg-[#4a4a6a] text-white hover:bg-[#5a5a7a]">
+                                <i class="fas fa-copy mr-2"></i> Copiar Receta
+                            </button>
                         </div>
                     </div>
                 `).join('');
