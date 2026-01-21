@@ -265,7 +265,6 @@
             <p id="generate-recipes-hint" class="text-center text-gray-500 mt-2 text-sm">Selecciona al menos 2 ingredientes</p>
         </div>
 
-        <!-- CATEGORÍAS -->
         <div id="category-screen" class="hidden">
             <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver</button>
             <h2 id="category-title" class="text-3xl font-bold text-center mb-4 title-brand-color title-3d"></h2>
@@ -275,7 +274,6 @@
             </button>
         </div>
 
-        <!-- RECETAS -->
         <div id="recipes-screen" class="hidden">
              <button onclick="app.showMainScreen(true)" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Empezar</button>
              <div id="recipes-content"></div>
@@ -390,7 +388,7 @@
                 const display = document.getElementById('selected-ingredients-display');
                 const btn = document.getElementById('generate-recipes-btn');
                 if (this.selectedIngredients.size === 0) display.innerHTML = '<p class="text-gray-500">Selecciona ingredientes...</p>';
-                else display.innerHTML = Array.from(this.selectedIngredients).map(i => `<span class="inline-block bg-[#4a4a6a] text-white rounded-full px-3 py-1 text-sm mr-2 mb-2">${i}</span>`).join('');
+                else display.innerHTML = Array.from(this.selectedIngredients).map(ing => `<span class="inline-block bg-[#4a4a6a] text-white rounded-full px-3 py-1 text-sm mr-2 mb-2">${ing}</span>`).join('');
                 
                 if (this.selectedIngredients.size >= 2) {
                     btn.disabled = false;
@@ -406,18 +404,23 @@
             async generateRecipes() {
                 this.showScreen('recipes-screen');
                 const content = document.getElementById('recipes-content');
-                content.innerHTML = `<div class="flex flex-col items-center justify-center h-64"><div class="loader mb-4"></div><p class="font-bold">Generando recetas para ${this.numPeople} persona(s)...</p></div>`;
+                content.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-center"><div class="loader mb-4"></div><p class="font-bold">Chef Keto Origins creando recetas personalizadas...</p></div>`;
 
+                const ingredientsList = Array.from(this.selectedIngredients).join(', ');
+                
                 const prompt = `
-                    SISTEMA DE CONTROL ESTRICTO KETO ORIGINS.
-                    OBJETIVO: 3 recetas para ${this.numPeople} persona(s).
-                    LISTA PERMITIDA: [${Array.from(this.selectedIngredients).join(', ')}].
+                    SISTEMA DE CONTROL ESTRICTO KETO ORIGINS CHILE.
+                    OBJETIVO: Generar 3 recetas INDEPENDIENTES para ${this.numPeople} persona(s).
                     
-                    REGLAS INVIOLABLES:
-                    1. PROHIBIDO: No añadas cebolla, ajo, harinas, polvos de hornear, ni NADA que no esté en la lista permitida. Solo usa sal, pimienta y aceite.
-                    2. REGLA DE HUEVOS: Si la receta es a base de huevos (omelet, revuelto), DEBES usar exactamente ${this.numPeople * 3} huevos. 
-                    3. NOTA DEPORTISTAS: Al lado de CADA proteína (huevos, carnes), escribe SIEMPRE: "(puedes aumentar la cantidad si eres deportista o requieres más proteína)".
-                    4. DULZORES: Fríos = "Stevia Pura en polvo (a gusto)". Horno = "Eritritol (a gusto)". Siempre "a gusto".
+                    DESPENSA DISPONIBLE: [${ingredientsList}].
+                    
+                    REGLAS CRÍTICAS DE REDACCIÓN:
+                    1. TÍTULOS LIMPIOS: El nombre de la receta debe ser profesional y atractivo. PROHIBIDO incluir cantidades de ingredientes en el título (ej: NO pongas "Tortilla de 6 huevos", pon solo "Tortilla de Espinacas").
+                    2. DESPENSA TOTAL: No "distribuyas" los ingredientes. Trata la lista de la despesa como el inventario total disponible. Cada una de las 3 recetas debe intentar usar la mayor combinación lógica de ingredientes de la lista para ser un plato completo.
+                    3. REGLA DE HUEVOS: Si el huevo es el ingrediente base, calcula exactamente ${this.numPeople * 3} huevos. 
+                    4. NOTA DE PROTEÍNA: Al lado de huevos o carnes, escribe siempre: "(puedes aumentar la cantidad si eres deportista o requieres más proteína)".
+                    5. PROHIBIDO: No añadas nada que no esté en la lista, excepto sal, pimienta y aceite.
+                    6. DULZORES: Siempre "(a gusto)". Fríos: "Stevia Pura en polvo". Horno: "Eritritol".
                     
                     JSON: {"recipes": [{"title": "", "ingredients": [], "instructions": [], "chef_tip": ""}]}
                 `;
@@ -435,14 +438,14 @@
                     this.lastGeneratedRecipes = json.recipes;
                     this.renderRecipes(json.recipes);
                 } catch (e) {
-                    content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">Hubo un error al conectar con Google. Por favor, reintenta.</div>`;
+                    content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">Error al conectar. Reintenta.</div>`;
                 }
             },
 
             renderRecipes(recipes) {
                 const content = document.getElementById('recipes-content');
                 let html = `
-                    <h2 class="text-3xl font-bold text-center mb-6 title-brand-color">Recetas para ${this.numPeople} persona(s)</h2>
+                    <h2 class="text-3xl font-bold text-center mb-6 title-brand-color">Recetas Keto para ${this.numPeople} pers.</h2>
                     <div class="text-center mb-8">
                         <button onclick="app.generateRecipes()" class="regenerate-btn-gradient btn-3d text-white px-8 py-3 rounded-full font-bold"><i class="fas fa-sync-alt mr-2"></i> Generar otras 3</button>
                     </div>
@@ -459,7 +462,10 @@
                             <h4 class="font-bold text-pink-400 mb-2">Instrucciones:</h4>
                             <ol class="list-decimal list-inside text-gray-300 space-y-2">${r.instructions.map(s => `<li>${s}</li>`).join('')}</ol>
                         </div>
-                        <div class="chef-tip-box italic text-gray-300">"${r.chef_tip}"</div>
+                        <div class="chef-tip-box text-gray-300">
+                             <h4 class="font-bold text-lg keto-fuchsia-gradient-text mb-1">Consejo del Chef <i class="fas fa-hat-chef"></i></h4>
+                             <p class="italic">"${r.chef_tip}"</p>
+                        </div>
                         <div class="mt-6 pt-4 border-t border-[#4a4a6a] flex gap-3">
                             <button onclick="app.shareWhatsApp(${i})" class="btn-action bg-[#25D366] text-white"><i class="fab fa-whatsapp mr-2"></i> WhatsApp</button>
                             <button onclick="app.copyToClipboard(${i})" class="btn-action bg-[#4a4a6a] text-white"><i class="fas fa-copy mr-2"></i> Copiar</button>
@@ -473,7 +479,7 @@
 
             async copyToClipboard(idx) {
                 const r = this.lastGeneratedRecipes[idx];
-                const text = `🍳 *${r.title}*\n\n*Ingredientes:*\n${r.ingredients.join('\n')}\n\n*Instrucciones:*\n${r.instructions.join('\n')}\n\nNota: Las cantidades son estimadas.`;
+                const text = `🍳 *${r.title}*\n\n*Ingredientes:*\n${r.ingredients.join('\n')}\n\n*Instrucciones:*\n${r.instructions.join('\n')}\n\nNota: Las porciones son una recomendación base ajustable.`;
                 const area = document.createElement("textarea");
                 area.value = text; document.body.appendChild(area);
                 area.select(); document.execCommand('copy'); document.body.removeChild(area);
