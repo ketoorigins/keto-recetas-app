@@ -214,12 +214,12 @@
         .disclaimer-box {
             background-color: rgba(58, 45, 87, 0.5);
             border: 1px dashed #4a4a6a;
-            padding: 1rem;
+            padding: 1.25rem;
             border-radius: 0.75rem;
             margin-top: 2rem;
-            font-size: 0.85rem;
-            color: #a0a0c0;
-            line-height: 1.4;
+            font-size: 1rem;
+            color: #ffffff;
+            line-height: 1.6;
         }
     </style>
 </head>
@@ -451,7 +451,7 @@
                 text += `*Ingredientes:*\n${recipe.ingredients.map(i => `• ${i}`).join('\n')}\n\n`;
                 text += `*Instrucciones:*\n${recipe.instructions.map((s, idx) => `${idx + 1}. ${s}`).join('\n')}\n\n`;
                 text += `💡 *Consejo del Chef:* _"${recipe.chef_tip}"_\n\n`;
-                text += `⚠️ *Nota:* Las cantidades son una recomendación base ajustable según tus objetivos personales o entrenamiento.`;
+                text += `🥑 Estas recetas son solo una sugerencia para guiarte, si quieres hacerle modificaciones siéntete libre de hacerlo a tu gusto y a tu formas. 🥓`;
                 return text;
             },
 
@@ -512,7 +512,7 @@
                     </div>
                 `).join('');
 
-                html += `<div class="disclaimer-box text-center">⚠️ Cantidades sugeridas según tu selección. Guía flexible ajustable para cada persona.</div>`;
+                html += `<div class="disclaimer-box text-center">🥑 Estas recetas son solo una sugerencia para guiarte, si quieres hacerle modificaciones siéntete libre de hacerlo a tu gusto y a tu formas. 🥓</div>`;
                 content.innerHTML = html;
             }
         };
