@@ -33,10 +33,6 @@
              background-image: linear-gradient(to right, #f97316, #dc2626);
         }
 
-        .regenerate-btn-gradient {
-            background-image: linear-gradient(to right, #3b82f6, #8b5cf6); /* Blue to Violet */
-        }
-
         .title-brand-color {
             color: #3161f1;
         }
@@ -89,15 +85,20 @@
         .btn-3d {
             transition: all 0.15s ease-out;
         }
-        .generate-btn-gradient.btn-3d, .regenerate-btn-gradient.btn-3d {
-            box-shadow: 0 4px 0 #1e3a8a; /* Base shadow */
-        }
         .generate-btn-gradient.btn-3d {
             box-shadow: 0 4px 0 #991b1b;
         }
-        .generate-btn-gradient.btn-3d:active, .regenerate-btn-gradient.btn-3d:active {
+        .generate-btn-gradient.btn-3d:active {
             transform: translateY(3px);
-            box-shadow: 0 1px 0 #1e3a8a;
+            box-shadow: 0 1px 0 #991b1b;
+        }
+
+        .add-btn-gradient.btn-3d {
+            box-shadow: 0 4px 0 #b91c1c;
+        }
+         .add-btn-gradient.btn-3d:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #b91c1c;
         }
 
         .custom-radio {
@@ -143,6 +144,15 @@
             position: relative;
         }
 
+        .social-icon {
+            transition: color 0.3s ease;
+        }
+        .tiktok-hover:hover { color: #00f2ea; }
+        .instagram-hover:hover { color: #e1306c; }
+        .whatsapp-hover:hover { color: #25d366; }
+        .web-hover:hover { color: #38bdf8; }
+
+        /* Toast notification for copy */
         #toast {
             visibility: hidden;
             min-width: 250px;
@@ -165,8 +175,15 @@
             animation: fadein 0.5s, fadeout 0.5s 2.5s;
         }
 
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+        }
 
         .btn-action {
             display: inline-flex;
@@ -179,6 +196,10 @@
             transition: all 0.2s;
             border: 1px solid rgba(255,255,255,0.1);
         }
+
+        .btn-action:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-4 sm:p-6">
@@ -186,7 +207,6 @@
     <div id="toast">¡Receta copiada al portapapeles!</div>
 
     <main id="app-container" class="w-full max-w-2xl mx-auto">
-        <!-- PANTALLA PRINCIPAL -->
         <div id="main-screen">
             <header class="text-center mb-8">
                 <img src="https://i.ibb.co/20NypXdZ/ketoorigins.png" alt="Logo Keto Origins" class="w-24 h-24 mx-auto mb-4 rounded-full shadow-lg">
@@ -216,7 +236,6 @@
             <p id="generate-recipes-hint" class="text-center text-gray-500 mt-2 text-sm">Selecciona al menos 2 ingredientes</p>
         </div>
 
-        <!-- PANTALLA DE CATEGORÍA -->
         <div id="category-screen" class="hidden">
             <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Categorías</button>
             <h2 id="category-title" class="text-3xl font-bold text-center mb-2 title-brand-color title-3d"></h2>
@@ -228,7 +247,6 @@
             </button>
         </div>
 
-        <!-- PANTALLA DE RECETAS -->
         <div id="recipes-screen" class="hidden">
              <button onclick="app.showMainScreen(true)" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Empezar</button>
              <div id="recipes-content"></div>
@@ -521,19 +539,9 @@
 
             renderRecipes(recipes) {
                 const contentDiv = document.getElementById('recipes-content');
+                contentDiv.innerHTML = `<h2 class="text-3xl font-bold text-center mb-6 title-brand-color title-3d">¡Tus Recetas Keto Origins!</h2>`;
                 
-                // Construimos la cabecera con el botón de REGENERAR
-                let html = `
-                    <h2 class="text-3xl font-bold text-center mb-4 title-brand-color title-3d">¡Tus Recetas Keto Origins!</h2>
-                    <div class="text-center mb-8">
-                        <button onclick="app.generateRecipes()" class="regenerate-btn-gradient btn-3d text-white px-8 py-3 rounded-full font-bold text-md">
-                            <i class="fas fa-sync-alt mr-2"></i> Generar otras 3 recetas
-                        </button>
-                        <p class="text-gray-400 text-xs mt-2 italic">Usando los mismos ingredientes seleccionados</p>
-                    </div>
-                `;
-                
-                html += recipes.map((recipe, idx) => `
+                contentDiv.innerHTML += recipes.map((recipe, idx) => `
                     <div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-xl p-6 mb-6">
                         <h3 class="text-2xl font-bold text-white mb-4">${recipe.title}</h3>
                         <div class="mb-4">
@@ -553,6 +561,7 @@
                             <p class="text-gray-300 italic">"${recipe.chef_tip}"</p>
                         </div>
                         
+                        <!-- BOTONES DE ACCIÓN -->
                         <div class="mt-6 pt-4 border-t border-[#4a4a6a] flex flex-wrap gap-3">
                             <button onclick="app.shareWhatsApp(${idx})" class="btn-action bg-[#25D366] text-white hover:bg-[#128C7E]">
                                 <i class="fab fa-whatsapp mr-2"></i> WhatsApp
@@ -563,8 +572,6 @@
                         </div>
                     </div>
                 `).join('');
-
-                contentDiv.innerHTML = html;
             }
         };
 
