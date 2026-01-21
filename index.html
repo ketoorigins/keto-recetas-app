@@ -233,12 +233,18 @@
             showCategory(categoryName) {
                 this.currentCategory = categoryName;
                 
+                // Reset de botón antes de cualquier cálculo para asegurar estado "apagado" al entrar
+                const addBtn = document.getElementById('add-ingredients-btn');
+                addBtn.disabled = true;
+                addBtn.classList.add('btn-disabled');
+                addBtn.classList.remove('add-btn-gradient');
+
                 // Captura exacta de qué ingredientes de esta categoría están seleccionados actualmente
                 this.initialCategoryState = new Set(
                     this.ingredientsData[categoryName].items.filter(i => this.selectedIngredients.has(i))
                 );
                 
-                // Copia temporal para el trabajo en pantalla
+                // Copia temporal idéntica para empezar
                 this.tempSelectedCategoryIngredients = new Set(this.initialCategoryState);
                 
                 document.getElementById('category-title').textContent = categoryName;
@@ -256,22 +262,26 @@
                     const cb = div.querySelector('input');
                     
                     div.addEventListener('click', (e) => {
-                        if (e.target !== cb) cb.checked = !cb.checked;
+                        // Evitar doble toggle si se hace click directamente en el input
+                        if (e.target !== cb) {
+                            cb.checked = !cb.checked;
+                        }
+                        
                         if (cb.checked) this.tempSelectedCategoryIngredients.add(item);
                         else this.tempSelectedCategoryIngredients.delete(item);
+                        
                         this.updateCategoryScreen();
                     });
                     list.appendChild(div);
                 });
                 
-                this.updateCategoryScreen();
                 this.showScreen('category-screen');
             },
 
             updateCategoryScreen() {
                 const addBtn = document.getElementById('add-ingredients-btn');
                 
-                // Comparar estado temporal contra el inicial para activar/desactivar botón
+                // Comparación robusta entre el estado al entrar y el actual
                 const hasChanged = !this.areSetsEqual(this.initialCategoryState, this.tempSelectedCategoryIngredients);
                 
                 if (hasChanged) {
@@ -284,7 +294,7 @@
                     addBtn.classList.remove('add-btn-gradient');
                 }
 
-                // Sincronizar estilo visual de los botones de ingrediente
+                // Sincronizar estilo visual de los botones de ingrediente basándose en el set temporal
                 document.querySelectorAll('#ingredients-list .ingredient-btn').forEach(div => {
                     const cb = div.querySelector('input');
                     if (this.tempSelectedCategoryIngredients.has(cb.value)) div.classList.add('selected');
@@ -293,7 +303,7 @@
             },
 
             addIngredientsAndGoBack() {
-                // Actualizar la lista maestra global
+                // Actualizar la lista maestra global eliminando los anteriores de esta categoría e insertando los nuevos
                 this.ingredientsData[this.currentCategory].items.forEach(i => this.selectedIngredients.delete(i));
                 this.tempSelectedCategoryIngredients.forEach(i => this.selectedIngredients.add(i));
                 this.showMainScreen();
