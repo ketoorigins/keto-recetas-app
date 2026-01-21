@@ -412,15 +412,19 @@
                     SISTEMA DE CONTROL ESTRICTO KETO ORIGINS CHILE.
                     OBJETIVO: Generar 3 recetas INDEPENDIENTES para ${this.numPeople} persona(s).
                     
-                    DESPENSA DISPONIBLE: [${ingredientsList}].
+                    DESPENSA DISPONIBLE (SOLO ESTO TIENE EL USUARIO): [${ingredientsList}].
                     
-                    REGLAS CRÍTICAS DE REDACCIÓN:
-                    1. TÍTULOS LIMPIOS: El nombre de la receta debe ser profesional y atractivo. PROHIBIDO incluir cantidades de ingredientes en el título (ej: NO pongas "Tortilla de 6 huevos", pon solo "Tortilla de Espinacas").
-                    2. DESPENSA TOTAL: No "distribuyas" los ingredientes. Trata la lista de la despesa como el inventario total disponible. Cada una de las 3 recetas debe intentar usar la mayor combinación lógica de ingredientes de la lista para ser un plato completo.
-                    3. REGLA DE HUEVOS: Si el huevo es el ingrediente base, calcula exactamente ${this.numPeople * 3} huevos. 
-                    4. NOTA DE PROTEÍNA: Al lado de huevos o carnes, escribe siempre: "(puedes aumentar la cantidad si eres deportista o requieres más proteína)".
-                    5. PROHIBIDO: No añadas nada que no esté en la lista, excepto sal, pimienta y aceite.
-                    6. DULZORES: Siempre "(a gusto)". Fríos: "Stevia Pura en polvo". Horno: "Eritritol".
+                    REGLAS INVIOLABLES DE INGREDIENTES:
+                    1. BÁSICOS PERMITIDOS: Solo Sal y Pimienta a gusto.
+                    2. GRASAS DE COCCIÓN (CRÍTICO): PROHIBIDO usar "Aceite" si no está en la lista. Si el usuario seleccionó "Mantequilla", debes usar Mantequilla para todas las instrucciones de dorar o freír. Si no hay grasas en la lista, indica cocinar en seco o en la grasa propia de la proteína.
+                    3. SIN EXTRAS: No añadas vegetales, condimentos, harinas o proteínas que NO estén en la lista [${ingredientsList}].
+                    
+                    REGLAS DE REDACCIÓN:
+                    - TÍTULOS LIMPIOS: Sin cantidades ni números en el nombre del plato.
+                    - DESPENSA TOTAL: Cada receta debe aprovechar al máximo la mayoría de los ingredientes seleccionados.
+                    - REGLA DE HUEVOS: Si el huevo es el ingrediente base (Omelet/Revueltos), usa exactamente ${this.numPeople * 3} huevos. 
+                    - NOTA DE PROTEÍNA: Añade siempre: "(puedes aumentar la cantidad si eres deportista o requieres más proteína)" al lado de carnes y huevos.
+                    - DULZORES: Fríos = "Stevia Pura en polvo (a gusto)". Horno = "Eritritol (a gusto)".
                     
                     JSON: {"recipes": [{"title": "", "ingredients": [], "instructions": [], "chef_tip": ""}]}
                 `;
@@ -467,8 +471,12 @@
                              <p class="italic">"${r.chef_tip}"</p>
                         </div>
                         <div class="mt-6 pt-4 border-t border-[#4a4a6a] flex gap-3">
-                            <button onclick="app.shareWhatsApp(${i})" class="btn-action bg-[#25D366] text-white"><i class="fab fa-whatsapp mr-2"></i> WhatsApp</button>
-                            <button onclick="app.copyToClipboard(${i})" class="btn-action bg-[#4a4a6a] text-white"><i class="fas fa-copy mr-2"></i> Copiar</button>
+                            <button onclick="app.shareWhatsApp(${i})" class="btn-action bg-[#25D366] text-white hover:bg-[#128C7E]">
+                                <i class="fab fa-whatsapp mr-2"></i> WhatsApp
+                            </button>
+                            <button onclick="app.copyToClipboard(${i})" class="btn-action bg-[#4a4a6a] text-white hover:bg-[#5a5a7a]">
+                                <i class="fas fa-copy mr-2"></i> Copiar
+                            </button>
                         </div>
                     </div>
                 `).join('');
@@ -489,7 +497,7 @@
 
             shareWhatsApp(idx) {
                 const r = this.lastGeneratedRecipes[idx];
-                const text = encodeURIComponent(`🍳 *${r.title}*\n\n*Ingredientes:*\n${r.ingredients.join('\n')}`);
+                const text = encodeURIComponent(`🍳 *${r.title}*\n\n*Ingredientes:*\n${r.ingredients.join('\n')}\n\n*Instrucciones:*\n${r.instructions.join('\n')}`);
                 window.open(`https://wa.me/?text=${text}`, '_blank');
             }
         };
