@@ -404,7 +404,7 @@
             async generateRecipes() {
                 this.showScreen('recipes-screen');
                 const content = document.getElementById('recipes-content');
-                content.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-center"><div class="loader mb-4"></div><p class="font-bold">Chef Keto Origins creando recetas personalizadas...</p></div>`;
+                content.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-center"><div class="loader mb-4"></div><p class="font-bold">Chef Keto Origins creando recetas personalizadas...</p><p id="retry-msg" class="text-gray-400 text-sm mt-2"></p></div>`;
 
                 const ingredientsList = Array.from(this.selectedIngredients).join(', ');
                 
@@ -429,20 +429,46 @@
                     JSON: {"recipes": [{"title": "", "ingredients": [], "instructions": [], "chef_tip": ""}]}
                 `;
 
-                try {
-                    const response = await fetch(`/.netlify/functions/generate_recipes`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
-                    });
-                    
-                    const result = await response.json();
-                    const text = result.candidates[0].content.parts[0].text;
-                    const json = JSON.parse(text.match(/\{[\s\S]*\}/)[0]);
-                    this.lastGeneratedRecipes = json.recipes;
-                    this.renderRecipes(json.recipes);
-                } catch (e) {
-                    content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">Error de conexión. Reintenta por favor.</div>`;
+                const maxRetries = 3;
+                let attempt = 0;
+
+                while (attempt < maxRetries) {
+                    try {
+                        const response = await fetch(`/.netlify/functions/generate_recipes`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
+                        });
+                        
+                        if (response.status === 503 && attempt < maxRetries - 1) {
+                            attempt++;
+                            document.getElementById('retry-msg').textContent = `La cocina está llena, reintentando (${attempt}/${maxRetries})...`;
+                            await new Promise(resolve => setTimeout(resolve, 2000));
+                            continue;
+                        }
+
+                        if (!response.ok) throw new Error("Servicio no disponible.");
+                        
+                        const result = await response.json();
+                        const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (!text) throw new Error("Respuesta vacía de Google.");
+
+                        const jsonMatch = text.match(/\{[\s\S]*\}/);
+                        if (!jsonMatch) throw new Error("Formato de respuesta incorrecto.");
+
+                        const json = JSON.parse(jsonMatch[0]);
+                        this.lastGeneratedRecipes = json.recipes;
+                        this.renderRecipes(json.recipes);
+                        return;
+
+                    } catch (e) {
+                        if (attempt >= maxRetries - 1) {
+                            content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">Hubo un error al conectar con el chef. Por favor, reintenta.</div>`;
+                            return;
+                        }
+                        attempt++;
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                    }
                 }
             },
 
@@ -451,7 +477,7 @@
                 text += `*Ingredientes:*\n${recipe.ingredients.map(i => `• ${i}`).join('\n')}\n\n`;
                 text += `*Instrucciones:*\n${recipe.instructions.map((s, idx) => `${idx + 1}. ${s}`).join('\n')}\n\n`;
                 text += `💡 *Consejo del Chef:* _"${recipe.chef_tip}"_\n\n`;
-                text += `🥑 Estas recetas son solo una sugerencia para guiarte, si quieres hacerle modificaciones siéntete libre de hacerlo a tu gusto y a tu forma. 😉 🥓`;
+                text += `🥑 Estas recetas son solo una sugerencia para guiarte, si quieres hacerle modificaciones siéntete libre de hacerlo a tu gusto y a tu forma. 🥓`;
                 return text;
             },
 
@@ -512,7 +538,7 @@
                     </div>
                 `).join('');
 
-                html += `<div class="disclaimer-box text-center">🥑 Estas recetas son solo una sugerencia para guiarte, si quieres hacerle modificaciones siéntete libre de hacerlo a tu gusto y a tu forma. 😉 🥓</div>`;
+                html += `<div class="disclaimer-box text-center">🥑 Estas recetas son solo una sugerencia para guiarte, si quieres hacerle modificaciones siéntete libre de hacerlo a tu gusto y a tu forma. 🥓</div>`;
                 content.innerHTML = html;
             }
         };
