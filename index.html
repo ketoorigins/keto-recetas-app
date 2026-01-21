@@ -228,7 +228,7 @@
     <div id="toast">¡Receta copiada al portapapeles!</div>
 
     <main id="app-container" class="w-full max-w-2xl mx-auto">
-        <!-- SCREEN: MAIN -->
+        <!-- PANTALLA INICIAL -->
         <div id="main-screen">
             <header class="text-center mb-8">
                 <img src="https://i.ibb.co/20NypXdZ/ketoorigins.png" alt="Logo Keto Origins" class="w-24 h-24 mx-auto mb-4 rounded-full shadow-lg">
@@ -265,7 +265,6 @@
             <p id="generate-recipes-hint" class="text-center text-gray-500 mt-2 text-sm">Selecciona al menos 2 ingredientes</p>
         </div>
 
-        <!-- SCREEN: CATEGORY -->
         <div id="category-screen" class="hidden">
             <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver</button>
             <h2 id="category-title" class="text-3xl font-bold text-center mb-4 title-brand-color title-3d"></h2>
@@ -275,7 +274,6 @@
             </button>
         </div>
 
-        <!-- SCREEN: RECIPES -->
         <div id="recipes-screen" class="hidden">
              <button onclick="app.showMainScreen(true)" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Empezar</button>
              <div id="recipes-content"></div>
@@ -406,29 +404,24 @@
             async generateRecipes() {
                 this.showScreen('recipes-screen');
                 const content = document.getElementById('recipes-content');
-                content.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-center"><div class="loader mb-4"></div><p class="font-bold">Chef Keto Origins creando recetas personalizadas...</p><p id="retry-msg" class="text-gray-400 text-sm mt-2"></p></div>`;
+                content.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-center"><div class="loader mb-4"></div><p class="font-bold">Chef Keto Origins creando recetas...</p><p id="retry-msg" class="text-gray-400 text-sm mt-2"></p></div>`;
 
                 const ingredientsList = Array.from(this.selectedIngredients).join(', ');
                 
                 const prompt = `
-                    SISTEMA DE CONTROL ESTRICTO KETO ORIGINS CHILE.
-                    OBJETIVO: Generar 3 propuestas culinarias para ${this.numPeople} persona(s).
+                    ACTÚA COMO CHEF EXPERTO KETO ORIGINS.
+                    OBJETIVO: 3 recetas independientes para ${this.numPeople} persona(s).
+                    DESPENSA OBLIGATORIA: [${ingredientsList}].
                     
-                    REGLA DE ORO DE INGREDIENTES:
-                    Cada una de las 3 recetas DEBE UTILIZAR LA TOTALIDAD de los siguientes ingredientes seleccionados por el usuario: [${ingredientsList}]. 
-                    No omitas ninguno. Cada receta debe ser una forma distinta de combinar TODO este conjunto de materiales.
-
-                    REGLAS INVIOLABLES DE LUBRICANTES Y BÁSICOS:
-                    1. BÁSICOS: Solo Sal y Pimienta a gusto.
-                    2. GRASAS: PROHIBIDO sugerir "Aceite" si no está en la lista. Si el usuario seleccionó "Mantequilla", es la ÚNICA grasa permitida para dorar o freír. Si no hay grasas marcadas, cocina en seco o con la grasa propia de la proteína.
-
-                    REGLAS DE REDACCIÓN TÉCNICA:
-                    - TÍTULOS LIMPIOS: El título debe ser profesional (ej: "Frittata Origins"). PROHIBIDO incluir cantidades de huevos, gramos o porciones en el nombre del plato.
-                    - REGLA DE HUEVOS: Si el huevo es el ingrediente base, usa exactamente ${this.numPeople * 3} unidades en total. 
-                    - NOTA DE PROTEÍNA: Añade siempre: "(puedes aumentar la cantidad si eres deportista o requieres más proteína)" al lado de carnes, pescados y huevos en la lista de ingredientes.
-                    - DULZORES: Fríos = "Stevia Pura en polvo (a gusto)". Horno = "Eritritol (a gusto)".
-
-                    JSON: {"recipes": [{"title": "", "ingredients": [], "instructions": [], "chef_tip": ""}]}
+                    REGLAS INNEGOCIABLES:
+                    1. USO TOTAL: CADA una de las 3 recetas DEBE usar TODOS los ingredientes de la lista. No los repartas entre platos.
+                    2. GRASAS: Solo usa Sal y Pimienta como extras. PROHIBIDO usar "Aceite" si no está en la lista. Si seleccionaron "Mantequilla", usa Mantequilla.
+                    3. REGLA HUEVOS: Si el huevo es ingrediente principal, usa exactamente ${this.numPeople * 3} unidades.
+                    4. NOTA PROTEÍNA: Al lado de huevos o carnes, escribe siempre: "(puedes aumentar la cantidad si eres deportista o requieres más proteína)".
+                    5. TÍTULOS: Sin números ni cantidades en el nombre del plato.
+                    6. DULZORES: Fríos = Stevia, Horno = Eritritol (siempre "a gusto").
+                    
+                    RESPONDE SOLO JSON: {"recipes": [{"title": "", "ingredients": [], "instructions": [], "chef_tip": ""}]}
                 `;
 
                 const maxRetries = 3;
@@ -442,34 +435,27 @@
                             body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
                         });
                         
-                        if (response.status === 503 && attempt < maxRetries - 1) {
+                        if (response.status === 503) {
                             attempt++;
-                            document.getElementById('retry-msg').textContent = `La cocina está llena, reintentando (${attempt}/${maxRetries})...`;
-                            await new Promise(resolve => setTimeout(resolve, 2500));
+                            document.getElementById('retry-msg').textContent = `Mucha gente cocinando, reintentando (${attempt}/${maxRetries})...`;
+                            await new Promise(r => setTimeout(r, 2000));
                             continue;
                         }
 
-                        if (!response.ok) throw new Error("Servicio no disponible.");
-                        
+                        if (!response.ok) throw new Error();
                         const result = await response.json();
-                        const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                        if (!text) throw new Error("Google no envió respuesta.");
-
-                        const jsonMatch = text.match(/\{[\s\S]*\}/);
-                        if (!jsonMatch) throw new Error("Formato de respuesta incorrecto.");
-
-                        const json = JSON.parse(jsonMatch[0]);
+                        const text = result.candidates[0].content.parts[0].text;
+                        const json = JSON.parse(text.match(/\{[\s\S]*\}/)[0]);
                         this.lastGeneratedRecipes = json.recipes;
                         this.renderRecipes(json.recipes);
                         return;
-
                     } catch (e) {
                         if (attempt >= maxRetries - 1) {
-                            content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">No pudimos conectar con el chef. Por favor, reintenta.</div>`;
+                            content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">Error al conectar. Reintenta por favor.</div>`;
                             return;
                         }
                         attempt++;
-                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        await new Promise(r => setTimeout(r, 2000));
                     }
                 }
             },
@@ -488,14 +474,10 @@
                 const text = this.formatRecipeText(r);
                 try {
                     const area = document.createElement("textarea");
-                    area.value = text;
-                    document.body.appendChild(area);
-                    area.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(area);
+                    area.value = text; document.body.appendChild(area);
+                    area.select(); document.execCommand('copy'); document.body.removeChild(area);
                     const t = document.getElementById("toast");
-                    t.className = "show"; 
-                    setTimeout(() => t.className = "", 3000);
+                    t.className = "show"; setTimeout(() => t.className = "", 3000);
                 } catch (err) { console.error(err); }
             },
 
@@ -507,46 +489,24 @@
 
             renderRecipes(recipes) {
                 const content = document.getElementById('recipes-content');
-                let html = `
-                    <h2 class="text-3xl font-bold text-center mb-6 title-brand-color">Recetas Keto (${this.numPeople} pers.)</h2>
-                    <div class="text-center mb-8">
-                        <button onclick="app.generateRecipes()" class="regenerate-btn-gradient btn-3d text-white px-8 py-3 rounded-full font-bold"><i class="fas fa-sync-alt mr-2"></i> Generar otras 3</button>
-                    </div>
-                `;
-                
+                let html = `<h2 class="text-3xl font-bold text-center mb-6 title-brand-color">Recetas Keto (${this.numPeople} pers.)</h2><div class="text-center mb-8"><button onclick="app.generateRecipes()" class="regenerate-btn-gradient btn-3d text-white px-8 py-3 rounded-full font-bold"><i class="fas fa-sync-alt mr-2"></i> Generar otras 3</button></div>`;
                 html += recipes.map((r, i) => `
                     <div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-xl p-6 mb-6">
                         <h3 class="text-2xl font-bold text-white mb-4">${r.title}</h3>
-                        <div class="mb-4">
-                            <h4 class="font-bold text-pink-400 mb-2">Ingredientes:</h4>
-                            <ul class="list-disc list-inside text-gray-300 space-y-1">${r.ingredients.map(ing => `<li>${ing}</li>`).join('')}</ul>
-                        </div>
-                        <div class="mb-4">
-                            <h4 class="font-bold text-pink-400 mb-2">Instrucciones:</h4>
-                            <ol class="list-decimal list-inside text-gray-300 space-y-2">${r.instructions.map(s => `<li>${s}</li>`).join('')}</ol>
-                        </div>
-                        <div class="chef-tip-box text-gray-300">
-                             <h4 class="font-bold text-lg keto-fuchsia-gradient-text mb-1">Consejo del Chef <i class="fas fa-hat-chef"></i></h4>
-                             <p class="italic">"${r.chef_tip}"</p>
-                        </div>
+                        <div class="mb-4"><h4 class="font-bold text-pink-400 mb-2">Ingredientes:</h4><ul class="list-disc list-inside text-gray-300 space-y-1">${r.ingredients.map(ing => `<li>${ing}</li>`).join('')}</ul></div>
+                        <div class="mb-4"><h4 class="font-bold text-pink-400 mb-2">Instrucciones:</h4><ol class="list-decimal list-inside text-gray-300 space-y-2">${r.instructions.map(s => `<li>${s}</li>`).join('')}</ol></div>
+                        <div class="chef-tip-box text-gray-300"><h4 class="font-bold text-lg keto-fuchsia-gradient-text mb-1">Consejo del Chef <i class="fas fa-hat-chef"></i></h4><p class="italic">"${r.chef_tip}"</p></div>
                         <div class="mt-6 pt-4 border-t border-[#4a4a6a] flex gap-3">
-                            <button onclick="app.shareWhatsApp(${i})" class="btn-action bg-[#25D366] text-white hover:bg-[#128C7E]">
-                                <i class="fab fa-whatsapp mr-2"></i> WhatsApp
-                            </button>
-                            <button onclick="app.copyToClipboard(${i})" class="btn-action bg-[#4a4a6a] text-white hover:bg-[#5a5a7a]">
-                                <i class="fas fa-copy mr-2"></i> Copiar
-                            </button>
+                            <button onclick="app.shareWhatsApp(${i})" class="btn-action bg-[#25D366] text-white"><i class="fab fa-whatsapp mr-2"></i> WhatsApp</button>
+                            <button onclick="app.copyToClipboard(${i})" class="btn-action bg-[#4a4a6a] text-white"><i class="fas fa-copy mr-2"></i> Copiar</button>
                         </div>
                     </div>
                 `).join('');
-
                 html += `<div class="disclaimer-box text-center">🥑 Estas recetas son solo una sugerencia para guiarte, si quieres hacerle modificaciones siéntete libre de hacerlo a tu gusto y a tu forma. 🥓</div>`;
                 content.innerHTML = html;
             }
         };
-
-        window.app = app;
-        app.init();
+        window.app = app; app.init();
     </script>
 </body>
 </html>
