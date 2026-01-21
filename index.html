@@ -78,6 +78,7 @@
         .generate-btn-gradient.btn-3d:active { transform: translateY(3px); box-shadow: 0 1px 0 #991b1b; }
         .add-btn-gradient.btn-3d { box-shadow: 0 4px 0 #b91c1c; }
         .add-btn-gradient.btn-3d:active { transform: translateY(3px); box-shadow: 0 1px 0 #b91c1c; }
+        .regenerate-btn-gradient.btn-3d { box-shadow: 0 4px 0 #1e3a8a; }
 
         .custom-radio {
             appearance: none;
@@ -111,19 +112,13 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         .chef-tip-box {
-            background-color: #3a2d57;
+            background-color: #312350;
             border-left: 4px solid;
             border-image: linear-gradient(to bottom, #a855f7, #ec4899) 1;
             padding: 1rem;
             margin-top: 1.5rem;
             border-radius: 0 8px 8px 0;
         }
-
-        .social-icon { transition: color 0.3s ease; }
-        .tiktok-hover:hover { color: #00f2ea; }
-        .instagram-hover:hover { color: #e1306c; }
-        .whatsapp-hover:hover { color: #25d366; }
-        .web-hover:hover { color: #38bdf8; }
 
         /* Selector de personas */
         .people-selector {
@@ -154,9 +149,9 @@
 
         .btn-action {
             display: inline-flex; align-items: center; justify-content: center;
-            padding: 0.5rem 1rem; border-radius: 9999px;
-            font-weight: 600; font-size: 0.875rem;
-            transition: all 0.2s; border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.6rem 1.2rem; border-radius: 9999px;
+            font-weight: 600; transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         #toast {
@@ -175,6 +170,12 @@
             padding: 1rem; border-radius: 0.75rem; margin-top: 2rem;
             font-size: 0.85rem; color: #a0a0c0; line-height: 1.4;
         }
+
+        .social-icon { transition: color 0.3s ease; }
+        .tiktok-hover:hover { color: #00f2ea; }
+        .instagram-hover:hover { color: #e1306c; }
+        .whatsapp-hover:hover { color: #25d366; }
+        .web-hover:hover { color: #38bdf8; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-4 sm:p-6">
@@ -222,8 +223,7 @@
         <div id="category-screen" class="hidden">
             <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Categorías</button>
             <h2 id="category-title" class="text-3xl font-bold text-center mb-2 title-brand-color title-3d"></h2>
-            <p id="category-description" class="text-center text-gray-400 mb-6 max-w-md mx-auto"></p>
-            <p class="text-center text-white mb-4">Selecciona los ingredientes que tienes para cocinar hoy:</p>
+            <p id="category-description" class="text-center text-gray-400 mb-6 max-w-md mx-auto italic"></p>
             <div id="ingredients-list" class="space-y-3 mb-6"></div>
             <button id="add-ingredients-btn" class="mx-auto block px-12 py-3 rounded-full font-bold text-white text-lg btn-disabled btn-3d" disabled>
                 Añadir Ingredientes y Volver
@@ -267,7 +267,7 @@
                 this.updateMainScreen();
                 document.getElementById('add-ingredients-btn').addEventListener('click', () => this.addIngredientsAndGoBack());
                 document.getElementById('generate-recipes-btn').addEventListener('click', () => this.generateRecipes());
-                window.app = this; // Asegurar acceso global para onclicks
+                window.app = this;
             },
 
             setPeople(num) {
@@ -339,12 +339,6 @@
                 this.showScreen('category-screen');
             },
 
-            toggleTempIngredient(ingredient, isChecked) {
-                if (isChecked) this.tempSelectedCategoryIngredients.add(ingredient);
-                else this.tempSelectedCategoryIngredients.delete(ingredient);
-                this.updateCategoryScreen();
-            },
-
             addIngredientsAndGoBack() {
                 this.ingredientsData[this.currentCategory].items.forEach(item => this.selectedIngredients.delete(item));
                 this.tempSelectedCategoryIngredients.forEach(item => this.selectedIngredients.add(item));
@@ -388,7 +382,6 @@
                 const selectionChanged = !this.areSetsEqual(originalSelection, this.tempSelectedCategoryIngredients);
                 const hasSelection = this.tempSelectedCategoryIngredients.size > 0;
 
-                // El botón solo se activa si hay selección Y ha cambiado (para evitar guardar vacío si se pide explícitamente así)
                 if (selectionChanged && hasSelection) {	
                     addBtn.disabled = false;
                     addBtn.classList.remove('btn-disabled');
@@ -412,16 +405,18 @@
                 `;
 
                 const ingredientsList = Array.from(this.selectedIngredients).join(', ');
+                
                 const prompt = `
                     Eres un chef experto en cocina Keto exclusivo de la marca "Keto Origins" en Chile.
                     Usa un lenguaje y unidades de medida chilenas (gramos, tazas, cucharadas).
+                    
                     BASADO ESTRICTAMENTE en esta lista de ingredientes: [${ingredientsList}], genera 3 recetas Keto para ${this.numPeople} personas.
                     
                     REGLAS OBLIGATORIAS DE ENDULZANTES:
                     1. NUNCA uses azúcar ni endulzantes en gotas.
                     2. REGLA DE LA STEVIA: Para postres fríos o preparaciones que NO necesitan hornear/leudar/subir, usa ÚNICAMENTE "Stevia Pura en polvo".
                     3. REGLA DEL ERITRITOL: Para postres o preparaciones que SÍ van al horno o necesitan leudar/subir, usa ÚNICAMENTE "Eritritol".
-                    4. CANTIDAD SIEMPRE "A GUSTO": Jamás des una medida exacta para el endulzante. Indica siempre "a gusto".
+                    4. CANTIDAD SIEMPRE "A GUSTO": Jamás des una medida exacta (gramos, gotas, cucharaditas) para el endulzante. Indica siempre "a gusto".
                     
                     Formato de respuesta JSON:
                     {
@@ -455,7 +450,7 @@
                             continue; 
                         }
 
-                        if (!response.ok) throw new Error("Servicio no disponible.");
+                        if (!response.ok) throw new Error("Servicio momentáneamente no disponible.");
 
                         const result = await response.json();
                         if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
@@ -468,14 +463,14 @@
                                 return;
                             }
                         }
-                        throw new Error("Formato no reconocido.");
+                        throw new Error("Formato de receta no reconocido.");
 
                     } catch (error) {
                         if (attempt >= maxRetries - 1) {
                             contentDiv.innerHTML = `
                                 <div class="bg-red-900/50 border border-red-600 text-white p-6 rounded-xl text-center">
                                     <h3 class="text-xl font-bold mb-2">¡Mucha demanda!</h3>
-                                    <p>No pudimos conectar con el Chef. Por favor, intenta de nuevo.</p>
+                                    <p>Intentamos 3 veces pero la IA de Google no responde.</p>
                                     <button onclick="app.generateRecipes()" class="mt-4 bg-white text-red-900 px-6 py-2 rounded-full font-bold">Intentar de nuevo</button>
                                 </div>
                             `;
@@ -493,7 +488,7 @@
                     <h2 class="text-3xl font-bold text-center mb-6 title-brand-color title-3d">¡Tus Recetas Keto Origins!</h2>
                     <div class="text-center mb-8">
                         <button onclick="app.generateRecipes()" class="regenerate-btn-gradient btn-3d text-white px-8 py-3 rounded-full font-bold shadow-lg">
-                            <i class="fas fa-sync-alt mr-2"></i> Generar otras opciones
+                            <i class="fas fa-sync-alt mr-2"></i> Ver otras opciones
                         </button>
                     </div>
                 `;
@@ -515,15 +510,15 @@
                         </div>
                         <div class="chef-tip-box text-sm italic text-gray-300 shadow-inner">
                             <h4 class="font-bold text-pink-400 not-italic mb-1 flex items-center">
-                                <i class="fas fa-hat-chef mr-2"></i> Consejo del Chef Keto Origins:
+                                <i class="fas fa-hat-chef mr-2"></i> Tip del Chef Keto:
                             </h4>
                             "${recipe.chef_tip}"
                         </div>
                         <div class="mt-8 flex gap-3">
-                            <button onclick="app.share(${idx})" class="btn-action bg-[#25D366] text-white hover:opacity-90 shadow-md">
+                            <button onclick="app.share(${idx})" class="btn-action bg-[#25D366] text-white hover:opacity-90 shadow-md flex-1">
                                 <i class="fab fa-whatsapp mr-2"></i> WhatsApp
                             </button>
-                            <button onclick="app.copy(${idx})" class="btn-action bg-[#4a4a6a] text-white hover:opacity-90 shadow-md">
+                            <button onclick="app.copy(${idx})" class="btn-action bg-[#4a4a6a] text-white hover:opacity-90 shadow-md flex-1">
                                 <i class="fas fa-copy mr-2"></i> Copiar
                             </button>
                         </div>
@@ -532,7 +527,7 @@
 
                 html += `
                     <div class="disclaimer-box text-center mb-10 italic">
-                        Las cantidades indicadas son estimadas y solo representan una recomendación base para ${this.numPeople} persona(s). Pueden modificarse al gusto y necesidad de cada persona. Estas recetas son una guía exclusiva de Keto Origins Chile.
+                        Las cantidades indicadas son estimadas y solo representan una recomendación base para ${this.numPeople} persona(s). Pueden modificarse al gusto y necesidad de cada persona (especialmente deportistas con mayores requerimientos nutricionales). Estas recetas son una guía para brindarte más opciones culinarias en tu camino Keto.
                     </div>
                 `;
                 
@@ -557,12 +552,14 @@
 
             share(idx) {
                 const r = this.lastGeneratedRecipes[idx];
-                const text = encodeURIComponent(`🍳 *${r.title}*\nReceta Keto Origins Chile\n\n🛒 Ingredientes:\n${r.ingredients.join('\n')}\n\n¡Encuentra más en @keto.origins!`);
+                const text = encodeURIComponent(`🍳 *${r.title}*\nReceta de Keto Origins Chile\n\n🛒 Ingredientes:\n${r.ingredients.join('\n')}\n\n¡Encuentra más en @keto.origins!`);
                 window.open(`https://wa.me/?text=${text}`, '_blank');
             }
         };
 
-        app.init();
+        window.onload = () => {
+            app.init();
+        };
     </script>
 </body>
 </html>
