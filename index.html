@@ -91,6 +91,7 @@
         .people-btn {
             width: 40px; height: 40px; border-radius: 50%; background-color: #4a4a6a;
             color: white; font-weight: bold; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
         }
         .people-btn.active {
             background-image: linear-gradient(to bottom right, #38bdf8, #a855f7);
@@ -147,7 +148,7 @@
 
         <!-- PANTALLA CATEGORIA -->
         <div id="category-screen" class="hidden">
-            <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Categorías</button>
+            <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver</button>
             <h2 id="category-title" class="text-3xl font-bold text-center mb-4 title-brand-color title-3d"></h2>
             <div id="ingredients-list" class="space-y-3 mb-6"></div>
             <button id="add-ingredients-btn" class="mx-auto block px-12 py-3 rounded-full font-bold text-white text-lg btn-disabled btn-3d" disabled>
@@ -173,6 +174,7 @@
     </footer>
 
     <script type="module">
+        const apiKey = ""; // La clave se provee en tiempo de ejecución.
         const app = {
             ingredientsData: {
                 'Grasas': { items: ['Aceite de coco', 'Aceite de oliva', 'Aceitunas', 'Palta', 'Aceite de palta', 'Mayonesa casera', 'Mantequilla', 'Mantequilla de coco', 'Ghee', 'Cacao 100%', 'Chocolate negro puro', 'Chicharrones'] },
@@ -225,12 +227,10 @@
             showCategory(categoryName) {
                 this.currentCategory = categoryName;
                 
-                // Guardar estado inicial para comparar y saber si activar el botón
+                // Guardar estado actual para comparar cambios
                 this.initialCategoryState = new Set(
                     this.ingredientsData[categoryName].items.filter(i => this.selectedIngredients.has(i))
                 );
-                
-                // Trabajar sobre una copia temporal
                 this.tempSelectedCategoryIngredients = new Set(this.initialCategoryState);
                 
                 document.getElementById('category-title').textContent = categoryName;
@@ -262,8 +262,6 @@
 
             updateCategoryScreen() {
                 const addBtn = document.getElementById('add-ingredients-btn');
-                
-                // El botón solo se activa si la selección actual es diferente a la inicial
                 const hasChanged = !this.areSetsEqual(this.initialCategoryState, this.tempSelectedCategoryIngredients);
                 
                 if (hasChanged) {
@@ -276,7 +274,6 @@
                     addBtn.classList.remove('add-btn-gradient');
                 }
 
-                // Actualizar clases visuales de los items
                 document.querySelectorAll('#ingredients-list .ingredient-btn').forEach(div => {
                     const cb = div.querySelector('input');
                     if (this.tempSelectedCategoryIngredients.has(cb.value)) div.classList.add('selected');
@@ -285,7 +282,6 @@
             },
 
             addIngredientsAndGoBack() {
-                // Sincronizar selección global
                 this.ingredientsData[this.currentCategory].items.forEach(i => this.selectedIngredients.delete(i));
                 this.tempSelectedCategoryIngredients.forEach(i => this.selectedIngredients.add(i));
                 this.showMainScreen();
@@ -310,66 +306,55 @@
             async generateRecipes() {
                 this.showScreen('recipes-screen');
                 const content = document.getElementById('recipes-content');
-                content.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-center"><div class="loader mb-4"></div><p class="font-bold">Chef Keto Origins creando recetas personalizadas...</p><p id="retry-msg" class="text-gray-400 text-sm mt-2"></p></div>`;
+                content.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-center"><div class="loader mb-4"></div><p class="font-bold">Chef Keto Origins trabajando para ${this.numPeople} persona(s)...</p><p id="retry-msg" class="text-gray-400 text-sm mt-2"></p></div>`;
 
                 const ingredientsList = Array.from(this.selectedIngredients).join(', ');
-                
                 const prompt = `
                     SISTEMA DE CONTROL ESTRICTO KETO ORIGINS CHILE.
                     OBJETIVO: Generar 3 propuestas culinarias para ${this.numPeople} persona(s).
-                    
                     REGLA DE ORO DE INGREDIENTES:
-                    Cada una de las 3 recetas DEBE UTILIZAR LA TOTALIDAD de los siguientes ingredientes seleccionados por el usuario: [${ingredientsList}]. 
-                    No omitas ninguno. Cada receta debe ser una forma distinta de combinar TODO este conjunto de materiales.
-
-                    REGLAS INVIOLABLES DE LUBRICANTES Y BÁSICOS:
-                    1. BÁSICOS: Solo Sal y Pimienta a gusto.
-                    2. GRASAS: PROHIBIDO sugerir "Aceite" si no está en la lista. Si el usuario seleccionó "Mantequilla", es la ÚNICA grasa permitida para dorar o freír. Si no hay grasas marcadas, cocina en seco o con la grasa propia de la proteína.
-
-                    REGLAS DE REDACCIÓN TÉCNICA:
-                    - TÍTULOS LIMPIOS: El título debe ser profesional (ej: "Frittata Origins"). PROHIBIDO incluir cantidades de huevos, gramos o porciones en el nombre del plato.
-                    - REGLA DE HUEVOS: Si el huevo es el ingrediente base, usa exactamente ${this.numPeople * 3} unidades en total. 
-                    - NOTA DE PROTEÍNA: Añade siempre: "(puedes aumentar la cantidad si eres deportista o requieres más proteína)" al lado de carnes, pescados y huevos en la lista de ingredientes.
-                    - DULZORES: Fríos = "Stevia Pura en polvo (a gusto)". Horno = "Eritritol (a gusto)".
-
+                    Cada una de las 3 recetas DEBE UTILIZAR LA TOTALIDAD de los siguientes ingredientes seleccionados por el usuario: [${ingredientsList}]. No omitas ninguno.
+                    LUBRICANTES: Solo Sal y Pimienta a gusto. PROHIBIDO sugerir "Aceite" si no está en la lista. Si seleccionó "Mantequilla", usa Mantequilla.
+                    TECNICISMOS:
+                    - TÍTULOS LIMPIOS: Sin cantidades ni números.
+                    - HUEVOS: Si es base, usa exactamente ${this.numPeople * 3} unidades. 
+                    - NOTA DE PROTEÍNA: Añade siempre: "(puedes aumentar la cantidad si eres deportista o requieres más proteína)" al lado de carnes, pescados y huevos.
+                    - DULZORES: Stevia (frío) o Eritritol (horno) siempre "a gusto".
                     JSON: {"recipes": [{"title": "", "ingredients": [], "instructions": [], "chef_tip": ""}]}
                 `;
 
-                const maxRetries = 3;
+                const maxRetries = 5;
                 let attempt = 0;
                 while (attempt < maxRetries) {
                     try {
-                        const response = await fetch(`/.netlify/functions/generate_recipes`, {
+                        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
+                            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                         });
                         
-                        if (response.status === 503) {
-                            attempt++;
-                            document.getElementById('retry-msg').textContent = `Mucha demanda en Google, reintentando (${attempt}/${maxRetries})...`;
-                            await new Promise(r => setTimeout(r, 2000));
-                            continue;
-                        }
-
+                        if (!response.ok) throw new Error();
+                        
                         const result = await response.json();
                         const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
                         if (!text) throw new Error();
-                        
+
                         const jsonMatch = text.match(/\{[\s\S]*\}/);
                         if (!jsonMatch) throw new Error();
-                        
+
                         const data = JSON.parse(jsonMatch[0]);
                         this.lastGeneratedRecipes = data.recipes;
                         this.renderRecipes(data.recipes);
                         return;
                     } catch (e) {
-                        if (attempt >= maxRetries - 1) {
-                            content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">Error al conectar con el Chef de Google. Reintenta por favor.</div>`;
+                        attempt++;
+                        if (attempt >= maxRetries) {
+                            content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">El Chef de Google está ocupado. Por favor, reintenta en un momento.</div>`;
                             return;
                         }
-                        attempt++;
-                        await new Promise(r => setTimeout(r, 2000));
+                        const delay = Math.pow(2, attempt) * 1000;
+                        document.getElementById('retry-msg').textContent = `Mucha demanda en la cocina, reintentando en ${Math.round(delay/1000)}s...`;
+                        await new Promise(resolve => setTimeout(resolve, delay));
                     }
                 }
             },
@@ -408,14 +393,8 @@
                 html += recipes.map((r, i) => `
                     <div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-xl p-6 mb-6">
                         <h3 class="text-2xl font-bold text-white mb-4">${r.title}</h3>
-                        <div class="mb-4">
-                            <h4 class="font-bold text-pink-400 mb-2">Ingredientes:</h4>
-                            <ul class="list-disc list-inside text-gray-300 space-y-1">${r.ingredients.map(ing => `<li>${ing}</li>`).join('')}</ul>
-                        </div>
-                        <div class="mb-4">
-                            <h4 class="font-bold text-pink-400 mb-2">Instrucciones:</h4>
-                            <ol class="list-decimal list-inside text-gray-300 space-y-2">${r.instructions.map(s => `<li>${s}</li>`).join('')}</ol>
-                        </div>
+                        <div class="mb-4"><h4 class="font-bold text-pink-400 mb-2">Ingredientes:</h4><ul class="list-disc list-inside text-gray-300 space-y-1">${r.ingredients.map(ing => `<li>${ing}</li>`).join('')}</ul></div>
+                        <div class="mb-4"><h4 class="font-bold text-pink-400 mb-2">Instrucciones:</h4><ol class="list-decimal list-inside text-gray-300 space-y-2">${r.instructions.map(s => `<li>${s}</li>`).join('')}</ol></div>
                         <div class="chef-tip-box text-gray-300">
                              <h4 class="font-bold text-lg keto-fuchsia-gradient-text mb-1">Consejo del Chef <i class="fas fa-hat-chef"></i></h4>
                              <p class="italic">"${r.chef_tip}"</p>
