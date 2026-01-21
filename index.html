@@ -228,7 +228,7 @@
     <div id="toast">¡Receta copiada al portapapeles!</div>
 
     <main id="app-container" class="w-full max-w-2xl mx-auto">
-        <!-- PANTALLA INICIAL -->
+        <!-- SCREEN: MAIN -->
         <div id="main-screen">
             <header class="text-center mb-8">
                 <img src="https://i.ibb.co/20NypXdZ/ketoorigins.png" alt="Logo Keto Origins" class="w-24 h-24 mx-auto mb-4 rounded-full shadow-lg">
@@ -265,6 +265,7 @@
             <p id="generate-recipes-hint" class="text-center text-gray-500 mt-2 text-sm">Selecciona al menos 2 ingredientes</p>
         </div>
 
+        <!-- SCREEN: CATEGORY -->
         <div id="category-screen" class="hidden">
             <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver</button>
             <h2 id="category-title" class="text-3xl font-bold text-center mb-4 title-brand-color title-3d"></h2>
@@ -274,6 +275,7 @@
             </button>
         </div>
 
+        <!-- SCREEN: RECIPES -->
         <div id="recipes-screen" class="hidden">
              <button onclick="app.showMainScreen(true)" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Empezar</button>
              <div id="recipes-content"></div>
@@ -443,7 +445,7 @@
                         if (response.status === 503 && attempt < maxRetries - 1) {
                             attempt++;
                             document.getElementById('retry-msg').textContent = `La cocina está llena, reintentando (${attempt}/${maxRetries})...`;
-                            await new Promise(resolve => setTimeout(resolve, 2000));
+                            await new Promise(resolve => setTimeout(resolve, 2500));
                             continue;
                         }
 
@@ -451,7 +453,7 @@
                         
                         const result = await response.json();
                         const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                        if (!text) throw new Error("Respuesta vacía de Google.");
+                        if (!text) throw new Error("Google no envió respuesta.");
 
                         const jsonMatch = text.match(/\{[\s\S]*\}/);
                         if (!jsonMatch) throw new Error("Formato de respuesta incorrecto.");
@@ -463,7 +465,7 @@
 
                     } catch (e) {
                         if (attempt >= maxRetries - 1) {
-                            content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">Hubo un error al conectar con el chef. Por favor, reintenta.</div>`;
+                            content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center">No pudimos conectar con el chef. Por favor, reintenta.</div>`;
                             return;
                         }
                         attempt++;
