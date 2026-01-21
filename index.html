@@ -451,7 +451,7 @@
                 text += `*Ingredientes:*\n${recipe.ingredients.map(i => `• ${i}`).join('\n')}\n\n`;
                 text += `*Instrucciones:*\n${recipe.instructions.map((s, idx) => `${idx + 1}. ${s}`).join('\n')}\n\n`;
                 text += `💡 *Consejo del Chef:* _"${recipe.chef_tip}"_\n\n`;
-                text += `🥑 Estas recetas son solo una sugerencia para guiarte, si quieres hacerle modificaciones siéntete libre de hacerlo a tu gusto y a tu formas. 🥓`;
+                text += `🥑 Estas recetas son solo una sugerencia para guiarte, si quieres hacerle modificaciones siéntete libre de hacerlo a tu gusto y a tu forma. 😉 🥓`;
                 return text;
             },
 
@@ -512,7 +512,7 @@
                     </div>
                 `).join('');
 
-                html += `<div class="disclaimer-box text-center">🥑 Estas recetas son solo una sugerencia para guiarte, si quieres hacerle modificaciones siéntete libre de hacerlo a tu gusto y a tu formas. 🥓</div>`;
+                html += `<div class="disclaimer-box text-center">🥑 Estas recetas son solo una sugerencia para guiarte, si quieres hacerle modificaciones siéntete libre de hacerlo a tu gusto y a tu forma. 😉 🥓</div>`;
                 content.innerHTML = html;
             }
         };
