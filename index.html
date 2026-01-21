@@ -110,7 +110,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-between p-4 sm:p-6">
+<body class="min-h-screen flex flex-col items-center justify-between p-4 sm:p-6 overflow-x-hidden">
 
     <div id="toast">¡Receta copiada al portapapeles!</div>
 
@@ -212,6 +212,7 @@
             showScreen(name) {
                 ['main-screen', 'category-screen', 'recipes-screen'].forEach(s => document.getElementById(s).classList.add('hidden'));
                 document.getElementById(name).classList.remove('hidden');
+                window.scrollTo(0,0);
             },
 
             showMainScreen(clear = false) {
@@ -233,25 +234,21 @@
             showCategory(categoryName) {
                 this.currentCategory = categoryName;
                 
-                // Reset de botón antes de cualquier cálculo para asegurar estado "apagado" al entrar
-                const addBtn = document.getElementById('add-ingredients-btn');
-                addBtn.disabled = true;
-                addBtn.classList.add('btn-disabled');
-                addBtn.classList.remove('add-btn-gradient');
-
-                // Captura exacta de qué ingredientes de esta categoría están seleccionados actualmente
+                // 1. Capturar el estado actual global de esta categoría ANTES de renderizar
+                const categoryItems = this.ingredientsData[categoryName].items;
                 this.initialCategoryState = new Set(
-                    this.ingredientsData[categoryName].items.filter(i => this.selectedIngredients.has(i))
+                    categoryItems.filter(i => this.selectedIngredients.has(i))
                 );
                 
-                // Copia temporal idéntica para empezar
+                // 2. Sincronizar el temporal
                 this.tempSelectedCategoryIngredients = new Set(this.initialCategoryState);
                 
+                // 3. Renderizar
                 document.getElementById('category-title').textContent = categoryName;
                 const list = document.getElementById('ingredients-list');
                 list.innerHTML = '';
                 
-                this.ingredientsData[categoryName].items.forEach(item => {
+                categoryItems.forEach(item => {
                     const div = document.createElement('div');
                     const isChecked = this.initialCategoryState.has(item);
                     div.className = `ingredient-btn p-4 rounded-full flex items-center cursor-pointer ${isChecked ? 'selected' : ''}`;
@@ -262,10 +259,7 @@
                     const cb = div.querySelector('input');
                     
                     div.addEventListener('click', (e) => {
-                        // Evitar doble toggle si se hace click directamente en el input
-                        if (e.target !== cb) {
-                            cb.checked = !cb.checked;
-                        }
+                        if (e.target !== cb) cb.checked = !cb.checked;
                         
                         if (cb.checked) this.tempSelectedCategoryIngredients.add(item);
                         else this.tempSelectedCategoryIngredients.delete(item);
@@ -275,13 +269,15 @@
                     list.appendChild(div);
                 });
                 
+                // 4. Forzar botón apagado al entrar (porque temp == initial)
+                this.updateCategoryScreen();
                 this.showScreen('category-screen');
             },
 
             updateCategoryScreen() {
                 const addBtn = document.getElementById('add-ingredients-btn');
                 
-                // Comparación robusta entre el estado al entrar y el actual
+                // Solo se enciende si el estado TEMPORAL es diferente al estado INICIAL de cuando entraste
                 const hasChanged = !this.areSetsEqual(this.initialCategoryState, this.tempSelectedCategoryIngredients);
                 
                 if (hasChanged) {
@@ -294,7 +290,7 @@
                     addBtn.classList.remove('add-btn-gradient');
                 }
 
-                // Sincronizar estilo visual de los botones de ingrediente basándose en el set temporal
+                // Sincronizar estilo visual de los botones
                 document.querySelectorAll('#ingredients-list .ingredient-btn').forEach(div => {
                     const cb = div.querySelector('input');
                     if (this.tempSelectedCategoryIngredients.has(cb.value)) div.classList.add('selected');
@@ -303,8 +299,9 @@
             },
 
             addIngredientsAndGoBack() {
-                // Actualizar la lista maestra global eliminando los anteriores de esta categoría e insertando los nuevos
+                // Borrar solo lo que pertenece a esta categoría en el set global
                 this.ingredientsData[this.currentCategory].items.forEach(i => this.selectedIngredients.delete(i));
+                // Añadir la nueva selección temporal al global
                 this.tempSelectedCategoryIngredients.forEach(i => this.selectedIngredients.add(i));
                 this.showMainScreen();
             },
@@ -344,7 +341,11 @@
                     if (!response.ok) throw new Error("API_ERROR");
 
                     const result = await response.json();
-                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    
+                    // LIMPIEZA CRÍTICA: Elimina etiquetas de Markdown si la IA las añade
+                    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+                    
                     return JSON.parse(text);
                 } catch (error) {
                     if (attempt < maxRetries) {
