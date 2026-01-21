@@ -79,7 +79,7 @@
             border-radius: 50%;
             cursor: pointer;
             flex-shrink: 0;
-            pointer-events: none; /* Evitamos que el input interfiera con el click del div */
+            pointer-events: none;
         }
 
         .custom-radio:checked {
@@ -174,7 +174,7 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-4 sm:p-6">
 
-    <div id="toast">¡Receta copiada al portapapeles!</div>
+    <div id="toast">¡Receta copiada!</div>
 
     <main id="app-container" class="w-full max-w-2xl mx-auto">
         <!-- PANTALLA PRINCIPAL -->
@@ -219,7 +219,6 @@
             <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Categorías</button>
             <h2 id="category-title" class="text-3xl font-bold text-center mb-2 title-brand-color title-3d"></h2>
             <p id="category-description" class="text-center text-gray-400 mb-6 max-w-md mx-auto"></p>
-            <p class="text-center text-white mb-4">Selecciona los ingredientes que tienes para cocinar hoy:</p>
             <div id="ingredients-list" class="space-y-3 mb-6"></div>
             <button id="add-ingredients-btn" onclick="app.addIngredientsAndGoBack()" class="mx-auto block px-12 py-3 rounded-full font-bold text-white text-lg btn-disabled btn-3d" disabled>
                 Añadir Ingredientes y Volver
@@ -244,17 +243,16 @@
     </footer>
 
     <script>
-        // API Key se inyecta automáticamente en este entorno
         const apiKey = ""; 
 
         const app = {
             ingredientsData: {
-                'Grasas': { description: 'Las grasas son nuestra principal fuente de energía en keto.', items: ['Aceite de coco', 'Aceite de oliva', 'Aceitunas', 'Palta', 'Aceite de palta', 'Mayonesa casera', 'Mantequilla', 'Ghee', 'Cacao 100%', 'Chocolate negro puro', 'Chicharrones'] },
-                'Proteínas': { description: 'Fundamentales para la reparación y construcción de tejidos.', items: ['Salmón', 'Salmón ahumado', 'Sardinas', 'Caballa', 'Atún', 'Huevos', 'Carne de res', 'Tocino', 'Pollo', 'Pavo', 'Cerdo', 'Cordero'] },
-                'Frutos Secos y Semillas': { description: 'Grasas saludables, fibra, vitaminas y minerales.', items: ['Almendras', 'Avellanas', 'Nueces pecanas', 'Nueces de macadamia', 'Semillas de zapallo', 'Chía', 'Sésamo', 'Lino', 'Harina de almendras', 'Harina de coco'] },
-                'Lácteos': { description: 'Grasas y proteínas de alta calidad.', items: ['Queso Mozzarella', 'Queso Gouda', 'Queso Crema', 'Queso Chanco', 'Queso Fresco', 'Queso Parmesano', 'Queso Cheddar', 'Queso Brie', 'Crema espesa', 'Yogurt de pajaritos (Kéfir)'] },
-                'Carbohidratos (Verduras)': { description: 'Fuente de fibra, vitaminas y minerales.', items: ['Acelga', 'Apio', 'Ajo', 'Ají', 'Berenjena', 'Brócoli', 'Cebolla', 'Coliflor', 'Espárragos', 'Espinaca', 'Lechuga', 'Pimentón', 'Rúcula', 'Tomates', 'Zapallo italiano', 'Pepino', 'Rábanos'] },
-                'Frutas y Bayas': { description: 'Antioxidantes con bajo impacto en el azúcar.', items: ['Coco', 'Limón', 'Frutillas', 'Moras', 'Frambuesas', 'Arándanos'] }
+                'Grasas': { description: 'Fuentes de energía esenciales en keto.', items: ['Aceite de coco', 'Aceite de oliva', 'Aceitunas', 'Palta', 'Aceite de palta', 'Mayonesa casera', 'Mantequilla', 'Ghee', 'Cacao 100%', 'Chocolate negro puro', 'Chicharrones'] },
+                'Proteínas': { description: 'Base para construcción de tejidos.', items: ['Salmón', 'Salmón ahumado', 'Sardinas', 'Caballa', 'Atún', 'Huevos', 'Carne de res', 'Tocino', 'Pollo', 'Pavo', 'Cerdo', 'Cordero'] },
+                'Frutos Secos y Semillas': { description: 'Grasas saludables y fibra.', items: ['Almendras', 'Avellanas', 'Nueces pecanas', 'Nueces de macadamia', 'Semillas de zapallo', 'Chía', 'Sésamo', 'Lino', 'Harina de almendras', 'Harina de coco'] },
+                'Lácteos': { description: 'Grasas y proteínas de alta calidad.', items: ['Mozzarella', 'Gouda', 'Queso Crema', 'Queso Chanco', 'Queso Fresco', 'Parmesano', 'Cheddar', 'Brie', 'Feta', 'Crema espesa', 'Kéfir'] },
+                'Carbohidratos (Verduras)': { description: 'Fibra y vitaminas vitales.', items: ['Acelga', 'Apio', 'Ajo', 'Ají', 'Berenjena', 'Brócoli', 'Cebolla', 'Coliflor', 'Espárragos', 'Espinaca', 'Lechuga', 'Pimentón', 'Rúcula', 'Tomates', 'Zapallo italiano', 'Pepino', 'Rábanos'] },
+                'Frutas y Bayas': { description: 'Antioxidantes bajos en azúcar.', items: ['Coco', 'Limón', 'Frutillas', 'Moras', 'Frambuesas', 'Arándanos'] }
             },
             
             selectedIngredients: new Set(),
@@ -310,10 +308,9 @@
                     div.className = `ingredient-btn p-4 rounded-full flex items-center justify-start cursor-pointer transition-all ${isSelected ? 'selected' : ''}`;
                     div.innerHTML = `
                         <input type="checkbox" class="custom-radio mr-4" ${isSelected ? 'checked' : ''}>
-                        <span class="flex-grow font-medium">${item}</span>
+                        <span class="flex-grow font-medium text-white">${item}</span>
                     `;
                     
-                    // Corregimos el fallo de selección (evitamos doble toggle)
                     div.onclick = () => {
                         const cb = div.querySelector('input');
                         cb.checked = !cb.checked;
@@ -345,9 +342,13 @@
                 const hint = document.getElementById('generate-recipes-hint');
 
                 if (this.selectedIngredients.size === 0) {
-                    display.innerHTML = '<p class="text-gray-500 italic">Tus ingredientes aparecerán aquí...</p>';
+                    display.innerHTML = '<p class="text-gray-500 italic">Selecciona ingredientes para comenzar...</p>';
                 } else {
-                    display.innerHTML = Array.from(this.selectedIngredients).map(ing => `<span class="inline-block bg-[#4a4a6a] text-white rounded-full px-3 py-1 text-sm mr-2 mb-2 border border-white/10">${ing}</span>`).join('');
+                    display.innerHTML = Array.from(this.selectedIngredients).map(ing => `
+                        <span class="inline-block bg-[#4a4a6a] text-white rounded-full px-3 py-1 text-sm mr-2 mb-2 border border-white/10">
+                            ${ing}
+                        </span>
+                    `).join('');
                 }
 
                 const ready = this.selectedIngredients.size >= 2;
@@ -363,44 +364,41 @@
                 const changed = this.tempSelectedCategoryIngredients.size !== currentOriginal.size || 
                                 ![...this.tempSelectedCategoryIngredients].every(i => currentOriginal.has(i));
 
-                addBtn.disabled = !changed;
+                addBtn.disabled = !changed && this.tempSelectedCategoryIngredients.size === 0;
                 addBtn.className = `mx-auto block px-12 py-3 rounded-full font-bold text-white text-lg btn-3d ${!addBtn.disabled ? 'add-btn-gradient' : 'btn-disabled'}`;
             },
 
             async fetchGemini(prompt, system) {
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
                 
-                const schema = {
-                    type: "OBJECT",
-                    properties: {
-                        recipes: {
-                            type: "ARRAY",
-                            items: {
-                                type: "OBJECT",
-                                properties: {
-                                    title: { type: "STRING" },
-                                    ingredients: { type: "ARRAY", items: { type: "STRING" } },
-                                    instructions: { type: "ARRAY", items: { type: "STRING" } },
-                                    chef_tip: { type: "STRING" }
-                                },
-                                required: ["title", "ingredients", "instructions", "chef_tip"]
-                            }
-                        }
-                    },
-                    required: ["recipes"]
-                };
-
                 const payload = {
                     contents: [{ parts: [{ text: prompt }] }],
                     systemInstruction: { parts: [{ text: system }] },
                     generationConfig: { 
-                        responseMimeType: "application/json", 
-                        responseSchema: schema,
-                        temperature: 0.7
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                recipes: {
+                                    type: "ARRAY",
+                                    items: {
+                                        type: "OBJECT",
+                                        properties: {
+                                            title: { type: "STRING" },
+                                            ingredients: { type: "ARRAY", items: { type: "STRING" } },
+                                            instructions: { type: "ARRAY", items: { type: "STRING" } },
+                                            chef_tip: { type: "STRING" }
+                                        },
+                                        required: ["title", "ingredients", "instructions", "chef_tip"]
+                                    }
+                                }
+                            },
+                            required: ["recipes"]
+                        }
                     }
                 };
 
-                let delay = 1000;
+                const delays = [1000, 2000, 4000, 8000, 16000];
                 for (let i = 0; i < 5; i++) {
                     try {
                         const res = await fetch(url, { 
@@ -411,20 +409,13 @@
                         
                         if (res.ok) {
                             const data = await res.json();
-                            const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                            if (!rawText) throw new Error("Respuesta vacía");
-                            return JSON.parse(rawText.replace(/```json\n?|```/g, "").trim());
-                        } else if (res.status === 429 || res.status >= 500) {
-                            // Reintentos para cuota o errores de servidor
-                        } else {
-                            throw new Error("Error en la solicitud");
+                            const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                            if (textResponse) return JSON.parse(textResponse);
                         }
-                    } catch (e) {
-                        if (i === 4) throw e;
-                    }
-                    await new Promise(r => setTimeout(r, delay));
-                    delay *= 2;
+                    } catch (e) {}
+                    await new Promise(r => setTimeout(r, delays[i]));
                 }
+                throw new Error("No pudimos obtener las recetas. Inténtalo de nuevo.");
             },
 
             async generateRecipes() {
@@ -433,13 +424,13 @@
                 content.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-64 text-center">
                         <div class="loader mb-4"></div>
-                        <p class="text-white font-bold">Chef Keto Origins trabajando para ${this.numPeople} pers...</p>
-                        <p class="text-gray-400 text-sm mt-2 italic">Esto puede tardar unos segundos.</p>
+                        <p class="text-white font-bold">Chef Keto trabajando para ${this.numPeople} persona(s)...</p>
+                        <p class="text-gray-400 text-sm mt-2 italic">Esto es un error del sistema, no de tu conexión.</p>
                     </div>
                 `;
 
-                const system = `Eres el Chef experto de Keto Origins Chile. Generas 3 recetas creativas usando los ingredientes dados para ${this.numPeople} personas. Usa unidades de medida chilenas. Endulzantes permitidos: Stevia (frío), Eritritol (horno).`;
-                const user = `Ingredientes disponibles: [${Array.from(this.selectedIngredients).join(', ')}]. Genera 3 recetas.`;
+                const system = `Eres el Chef de Keto Origins Chile. Genera 3 recetas creativas para ${this.numPeople} personas. Solo usa los ingredientes dados. Unidades chilenas. Postres: Stevia (frío), Eritritol (horno).`;
+                const user = `Ingredientes: [${Array.from(this.selectedIngredients).join(', ')}].`;
 
                 try {
                     const data = await this.fetchGemini(user, system);
@@ -450,8 +441,8 @@
                         <div class="bg-red-900/40 p-6 rounded-2xl text-center border border-red-500/50">
                             <i class="fas fa-hat-chef text-3xl mb-4 text-white"></i>
                             <p class="text-white font-bold mb-2">¡El Chef tuvo un tropiezo!</p>
-                            <p class="text-gray-300 text-sm mb-4">No logramos conectar con el motor de recetas. A veces la demanda es alta, pero estamos listos para volver a intentarlo.</p>
-                            <button onclick="app.generateRecipes()" class="bg-white text-red-900 px-8 py-2 rounded-full font-bold shadow-lg hover:bg-gray-200 transition-all">Reintentar Ahora</button>
+                            <p class="text-gray-300 text-sm mb-4">El servidor de IA está saturado. Por favor, reintenta ahora mismo.</p>
+                            <button onclick="app.generateRecipes()" class="bg-white text-red-900 px-8 py-2 rounded-full font-bold shadow-lg hover:scale-105 transition-all">Reintentar</button>
                         </div>
                     `;
                 }
@@ -460,10 +451,10 @@
             renderRecipes(recipes) {
                 const div = document.getElementById('recipes-content');
                 let html = `
-                    <h2 class="text-3xl font-bold text-center mb-6 title-brand-color title-3d">Tus Recetas Personalizadas</h2>
+                    <h2 class="text-3xl font-bold text-center mb-6 title-brand-color title-3d">Recetas Listas</h2>
                     <div class="text-center mb-8">
                         <button onclick="app.generateRecipes()" class="regenerate-btn-gradient btn-3d text-white px-8 py-3 rounded-full font-bold shadow-lg">
-                            <i class="fas fa-sync-alt mr-2"></i> Sugerir otras 3 recetas
+                            <i class="fas fa-sync-alt mr-2"></i> Otras opciones
                         </button>
                     </div>
                 `;
@@ -471,44 +462,38 @@
                 html += recipes.map((r, idx) => `
                     <div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-2xl p-6 mb-8 shadow-xl">
                         <h3 class="text-2xl font-bold text-white mb-4 border-b border-white/10 pb-2">${r.title}</h3>
-                        <div class="mb-4">
+                        <div class="mb-4 text-sm">
                             <h4 class="font-bold text-pink-400 mb-2">Ingredientes:</h4>
                             <ul class="text-gray-300 list-disc list-inside space-y-1">
                                 ${r.ingredients.map(i => `<li>${i}</li>`).join('')}
                             </ul>
                         </div>
-                        <div class="mb-4">
-                            <h4 class="font-bold text-pink-400 mb-2">Preparación:</h4>
+                        <div class="mb-4 text-sm">
+                            <h4 class="font-bold text-pink-400 mb-2">Pasos:</h4>
                             <ol class="text-gray-300 list-decimal list-inside space-y-2">
                                 ${r.instructions.map(s => `<li>${s}</li>`).join('')}
                             </ol>
                         </div>
-                        <div class="chef-tip-box italic text-gray-300 shadow-inner">
-                            <h4 class="font-bold text-pink-400 not-italic mb-1">Tip del Chef:</h4>
+                        <div class="chef-tip-box italic text-gray-300 text-sm">
+                            <h4 class="font-bold text-pink-400 not-italic mb-1">Consejo:</h4>
                             "${r.chef_tip}"
                         </div>
-                        <div class="mt-8 flex gap-3 flex-wrap">
-                            <button onclick="app.share(${idx})" class="btn-action bg-[#25D366] text-white hover:bg-[#128C7E] shadow-sm">
-                                <i class="fab fa-whatsapp mr-2"></i> Compartir
-                            </button>
-                            <button onclick="app.copy(${idx})" class="btn-action bg-[#4a4a6a] text-white hover:bg-[#5a5a7a] shadow-sm">
-                                <i class="fas fa-copy mr-2"></i> Copiar
-                            </button>
+                        <div class="mt-8 flex gap-3">
+                            <button onclick="app.share(${idx})" class="btn-action bg-[#25D366] text-white hover:opacity-90">WhatsApp</button>
+                            <button onclick="app.copy(${idx})" class="btn-action bg-[#4a4a6a] text-white hover:opacity-90">Copiar</button>
                         </div>
                     </div>
                 `).join('');
                 
-                html += `<div class="disclaimer-box text-center mb-10 italic">Aviso: Cantidades estimadas para ${this.numPeople} persona(s). Ajusta según tus objetivos personales y nutricionales.</div>`;
+                html += `<div class="disclaimer-box text-center mb-10 italic">Cantidades para ${this.numPeople} pers. Ajusta según tus objetivos.</div>`;
                 div.innerHTML = html;
             },
 
             copy(idx) {
                 const r = this.lastGeneratedRecipes[idx];
-                const text = `🍳 *${r.title}* - Receta de Keto Origins\n\n🛒 Ingredientes:\n${r.ingredients.join('\n')}\n\n🥣 Pasos:\n${r.instructions.join('\n')}\n\n💡 Tip: ${r.chef_tip}`;
+                const text = `🍳 *${r.title}*\n\n🛒 Ingredientes:\n${r.ingredients.join('\n')}\n\n🥣 Pasos:\n${r.instructions.join('\n')}\n\n💡 Tip: ${r.chef_tip}`;
                 const area = document.createElement("textarea");
                 area.value = text;
-                area.style.position = "fixed";
-                area.style.left = "-9999px";
                 document.body.appendChild(area);
                 area.select();
                 document.execCommand('copy');
@@ -520,7 +505,7 @@
 
             share(idx) {
                 const r = this.lastGeneratedRecipes[idx];
-                const text = encodeURIComponent(`🍳 *${r.title}*\nReceta de Keto Origins Chile\n\nIngredientes:\n${r.ingredients.join('\n')}\n\n¡Encuentra más en nuestro sitio!`);
+                const text = encodeURIComponent(`🍳 *${r.title}*\nReceta Keto Origins Chile\n\nIngredientes:\n${r.ingredients.join('\n')}`);
                 window.open(`https://wa.me/?text=${text}`, '_blank');
             }
         };
