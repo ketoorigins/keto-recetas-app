@@ -77,9 +77,10 @@
             height: 20px;
             border: 2px solid #4a4a6a;
             border-radius: 50%;
+            outline: none;
             cursor: pointer;
             flex-shrink: 0;
-            pointer-events: none;
+            pointer-events: none; /* Evita conflicto con el click del div */
         }
 
         .custom-radio:checked {
@@ -122,6 +123,7 @@
             bottom: 30px;
             transform: translateX(-50%);
             font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
@@ -170,11 +172,22 @@
             box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
             transform: scale(1.1);
         }
+
+        .disclaimer-box {
+            background-color: rgba(58, 45, 87, 0.5);
+            border: 1px dashed #4a4a6a;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: #a0a0c0;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-4 sm:p-6">
 
-    <div id="toast">¡Receta copiada!</div>
+    <div id="toast">¡Receta copiada al portapapeles!</div>
 
     <main id="app-container" class="w-full max-w-2xl mx-auto">
         <!-- PANTALLA PRINCIPAL -->
@@ -186,17 +199,20 @@
                 <p class="text-md text-gray-400 mt-2 italic">"Que la comida sea tu medicina y tu medicina tu alimento"</p>
             </header>
 
+            <!-- Categorías -->
             <div class="grid grid-cols-2 gap-4 mb-6">
-                <button onclick="app.showCategory('Grasas')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white"><span class="w-6 text-center mr-2">🥑</span>Grasas</button>
-                <button onclick="app.showCategory('Proteínas')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white"><span class="w-6 text-center mr-2">🥩</span>Proteínas</button>
-                <button onclick="app.showCategory('Frutos Secos y Semillas')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white"><span class="w-6 text-center mr-2">🌰</span>Frutos Secos</button>
-                <button onclick="app.showCategory('Lácteos')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white"><span class="w-6 text-center mr-2">🧀</span>Lácteos</button>
-                <button onclick="app.showCategory('Carbohidratos (Verduras)')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white"><span class="w-6 text-center mr-2">🥦</span>Verduras</button>
-                <button onclick="app.showCategory('Frutas y Bayas')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white"><span class="w-6 text-center mr-2">🍓</span>Frutas y Bayas</button>
+                <button onclick="app.showCategory('Grasas')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white transition-all"><span class="w-6 text-center mr-2">🥑</span>Grasas</button>
+                <button onclick="app.showCategory('Proteínas')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white transition-all"><span class="w-6 text-center mr-2">🥩</span>Proteínas</button>
+                <button onclick="app.showCategory('Frutos Secos y Semillas')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white transition-all"><span class="w-6 text-center mr-2">🌰</span>Frutos Secos</button>
+                <button onclick="app.showCategory('Lácteos')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white transition-all"><span class="w-6 text-center mr-2">🧀</span>Lácteos</button>
+                <button onclick="app.showCategory('Carbohidratos (Verduras)')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white transition-all"><span class="w-6 text-center mr-2">🥦</span>Verduras</button>
+                <button onclick="app.showCategory('Frutas y Bayas')" class="category-btn p-4 rounded-full flex items-center justify-start font-bold text-white transition-all"><span class="w-6 text-center mr-2">🍓</span>Frutas y Bayas</button>
             </div>
 
+            <!-- Gorro de Chef y Selector de Personas -->
             <div class="text-center my-6 flex flex-col items-center">
                 <img src="https://i.ibb.co/xtWMQ9mm/Copia-de-Logo-500-x-500-px.png" alt="Gorro de Chef" class="w-16 mb-4">
+                
                 <p class="text-white font-bold mb-3">¿Para cuántas personas cocinas?</p>
                 <div class="people-selector">
                     <button onclick="app.setPeople(1)" id="p-1" class="people-btn active">1</button>
@@ -206,6 +222,7 @@
                 </div>
             </div>
 
+            <!-- Ingredientes Seleccionados -->
             <div id="selected-ingredients-display" class="w-full min-h-[100px] border border-[#4a4a6a] rounded-xl p-4 mb-6 text-gray-300 flex flex-wrap content-start"></div>
 
             <button id="generate-recipes-btn" onclick="app.generateRecipes()" class="mx-auto block w-full sm:w-2/3 p-3 rounded-full font-bold text-white text-lg btn-disabled btn-3d" disabled>
@@ -219,6 +236,7 @@
             <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Categorías</button>
             <h2 id="category-title" class="text-3xl font-bold text-center mb-2 title-brand-color title-3d"></h2>
             <p id="category-description" class="text-center text-gray-400 mb-6 max-w-md mx-auto"></p>
+            <p class="text-center text-white mb-4">Selecciona los ingredientes que tienes para cocinar hoy:</p>
             <div id="ingredients-list" class="space-y-3 mb-6"></div>
             <button id="add-ingredients-btn" onclick="app.addIngredientsAndGoBack()" class="mx-auto block px-12 py-3 rounded-full font-bold text-white text-lg btn-disabled btn-3d" disabled>
                 Añadir Ingredientes y Volver
@@ -247,12 +265,12 @@
 
         const app = {
             ingredientsData: {
-                'Grasas': { description: 'Fuentes de energía esenciales en keto.', items: ['Aceite de coco', 'Aceite de oliva', 'Aceitunas', 'Palta', 'Aceite de palta', 'Mayonesa casera', 'Mantequilla', 'Ghee', 'Cacao 100%', 'Chocolate negro puro', 'Chicharrones'] },
-                'Proteínas': { description: 'Base para construcción de tejidos.', items: ['Salmón', 'Salmón ahumado', 'Sardinas', 'Caballa', 'Atún', 'Huevos', 'Carne de res', 'Tocino', 'Pollo', 'Pavo', 'Cerdo', 'Cordero'] },
-                'Frutos Secos y Semillas': { description: 'Grasas saludables y fibra.', items: ['Almendras', 'Avellanas', 'Nueces pecanas', 'Nueces de macadamia', 'Semillas de zapallo', 'Chía', 'Sésamo', 'Lino', 'Harina de almendras', 'Harina de coco'] },
+                'Grasas': { description: 'Las grasas son nuestra principal fuente de energía en keto.', items: ['Aceite de coco', 'Aceite de oliva', 'Aceitunas', 'Palta', 'Aceite de palta', 'Mayonesa casera', 'Mantequilla', 'Ghee', 'Cacao 100%', 'Chocolate negro puro', 'Chicharrones'] },
+                'Proteínas': { description: 'Fundamentales para la reparación y construcción de tejidos.', items: ['Salmón', 'Salmón ahumado', 'Sardinas', 'Caballa', 'Atún', 'Huevos', 'Carne de res', 'Tocino', 'Pollo', 'Pavo', 'Cerdo', 'Cordero'] },
+                'Frutos Secos y Semillas': { description: 'Grasas saludables, fibra, vitaminas y minerales.', items: ['Almendras', 'Avellanas', 'Nueces pecanas', 'Nueces de macadamia', 'Semillas de zapallo', 'Chía', 'Sésamo', 'Lino', 'Harina de almendras', 'Harina de coco'] },
                 'Lácteos': { description: 'Grasas y proteínas de alta calidad.', items: ['Mozzarella', 'Gouda', 'Queso Crema', 'Queso Chanco', 'Queso Fresco', 'Parmesano', 'Cheddar', 'Brie', 'Feta', 'Crema espesa', 'Kéfir'] },
-                'Carbohidratos (Verduras)': { description: 'Fibra y vitaminas vitales.', items: ['Acelga', 'Apio', 'Ajo', 'Ají', 'Berenjena', 'Brócoli', 'Cebolla', 'Coliflor', 'Espárragos', 'Espinaca', 'Lechuga', 'Pimentón', 'Rúcula', 'Tomates', 'Zapallo italiano', 'Pepino', 'Rábanos'] },
-                'Frutas y Bayas': { description: 'Antioxidantes bajos en azúcar.', items: ['Coco', 'Limón', 'Frutillas', 'Moras', 'Frambuesas', 'Arándanos'] }
+                'Carbohidratos (Verduras)': { description: 'Fuente de fibra, vitaminas y minerales.', items: ['Acelga', 'Apio', 'Ajo', 'Ají', 'Berenjena', 'Brócoli', 'Cebolla', 'Coliflor', 'Espárragos', 'Espinaca', 'Lechuga', 'Pimentón', 'Rúcula', 'Tomates', 'Zapallo italiano', 'Pepino', 'Rábanos'] },
+                'Frutas y Bayas': { description: 'Antioxidantes con bajo impacto en el azúcar.', items: ['Coco', 'Limón', 'Frutillas', 'Moras', 'Frambuesas', 'Arándanos'] }
             },
             
             selectedIngredients: new Set(),
@@ -293,7 +311,7 @@
             showCategory(categoryName) {
                 this.currentCategory = categoryName;
                 this.tempSelectedCategoryIngredients = new Set(
-                    this.ingredientsData[categoryName].items.filter(item => this.selectedIngredients.has(item))
+                    Array.from(this.selectedIngredients).filter(item => this.ingredientsData[categoryName].items.includes(item))
                 );
                 
                 document.getElementById('category-title').textContent = categoryName;
@@ -307,19 +325,23 @@
                     const div = document.createElement('div');
                     div.className = `ingredient-btn p-4 rounded-full flex items-center justify-start cursor-pointer transition-all ${isSelected ? 'selected' : ''}`;
                     div.innerHTML = `
-                        <input type="checkbox" class="custom-radio mr-4" ${isSelected ? 'checked' : ''}>
-                        <span class="flex-grow font-medium text-white">${item}</span>
+                        <input type="checkbox" class="custom-radio mr-4 pointer-events-none" ${isSelected ? 'checked' : ''}>
+                        <span class="flex-grow font-medium text-white pointer-events-none">${item}</span>
                     `;
                     
+                    // Lógica de click infalible
                     div.onclick = () => {
                         const cb = div.querySelector('input');
-                        cb.checked = !cb.checked;
-                        if (cb.checked) {
-                            this.tempSelectedCategoryIngredients.add(item);
-                            div.classList.add('selected');
-                        } else {
+                        const alreadySelected = this.tempSelectedCategoryIngredients.has(item);
+                        
+                        if (alreadySelected) {
                             this.tempSelectedCategoryIngredients.delete(item);
                             div.classList.remove('selected');
+                            cb.checked = false;
+                        } else {
+                            this.tempSelectedCategoryIngredients.add(item);
+                            div.classList.add('selected');
+                            cb.checked = true;
                         }
                         this.updateCategoryScreen();
                     };
@@ -331,6 +353,7 @@
             },
 
             addIngredientsAndGoBack() {
+                // Sincronizar set global con lo seleccionado en esta categoría
                 this.ingredientsData[this.currentCategory].items.forEach(item => this.selectedIngredients.delete(item));
                 this.tempSelectedCategoryIngredients.forEach(item => this.selectedIngredients.add(item));
                 this.showMainScreen();
@@ -338,31 +361,31 @@
 
             updateMainScreen() {
                 const display = document.getElementById('selected-ingredients-display');
-                const generateBtn = document.getElementById('generate-recipes-btn');
+                const btn = document.getElementById('generate-recipes-btn');
                 const hint = document.getElementById('generate-recipes-hint');
 
                 if (this.selectedIngredients.size === 0) {
                     display.innerHTML = '<p class="text-gray-500 italic">Selecciona ingredientes para comenzar...</p>';
                 } else {
                     display.innerHTML = Array.from(this.selectedIngredients).map(ing => `
-                        <span class="inline-block bg-[#4a4a6a] text-white rounded-full px-3 py-1 text-sm mr-2 mb-2 border border-white/10">
+                        <span class="inline-block bg-[#4a4a6a] text-white rounded-full px-3 py-1 text-sm mr-2 mb-2 border border-white/10 shadow-sm">
                             ${ing}
                         </span>
                     `).join('');
                 }
 
                 const ready = this.selectedIngredients.size >= 2;
-                generateBtn.disabled = !ready;
-                generateBtn.className = `mx-auto block w-full sm:w-2/3 p-3 rounded-full font-bold text-white text-lg btn-3d ${ready ? 'generate-btn-gradient' : 'btn-disabled'}`;
+                btn.disabled = !ready;
+                btn.className = `mx-auto block w-full sm:w-2/3 p-4 rounded-full font-bold text-white text-lg btn-3d ${ready ? 'generate-btn-gradient' : 'btn-disabled'}`;
                 hint.classList.toggle('hidden', ready);
             },
 
             updateCategoryScreen() {
                 const addBtn = document.getElementById('add-ingredients-btn');
-                const currentOriginal = new Set(this.ingredientsData[this.currentCategory].items.filter(item => this.selectedIngredients.has(item)));
+                const currentInGlobal = new Set(this.ingredientsData[this.currentCategory].items.filter(item => this.selectedIngredients.has(item)));
                 
-                const changed = this.tempSelectedCategoryIngredients.size !== currentOriginal.size || 
-                                ![...this.tempSelectedCategoryIngredients].every(i => currentOriginal.has(i));
+                const changed = this.tempSelectedCategoryIngredients.size !== currentInGlobal.size || 
+                                ![...this.tempSelectedCategoryIngredients].every(i => currentInGlobal.has(i));
 
                 addBtn.disabled = !changed && this.tempSelectedCategoryIngredients.size === 0;
                 addBtn.className = `mx-auto block px-12 py-3 rounded-full font-bold text-white text-lg btn-3d ${!addBtn.disabled ? 'add-btn-gradient' : 'btn-disabled'}`;
@@ -398,8 +421,8 @@
                     }
                 };
 
-                const delays = [1000, 2000, 4000, 8000, 16000];
-                for (let i = 0; i < 5; i++) {
+                const delays = [1000, 2500, 5000];
+                for (let i = 0; i < delays.length; i++) {
                     try {
                         const res = await fetch(url, { 
                             method: 'POST', 
@@ -412,10 +435,10 @@
                             const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
                             if (textResponse) return JSON.parse(textResponse);
                         }
-                    } catch (e) {}
+                    } catch (e) { console.error("Fallo intento API", i); }
                     await new Promise(r => setTimeout(r, delays[i]));
                 }
-                throw new Error("No pudimos obtener las recetas. Inténtalo de nuevo.");
+                throw new Error("Servicio saturado");
             },
 
             async generateRecipes() {
@@ -424,13 +447,13 @@
                 content.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-64 text-center">
                         <div class="loader mb-4"></div>
-                        <p class="text-white font-bold">Chef Keto trabajando para ${this.numPeople} persona(s)...</p>
-                        <p class="text-gray-400 text-sm mt-2 italic">Esto es un error del sistema, no de tu conexión.</p>
+                        <p class="text-white font-bold text-lg">Chef Keto Origins trabajando para ${this.numPeople} persona(s)...</p>
+                        <p id="retry-status" class="text-gray-400 text-sm mt-2 italic">Creando preparaciones únicas.</p>
                     </div>
                 `;
 
-                const system = `Eres el Chef de Keto Origins Chile. Genera 3 recetas creativas para ${this.numPeople} personas. Solo usa los ingredientes dados. Unidades chilenas. Postres: Stevia (frío), Eritritol (horno).`;
-                const user = `Ingredientes: [${Array.from(this.selectedIngredients).join(', ')}].`;
+                const system = `Eres el Chef experto de Keto Origins Chile. Genera 3 recetas creativas y variadas para ${this.numPeople} personas. Usa unidades de medida chilenas. Endulzantes: Stevia (frío), Eritritol (horno).`;
+                const user = `Ingredientes: [${Array.from(this.selectedIngredients).join(', ')}]. Genera 3 recetas para ${this.numPeople} personas.`;
 
                 try {
                     const data = await this.fetchGemini(user, system);
@@ -439,10 +462,10 @@
                 } catch (e) {
                     content.innerHTML = `
                         <div class="bg-red-900/40 p-6 rounded-2xl text-center border border-red-500/50">
-                            <i class="fas fa-hat-chef text-3xl mb-4 text-white"></i>
-                            <p class="text-white font-bold mb-2">¡El Chef tuvo un tropiezo!</p>
-                            <p class="text-gray-300 text-sm mb-4">El servidor de IA está saturado. Por favor, reintenta ahora mismo.</p>
-                            <button onclick="app.generateRecipes()" class="bg-white text-red-900 px-8 py-2 rounded-full font-bold shadow-lg hover:scale-105 transition-all">Reintentar</button>
+                            <i class="fas fa-hat-chef text-4xl mb-4 text-white"></i>
+                            <p class="text-white font-bold mb-2">¡El Chef está saturado!</p>
+                            <p class="text-gray-300 text-sm mb-6">Demasiadas personas están cocinando ahora mismo. Reintenta en un par de segundos.</p>
+                            <button onclick="app.generateRecipes()" class="bg-white text-red-900 px-10 py-3 rounded-full font-bold shadow-lg hover:scale-105 transition-all">Reintentar Ahora</button>
                         </div>
                     `;
                 }
@@ -451,10 +474,10 @@
             renderRecipes(recipes) {
                 const div = document.getElementById('recipes-content');
                 let html = `
-                    <h2 class="text-3xl font-bold text-center mb-6 title-brand-color title-3d">Recetas Listas</h2>
+                    <h2 class="text-3xl font-bold text-center mb-6 title-brand-color title-3d">Tus Recetas Personalizadas</h2>
                     <div class="text-center mb-8">
                         <button onclick="app.generateRecipes()" class="regenerate-btn-gradient btn-3d text-white px-8 py-3 rounded-full font-bold shadow-lg">
-                            <i class="fas fa-sync-alt mr-2"></i> Otras opciones
+                            <i class="fas fa-sync-alt mr-2"></i> Ver otras opciones
                         </button>
                     </div>
                 `;
@@ -474,26 +497,36 @@
                                 ${r.instructions.map(s => `<li>${s}</li>`).join('')}
                             </ol>
                         </div>
-                        <div class="chef-tip-box italic text-gray-300 text-sm">
-                            <h4 class="font-bold text-pink-400 not-italic mb-1">Consejo:</h4>
+                        <div class="chef-tip-box italic text-gray-300 text-sm shadow-inner">
+                            <h4 class="font-bold text-pink-400 not-italic mb-1">Tip del Chef:</h4>
                             "${r.chef_tip}"
                         </div>
                         <div class="mt-8 flex gap-3">
-                            <button onclick="app.share(${idx})" class="btn-action bg-[#25D366] text-white hover:opacity-90">WhatsApp</button>
-                            <button onclick="app.copy(${idx})" class="btn-action bg-[#4a4a6a] text-white hover:opacity-90">Copiar</button>
+                            <button onclick="app.share(${idx})" class="btn-action bg-[#25D366] text-white hover:opacity-90 shadow-md">
+                                <i class="fab fa-whatsapp mr-2"></i> WhatsApp
+                            </button>
+                            <button onclick="app.copy(${idx})" class="btn-action bg-[#4a4a6a] text-white hover:opacity-90 shadow-md">
+                                <i class="fas fa-copy mr-2"></i> Copiar
+                            </button>
                         </div>
                     </div>
                 `).join('');
                 
-                html += `<div class="disclaimer-box text-center mb-10 italic">Cantidades para ${this.numPeople} pers. Ajusta según tus objetivos.</div>`;
+                html += `
+                    <div class="disclaimer-box text-center mb-10 italic">
+                        Las cantidades indicadas son estimadas y solo representan una recomendación base. Pueden modificarse al gusto y necesidad de cada persona (especialmente deportistas con mayores requerimientos nutricionales). Estas recetas son una guía para brindarte más opciones culinarias en tu camino Keto.
+                    </div>
+                `;
                 div.innerHTML = html;
             },
 
             copy(idx) {
                 const r = this.lastGeneratedRecipes[idx];
-                const text = `🍳 *${r.title}*\n\n🛒 Ingredientes:\n${r.ingredients.join('\n')}\n\n🥣 Pasos:\n${r.instructions.join('\n')}\n\n💡 Tip: ${r.chef_tip}`;
+                const text = `🍳 *${r.title}* - Receta de Keto Origins Chile\n\n🛒 Ingredientes:\n${r.ingredients.join('\n')}\n\n🥣 Preparación:\n${r.instructions.join('\n')}\n\n💡 Tip: ${r.chef_tip}`;
                 const area = document.createElement("textarea");
                 area.value = text;
+                area.style.position = "fixed";
+                area.style.left = "-9999px";
                 document.body.appendChild(area);
                 area.select();
                 document.execCommand('copy');
@@ -505,7 +538,7 @@
 
             share(idx) {
                 const r = this.lastGeneratedRecipes[idx];
-                const text = encodeURIComponent(`🍳 *${r.title}*\nReceta Keto Origins Chile\n\nIngredientes:\n${r.ingredients.join('\n')}`);
+                const text = encodeURIComponent(`🍳 *${r.title}*\nReceta de Keto Origins Chile\n\nIngredientes:\n${r.ingredients.join('\n')}\n\n¡Encuentra más en nuestro sitio!`);
                 window.open(`https://wa.me/?text=${text}`, '_blank');
             }
         };
