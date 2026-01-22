@@ -180,8 +180,8 @@
         </div>
     </footer>
 
-    <script type="module">
-        // Tu API KEY restaurada
+    <script>
+        // Clave API restaurada
         const apiKey = "AIzaSyAOaPYeNJkgha7mePKxV5zJhQuXZOFqK_s"; 
 
         const app = {
@@ -214,6 +214,7 @@
             },
 
             showScreen(name) {
+                window.scrollTo(0,0);
                 ['main-screen', 'category-screen', 'recipes-screen'].forEach(s => document.getElementById(s).classList.add('hidden'));
                 document.getElementById(name).classList.remove('hidden');
             },
@@ -249,7 +250,7 @@
                     const div = document.createElement('div');
                     const isChecked = this.initialCategoryState.has(item);
                     div.className = `ingredient-btn p-4 rounded-full flex items-center cursor-pointer ${isChecked ? 'selected' : ''}`;
-                    div.innerHTML = `<input type="checkbox" value="${item}" class="custom-radio mr-4" ${isChecked ? 'checked' : ''}><label class="flex-grow cursor-pointer">${item}</label>`;
+                    div.innerHTML = `<input type="checkbox" value="${item}" class="custom-radio mr-4" ${isChecked ? 'checked' : ''}><label class="flex-grow cursor-pointer font-bold">${item}</label>`;
                     const cb = div.querySelector('input');
                     
                     div.addEventListener('click', (e) => {
@@ -298,7 +299,7 @@
                 if (this.selectedIngredients.size === 0) {
                     display.innerHTML = '<p class="text-gray-500 text-center py-4">Selecciona tus ingredientes...</p>';
                 } else {
-                    display.innerHTML = Array.from(this.selectedIngredients).map(ing => `<span class="inline-block bg-[#4a4a6a] text-white rounded-full px-3 py-1 text-sm mr-2 mb-2 border border-white/10">${ing}</span>`).join('');
+                    display.innerHTML = Array.from(this.selectedIngredients).map(ing => `<span class="inline-block bg-[#4a4a6a] text-white rounded-full px-3 py-1 text-sm mr-2 mb-2 border border-white/10 shadow-lg font-bold">${ing}</span>`).join('');
                 }
                 if (this.selectedIngredients.size >= 2) {
                     btn.disabled = false; btn.classList.remove('btn-disabled'); btn.classList.add('generate-btn-gradient');
@@ -345,7 +346,7 @@
             async generateRecipes() {
                 this.showScreen('recipes-screen');
                 const content = document.getElementById('recipes-content');
-                content.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-center"><div class="loader mb-4"></div><p class="font-bold text-lg">Chef Keto Origins trabajando...</p></div>`;
+                content.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-center"><div class="loader mb-4"></div><p class="font-bold text-lg text-white">Chef Keto Origins trabajando...</p></div>`;
 
                 const ingredientsList = Array.from(this.selectedIngredients).join(', ');
                 const prompt = `
