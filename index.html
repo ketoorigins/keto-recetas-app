@@ -203,7 +203,7 @@
     </main>
 
     <footer class="text-center text-gray-500 mt-12">
-        <p class="font-bold">Keto Origins</p>
+        <p class="font-bold">Keto Origins Chile</p>
         <div class="flex justify-center space-x-6 mt-2">
             <a href="https://www.tiktok.com/@keto.origins" target="_blank" class="social-icon tiktok-hover"><i class="fab fa-tiktok fa-lg"></i></a>
             <a href="https://instagram.com/keto.origins" target="_blank" class="social-icon instagram-hover"><i class="fab fa-instagram fa-lg"></i></a>
@@ -373,7 +373,8 @@
             },
 
             async callGeminiAPI(prompt, systemInstruction) {
-                const apiKey = ""; // La clave se proporciona en el entorno de ejecución
+                // API KEY INTEGRADA PARA FUNCIONAMIENTO EN DISPOSITIVOS MÓVILES
+                const apiKey = "AIzaSyA30xJfUenCKC7SKFspPRXqOpoNSyg0Rqw"; 
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
                 
                 const payload = {
