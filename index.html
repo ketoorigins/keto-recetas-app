@@ -159,7 +159,6 @@
                 <p class="text-md text-gray-400 mt-2 italic text-balance">"Que la comida sea tu medicina y tu medicina tu alimento"</p>
             </header>
 
-            <!-- Categorías -->
             <div class="grid grid-cols-2 gap-4 mb-8">
                 <button onclick="window.app.showCategory('Grasas')" class="category-btn p-4 rounded-3xl flex items-center justify-start font-bold text-white"><span class="w-6 text-center mr-2">🥑</span>Grasas</button>
                 <button onclick="window.app.showCategory('Proteínas')" class="category-btn p-4 rounded-3xl flex items-center justify-start font-bold text-white"><span class="w-6 text-center mr-2">🥩</span>Proteínas</button>
@@ -169,7 +168,6 @@
                 <button onclick="window.app.showCategory('Frutas y Bayas')" class="category-btn p-4 rounded-3xl flex items-center justify-start font-bold text-white"><span class="w-6 text-center mr-2">🍓</span>Frutas</button>
             </div>
 
-            <!-- Selector de Personas -->
             <div class="mb-8 text-center">
                 <p class="text-white font-bold mb-4 italic">¿Para cuántas personas cocinamos?</p>
                 <div class="flex justify-center space-x-3">
@@ -180,7 +178,6 @@
                 </div>
             </div>
 
-            <!-- GORRO DE CHEF -->
             <div class="text-center my-6">
                 <img src="https://i.ibb.co/xtWMQ9mm/Copia-de-Logo-500-x-500-px.png" alt="Gorro de Chef" class="mx-auto w-20">
             </div>
@@ -237,27 +234,27 @@
             lastRecipesText: [],
             ingredientsData: {
                 'Grasas': {
-                    description: 'Las grasas son nuestra principal fuente de energía en keto. Son la base estructural de las células y un medio de transporte de vitaminas.',
-                    items: ['Aceite de coco', 'Aceite de oliva', 'Aceitunas', 'Palta', 'Aceite de palta', 'Mayonesa casera', 'Mantequilla', 'Mantequilla de coco', 'Ghee', 'Cacao 100%', 'Chocolate negro puro', 'Chicharrones']
+                    description: 'Las grasas son nuestra principal fuente de energía. Priorizamos las de origen animal y aceites de primera presión.',
+                    items: ['Aceite de coco', 'Aceite de oliva', 'Aceitunas', 'Palta', 'Aceite de palta', 'Mayonesa casera', 'Mantequilla', 'Mantequilla de coco', 'Ghee', 'Cacao 100%', 'Chocolate negro puro', 'Chicharrones', 'Manteca de cerdo', 'Sebo de vaca', 'Aceite de MCT']
                 },
                 'Proteínas': {
-                    description: 'Fundamentales para la reparación y construcción de tejidos. Las proteínas también son necesarias para la masa muscular y la pérdida de peso.',
-                    items: ['Salmón', 'Salmón ahumado', 'Sardinas', 'Caballa', 'Atún', 'Palometa', 'Bonito', 'Anguila', 'Pez espada', 'Mariscos', 'Huevos', 'Carne de res', 'Tocino', 'Pollo', 'Pavo', 'Cerdo', 'Cordero']
+                    description: 'Fundamentales para la reparación de tejidos. El libro destaca la densidad nutricional de las vísceras.',
+                    items: ['Salmón', 'Salmón ahumado', 'Sardinas', 'Caballa', 'Atún', 'Palometa', 'Bonito', 'Anguila', 'Pez espada', 'Mariscos', 'Huevos', 'Carne de res', 'Tocino', 'Pollo', 'Pavo', 'Cerdo', 'Cordero', 'Hígado de vacuno', 'Riñones', 'Lengua', 'Conejo', 'Codorniz']
                 },
                 'Frutos Secos y Semillas': {
-                    description: 'Son potencias nutricionales. Aportan grasas saludables, fibra, vitaminas y minerales cruciales.',
+                    description: 'Aportan grasas saludables y minerales. Consumir con moderación según el protocolo.',
                     items: ['Almendras', 'Avellanas', 'Nueces pecanas', 'Nueces de castilla', 'Nueces de Brasil', 'Nueces de macadamia', 'Pistachos', 'Semillas de maravilla', 'Semillas de zapallo', 'Chía', 'Cáñamo', 'Sésamo', 'Lino', 'Harina de almendras', 'Harina de coco', 'Harina de lino']
                 },
                 'Lácteos': {
-                    description: 'Una excelente fuente de grasas y proteínas de alta calidad. Los lácteos fermentados son ricos en probióticos.',
-                    items: ['Queso Mozzarella', 'Queso Gouda', 'Queso Crema', 'Queso Chanco', 'Queso Fresco', 'Queso Parmesano', 'Queso Dubliner', 'Queso Cheddar', 'Queso Brie', 'Queso Feta', 'Crema espesa / Nata de montar', 'Yogurt de pajaritos (Kéfir)']
+                    description: 'Grasas y proteínas de alta calidad. Preferir siempre los fermentados y curados.',
+                    items: ['Queso Mozzarella', 'Queso Gouda', 'Queso Crema', 'Queso Chanco', 'Queso Fresco', 'Queso Parmesano', 'Queso Dubliner', 'Queso Cheddar', 'Queso Brie', 'Queso Feta', 'Crema espesa / Nata de montar', 'Yogurt de pajaritos (Kéfir)', 'Queso de cabra', 'Queso de oveja']
                 },
                 'Carbohidratos (Verduras)': {
-                    description: 'Las verduras de bajo índice glucémico son nuestra principal fuente de fibra, vitaminas y minerales.',
-                    items: ['Acelga', 'Algas', 'Apio', 'Ajo', 'Ají', 'Alcachofa', 'Berenjena', 'Brócoli', 'Cebolla', 'Coliflor', 'Espárragos', 'Espinaca', 'Lechuga', 'Pimentón', 'Rúcula', 'Repollo fermentado', 'Setas y hongos', 'Tomates', 'Zapallo italiano', 'Pepino', 'Rábanos']
+                    description: 'Verduras de bajo índice glucémico y alta densidad en micronutrientes.',
+                    items: ['Acelga', 'Algas', 'Apio', 'Ajo', 'Ají', 'Alcachofa', 'Berenjena', 'Brócoli', 'Cebolla', 'Coliflor', 'Espárragos', 'Espinaca', 'Lechuga', 'Pimentón', 'Rúcula', 'Repollo fermentado', 'Setas y hongos', 'Tomates', 'Zapallo italiano', 'Pepino', 'Rábanos', 'Kale', 'Coles de Bruselas', 'Chucrut']
                 },
                 'Frutas y Bayas': {
-                    description: 'En moderación, las bayas son nuestras aliadas. Aportan antioxidantes con bajo impacto en el azúcar.',
+                    description: 'Solo bayas y frutas de bajísimo impacto glucémico permitidas en el protocolo.',
                     items: ['Coco', 'Limón', 'Frutillas', 'Moras', 'Frambuesas', 'Arándanos', 'Grosellas']
                 }
             },
@@ -388,10 +385,8 @@
 
             copyToClipboard: function(index) {
                 var text = this.lastRecipesText[index];
-                var el = document.createElement('textarea');
+                const el = document.createElement('textarea');
                 el.value = text;
-                el.setAttribute('readonly', '');
-                el.style.position = 'absolute'; el.style.left = '-9999px';
                 document.body.appendChild(el);
                 el.select();
                 document.execCommand('copy');
@@ -411,6 +406,7 @@
             },
 
             callGeminiAPI: async function(prompt, systemInstruction) {
+                // LLAVE INTEGRADA
                 const apiKey = "AIzaSyDRToDMYsmiJFCjM3peTtFE3fQBnxXyxB4"; 
                 const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=" + apiKey;
                 const payload = {
