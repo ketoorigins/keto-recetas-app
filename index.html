@@ -138,6 +138,15 @@
             border-color: #a855f7;
             box-shadow: 0 0 8px rgba(168, 85, 247, 0.5);
         }
+
+        .social-icon {
+            transition: color 0.3s ease;
+            color: #9ca3af;
+        }
+        .tiktok-hover:hover { color: #00f2ea; }
+        .instagram-hover:hover { color: #e1306c; }
+        .whatsapp-hover:hover { color: #25d366; }
+        .web-hover:hover { color: #38bdf8; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-4 sm:p-6 pb-12">
@@ -147,8 +156,10 @@
         <div id="main-screen">
             <header class="text-center mb-8">
                 <img src="https://i.ibb.co/20NypXdZ/ketoorigins.png" alt="Logo Keto Origins" class="w-24 h-24 mx-auto mb-4 rounded-full shadow-lg">
-                <h1 class="text-3xl sm:text-4xl font-extrabold text-white title-3d text-balance">Recetas Keto Inteligentes</h1>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-white title-3d text-balance text-center">Recetas Keto Inteligentes</h1>
                 <p class="text-lg text-gray-300 mt-4 mb-2">¿Qué tienes en tu cocina hoy?</p>
+                <!-- PENSAMIENTO DE HIPÓCRATES -->
+                <p class="text-md text-gray-400 mt-2 italic">"Que la comida sea tu medicina y tu medicina tu alimento"</p>
             </header>
 
             <div class="grid grid-cols-2 gap-4 mb-8">
@@ -179,17 +190,19 @@
             <button id="generate-recipes-btn" class="mx-auto block w-full p-4 rounded-full font-bold text-white text-xl btn-disabled transition-transform active:scale-95" disabled>
                 GENERAR MIS RECETAS
             </button>
-            <p id="generate-recipes-hint" class="text-center text-gray-500 mt-4 text-sm font-medium">Selecciona al menos 2 ingredientes</p>
+            <!-- REGLA DE 3 INGREDIENTES -->
+            <p id="generate-recipes-hint" class="text-center text-gray-500 mt-4 text-sm font-medium">Selecciona al menos 3 ingredientes</p>
         </div>
 
         <div id="category-screen" class="hidden">
             <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6 flex items-center">
-                <i class="fas fa-arrow-left mr-2"></i> Volver
+                <i class="fas fa-arrow-left mr-2"></i> Volver a Categorías
             </button>
             <h2 id="category-title" class="text-3xl font-bold text-center mb-2 title-brand-color"></h2>
             <p id="category-description" class="text-center text-gray-400 mb-6 text-sm max-w-md mx-auto"></p>
             <div id="ingredients-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8"></div>
-            <button id="add-ingredients-btn" class="mx-auto block w-full p-4 rounded-full font-bold text-white text-lg add-btn-gradient active:scale-95 transition-transform">
+            <!-- BOTÓN APAGADO POR DEFECTO -->
+            <button id="add-ingredients-btn" class="mx-auto block w-full p-4 rounded-full font-bold text-white text-lg btn-disabled active:scale-95 transition-transform" disabled>
                 Confirmar Selección
             </button>
         </div>
@@ -207,37 +220,44 @@
         </div>
     </main>
 
+    <!-- ICONOS SOCIALES RESTAURADOS -->
     <footer class="text-center text-gray-500 mt-12 w-full font-bold">
         <p>Keto Origins Chile</p>
+        <div class="flex justify-center space-x-6 mt-4">
+            <a href="https://www.tiktok.com/@keto.origins" target="_blank" class="social-icon tiktok-hover"><i class="fab fa-tiktok fa-lg"></i></a>
+            <a href="https://instagram.com/keto.origins" target="_blank" class="social-icon instagram-hover"><i class="fab fa-instagram fa-lg"></i></a>
+            <a href="https://wa.link/ibvk7h" target="_blank" class="social-icon whatsapp-hover"><i class="fab fa-whatsapp fa-lg"></i></a>
+            <a href="https://fisiosem.my.canva.site/keto-origins-" target="_blank" class="social-icon web-hover"><i class="fas fa-globe fa-lg"></i></a>
+        </div>
     </footer>
 
     <script type="module">
         const app = {
             numPeople: 1,
-            lastRecipesText: [], // Para evitar errores al compartir
+            lastRecipesText: [],
             ingredientsData: {
                 'Grasas': {
-                    description: 'Energía pura para tu cetosis. Base estructural celular.',
+                    description: 'Las grasas son nuestra principal fuente de energía en keto. Son la base estructural de las células y un medio de transporte de vitaminas.',
                     items: ['Aceite de coco', 'Aceite de oliva', 'Aceitunas', 'Palta', 'Aceite de palta', 'Mayonesa casera', 'Mantequilla', 'Mantequilla de coco', 'Ghee', 'Cacao 100%', 'Chocolate negro puro', 'Chicharrones']
                 },
                 'Proteínas': {
-                    description: 'Fundamentales para reparar tejidos y masa muscular.',
+                    description: 'Fundamentales para la reparación y construcción de tejidos. Las proteínas también son necesarias para la masa muscular y la pérdida de peso.',
                     items: ['Salmón', 'Salmón ahumado', 'Sardinas', 'Caballa', 'Atún', 'Palometa', 'Bonito', 'Anguila', 'Pez espada', 'Mariscos', 'Huevos', 'Carne de res', 'Tocino', 'Pollo', 'Pavo', 'Cerdo', 'Cordero']
                 },
                 'Frutos Secos y Semillas': {
-                    description: 'Grasas saludables, fibra y minerales esenciales.',
+                    description: 'Son potencias nutricionales. Aportan grasas saludables, fibra, vitaminas y minerales cruciales.',
                     items: ['Almendras', 'Avellanas', 'Nueces pecanas', 'Nueces de castilla', 'Nueces de Brasil', 'Nueces de macadamia', 'Pistachos', 'Semillas de maravilla', 'Semillas de zapallo', 'Chía', 'Cáñamo', 'Sésamo', 'Lino', 'Harina de almendras', 'Harina de coco', 'Harina de lino']
                 },
                 'Lácteos': {
-                    description: 'Grasas y proteínas de alta calidad nutricional.',
+                    description: 'Una excelente fuente de grasas y proteínas de alta calidad. Los lácteos fermentados son ricos en probióticos.',
                     items: ['Queso Mozzarella', 'Queso Gouda', 'Queso Crema', 'Queso Chanco', 'Queso Fresco', 'Queso Parmesano', 'Queso Dubliner', 'Queso Cheddar', 'Queso Brie', 'Queso Feta', 'Crema espesa / Nata de montar', 'Yogurt de pajaritos (Kéfir)']
                 },
                 'Carbohidratos (Verduras)': {
-                    description: 'Fibra, vitaminas y minerales de bajo índice glucémico.',
+                    description: 'Las verduras de bajo índice glucémico son nuestra principal fuente de fibra, vitaminas y minerales.',
                     items: ['Acelga', 'Algas', 'Apio', 'Ajo', 'Ají', 'Alcachofa', 'Berenjena', 'Brócoli', 'Cebolla', 'Coliflor', 'Espárragos', 'Espinaca', 'Lechuga', 'Pimentón', 'Rúcula', 'Repollo fermentado', 'Setas y hongos', 'Tomates', 'Zapallo italiano', 'Pepino', 'Rábanos']
                 },
                 'Frutas y Bayas': {
-                    description: 'Antioxidantes naturales con bajo impacto en azúcar.',
+                    description: 'En moderación, las bayas son nuestras aliadas. Aportan antioxidantes con bajo impacto en el azúcar.',
                     items: ['Coco', 'Limón', 'Frutillas', 'Moras', 'Frambuesas', 'Arándanos', 'Grosellas']
                 }
             },
@@ -276,9 +296,18 @@
 
             showCategory(cat) {
                 this.currentCategory = cat;
+                // Copiamos los ingredientes ya seleccionados de esta categoría a la temporal
                 this.tempSelectedCategoryIngredients = new Set([...this.selectedIngredients].filter(i => this.ingredientsData[cat].items.includes(i)));
+                
                 document.getElementById('category-title').textContent = cat;
                 document.getElementById('category-description').textContent = this.ingredientsData[cat].description;
+                
+                // N°1: El botón empieza apagado al entrar
+                const addBtn = document.getElementById('add-ingredients-btn');
+                addBtn.disabled = true;
+                addBtn.classList.add('btn-disabled');
+                addBtn.classList.remove('add-btn-gradient');
+
                 const list = document.getElementById('ingredients-list');
                 list.innerHTML = '';
                 this.ingredientsData[cat].items.forEach(item => {
@@ -292,8 +321,17 @@
                     div.onclick = (e) => {
                         const cb = div.querySelector('input');
                         cb.checked = !cb.checked;
-                        if(cb.checked) { this.tempSelectedCategoryIngredients.add(item); div.classList.add('selected'); }
-                        else { this.tempSelectedCategoryIngredients.delete(item); div.classList.remove('selected'); }
+                        if(cb.checked) { 
+                            this.tempSelectedCategoryIngredients.add(item); 
+                            div.classList.add('selected'); 
+                        } else { 
+                            this.tempSelectedCategoryIngredients.delete(item); 
+                            div.classList.remove('selected'); 
+                        }
+                        // N°1: Al seleccionar un ingrediente (o cambiar la selección), se enciende
+                        addBtn.disabled = false;
+                        addBtn.classList.remove('btn-disabled');
+                        addBtn.classList.add('add-btn-gradient');
                     };
                     list.appendChild(div);
                 });
@@ -301,6 +339,7 @@
             },
 
             addIngredientsAndGoBack() {
+                // Sincronizamos la selección final
                 this.ingredientsData[this.currentCategory].items.forEach(i => this.selectedIngredients.delete(i));
                 this.tempSelectedCategoryIngredients.forEach(i => this.selectedIngredients.add(i));
                 this.showMainScreen();
@@ -315,7 +354,9 @@
                 } else {
                     display.innerHTML = Array.from(this.selectedIngredients).map(ing => `<span class="inline-block bg-pink-600/20 border border-pink-500/30 text-white rounded-full px-4 py-2 text-sm mr-2 mb-2 font-bold">${ing}</span>`).join('');
                 }
-                if (this.selectedIngredients.size >= 2) {
+                
+                // N°2: Son al menos 3 ingredientes para habilitar
+                if (this.selectedIngredients.size >= 3) {
                     btn.disabled = false; btn.classList.remove('btn-disabled'); btn.classList.add('generate-btn-gradient'); hint.classList.add('hidden');
                 } else {
                     btn.disabled = true; btn.classList.add('btn-disabled'); btn.classList.remove('generate-btn-gradient'); hint.classList.remove('hidden');
@@ -323,11 +364,12 @@
             },
 
             formatRecipeText(recipe) {
+                // Formato optimizado para WhatsApp móvil
                 let text = `🍳 *${recipe.title.toUpperCase()}* 🥑\n`;
                 text += `👥 Para ${this.numPeople} persona(s)\n\n`;
                 text += `🛒 *INGREDIENTES:*\n`;
                 recipe.ingredients.forEach(i => text += `• ${i}\n`);
-                text += `\n👨‍🍳 *PASOS:*\n`;
+                text += `\n👨‍🍳 *PREPARACIÓN:*\n`;
                 recipe.instructions.forEach((p, idx) => text += `${idx + 1}. ${p}\n`);
                 text += `\n💡 *TIP:* ${recipe.chef_tip}\n`;
                 text += `\n--- Keto Origins Chile ---`;
@@ -346,7 +388,7 @@
                 document.body.removeChild(el);
                 
                 const fb = document.createElement('div');
-                fb.className = "fixed bottom-10 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-2xl font-extrabold z-[100] shadow-2xl";
+                fb.className = "fixed bottom-10 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-2xl font-extrabold z-[100] shadow-2xl animate-bounce";
                 fb.textContent = "¡RECETA COPIADA!";
                 document.body.appendChild(fb);
                 setTimeout(() => fb.remove(), 2500);
@@ -354,6 +396,7 @@
 
             shareWhatsApp(index) {
                 const text = this.lastRecipesText[index];
+                // Usamos wa.me que es más directo para la App
                 const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
                 window.open(url, '_blank');
             },
@@ -381,18 +424,18 @@
                 
                 const systemPrompt = `ACTÚA COMO EL CHEF EXPERTO DE KETO ORIGINS CHILE.
                 OBJETIVO: Generar exactamente 3 recetas keto creativas diseñadas para ${this.numPeople} persona(s).
-                INGREDIENTES OBLIGATORIOS QUE DEBES USAR: [${ingredientsList}].
+                INGREDIENTES DISPONIBLES (ESTRICTAMENTE): [${ingredientsList}].
                 
-                REGLA DE ORO DE INVENTARIO (CRÍTICA): 
-                1. USA ÚNICAMENTE los ingredientes de la lista anterior. No inventes nada.
-                2. ESTÁ ESTRICTAMENTE PROHIBIDO AÑADIR OTROS INGREDIENTES. No añadas cebolla, ajo, especias o vegetales si no están seleccionados explícitamente.
-                3. Solo puedes usar Sal y Pimienta como condimentos base.
-                4. Debes usar TODOS los ingredientes de la lista en cada una de las 3 recetas generadas. Sin falta.
+                REGLAS DE ORO: 
+                1. USA ÚNICAMENTE los ingredientes de la lista anterior. NO inventes ingredientes.
+                2. ESTÁ ESTRICTAMENTE PROHIBIDO AÑADIR OTROS INGREDIENTES (no añadas ajo, cebolla, etc si no están).
+                3. Solo puedes usar Sal y Pimienta.
+                4. Debes usar TODOS los ingredientes de la lista en cada una de las 3 recetas.
                 
                 REGLAS DE COCINA:
-                LUBRICANTES: Solo usa 'Aceite' si aparece en la lista. Si hay 'Mantequilla' o 'Ghee', úsalos para cocinar.
-                HUEVOS: Si son la base, utiliza exactamente ${this.numPeople * 3} unidades por receta.
-                NOTA PARA DEPORTISTAS: Al lado de proteínas o huevos, añade: '(puedes aumentar la cantidad si eres deportista o requieres más proteína)'.
+                LUBRICANTES: Solo usa 'Aceite' si está en la lista. Si hay 'Mantequilla' o 'Ghee', úsalos.
+                HUEVOS: Si son base, usa exactamente ${this.numPeople * 3} unidades por receta.
+                DEPORTISTAS: Al lado de proteínas, añade: '(puedes aumentar la cantidad si eres deportista o requieres más proteína)'.
                 
                 FORMATO JSON: { "recipes": [ { "title":"", "ingredients":[], "instructions":[], "chef_tip":"" } ] }`;
 
@@ -409,13 +452,13 @@
 
             renderRecipes(recipes) {
                 const content = document.getElementById('recipes-content');
-                content.innerHTML = `<h2 class="text-3xl font-extrabold text-center mb-8 title-brand-color title-3d">¡Menú Keto Origins Chile!</h2>`;
+                content.innerHTML = `<h2 class="text-3xl font-extrabold text-center mb-8 title-brand-color title-3d text-balance">¡Menú Keto Origins Chile!</h2>`;
                 content.innerHTML += recipes.map((r, idx) => {
                     return `
-                    <div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-3xl p-6 mb-10 shadow-2xl relative overflow-hidden">
+                    <div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-3xl p-6 mb-10 shadow-2xl relative overflow-hidden text-balance">
                         <div class="absolute top-0 right-0 bg-pink-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Plato ${idx + 1}</div>
                         <div class="mb-4 mt-2"><h3 class="text-2xl font-bold text-white leading-tight">${r.title}</h3></div>
-                        <div class="mb-6"><h4 class="text-pink-400 font-bold text-xs uppercase mb-3 tracking-widest italic">Ingredientes del Usuario:</h4>
+                        <div class="mb-6"><h4 class="text-pink-400 font-bold text-xs uppercase mb-3 tracking-widest italic">Ingredientes Utilizados:</h4>
                             <ul class="space-y-2">${r.ingredients.map(i => `<li class="text-gray-300 text-sm flex items-start"><span class="mr-2 text-pink-500">•</span>${i}</li>`).join('')}</ul>
                         </div>
                         <div class="mb-6 border-t border-[#4a4a6a] pt-6"><h4 class="text-pink-400 font-bold text-xs uppercase mb-4 tracking-widest">Preparación:</h4>
@@ -428,7 +471,7 @@
                         </div>
                     </div>`;
                 }).join('');
-                content.innerHTML += `<div class="mt-8 p-6 bg-white/5 border border-white/10 rounded-3xl text-center"><p class="text-gray-400 text-[11px] leading-relaxed italic">🥑 Estas recetas son solo una sugerencia de preparación basada en tus ingredientes. Asegúrate de que las cantidades se ajusten a tus macros.</p></div>`;
+                content.innerHTML += `<div class="mt-8 p-6 bg-white/5 border border-white/10 rounded-3xl text-center"><p class="text-gray-400 text-[11px] leading-relaxed italic">🥑 Estas recetas son sugerencias basadas en tus ingredientes. Asegúrate de ajustar las porciones a tus requerimientos personales.</p></div>`;
                 window.scrollTo(0, 0);
             }
         };
