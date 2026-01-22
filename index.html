@@ -398,7 +398,8 @@
             },
 
             callGeminiAPI: async function(prompt, systemInstruction) {
-                const apiKey = "AIzaSyDRToDMYsmiJFCjM3peTtFE3fQBnxXyxB4"; 
+                // LLAVE ACTUALIZADA
+                const apiKey = "AIzaSyBhIqQ7PbfXLurVuol-R4yyS9-MGO-wlio"; 
                 const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=" + apiKey;
                 const payload = {
                     contents: [{ parts: [{ text: prompt }] }],
@@ -444,7 +445,7 @@
                     this.lastRecipesText = data.recipes.map(function(r) { return self.formatRecipeText(r); });
                     this.renderRecipes(data.recipes);
                 } catch (e) {
-                    content.innerHTML = '<div class="bg-red-900/40 border border-red-500 text-white p-8 rounded-3xl text-center"><h3 class="font-bold text-xl mb-4">ERROR TÉCNICO</h3><p class="text-sm mb-6">' + e.message + '</p><button onclick="window.app.generateRecipes()" class="w-full bg-white text-red-900 font-bold py-4 rounded-full uppercase shadow-lg">Reintentar</button></div>';
+                    content.innerHTML = '<div class="bg-red-900/40 border border-red-500 text-white p-8 rounded-3xl text-center"><h3 class="font-bold text-xl mb-4">¡ERROR DE COMUNICACIÓN!</h3><p class="text-sm mb-6">' + e.message + '</p><button onclick="window.app.generateRecipes()" class="w-full bg-white text-red-900 font-bold py-4 rounded-full uppercase shadow-lg">Reintentar</button></div>';
                 }
             },
 
