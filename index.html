@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recetas Keto Inteligentes - Keto Origins</title>
     
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
-    <link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
-    <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap)" rel="stylesheet">
-    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css)">
+    <!-- Scripts y Estilos Corregidos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <style>
         body {
@@ -118,7 +119,7 @@
         <!-- PANTALLA PRINCIPAL -->
         <div id="main-screen">
             <header class="text-center mb-8">
-                <img src="[https://i.ibb.co/20NypXdZ/ketoorigins.png](https://i.ibb.co/20NypXdZ/ketoorigins.png)" alt="Logo Keto Origins" class="w-24 h-24 mx-auto mb-4 rounded-full shadow-lg">
+                <img src="https://i.ibb.co/20NypXdZ/ketoorigins.png" alt="Logo Keto Origins" class="w-24 h-24 mx-auto mb-4 rounded-full shadow-lg">
                 <h1 class="text-3xl sm:text-4xl font-extrabold text-white title-3d">Recetas Keto Inteligentes</h1>
                 <p class="text-lg text-gray-300 mt-4 mb-2">¿Qué tienes en tu cocina hoy?</p>
                 <p class="text-md text-gray-400 mt-2 italic">"Que la comida sea tu medicina y tu medicina tu alimento"</p>
@@ -134,7 +135,7 @@
             </div>
 
             <div class="text-center my-6 flex flex-col items-center">
-                <img src="[https://i.ibb.co/xtWMQ9mm/Copia-de-Logo-500-x-500-px.png](https://i.ibb.co/xtWMQ9mm/Copia-de-Logo-500-x-500-px.png)" alt="Gorro de Chef" class="w-16 mb-4">
+                <img src="https://i.ibb.co/xtWMQ9mm/Copia-de-Logo-500-x-500-px.png" alt="Gorro de Chef" class="w-16 mb-4">
                 <p class="text-white font-bold mb-3">¿Para cuántas personas cocinas?</p>
                 <div class="people-selector">
                     <button onclick="app.setPeople(1)" id="p-1" class="people-btn active">1</button>
@@ -172,10 +173,10 @@
     <footer class="text-center text-gray-500 mt-12 pb-8">
         <p class="font-bold text-sm">Keto Origins</p>
         <div class="flex justify-center space-x-6 mt-2">
-            <a href="[https://www.tiktok.com/@keto.origins](https://www.tiktok.com/@keto.origins)" target="_blank" class="social-icon"><i class="fab fa-tiktok fa-lg"></i></a>
-            <a href="[https://instagram.com/keto.origins](https://instagram.com/keto.origins)" target="_blank" class="social-icon"><i class="fab fa-instagram fa-lg"></i></a>
-            <a href="[https://wa.link/ibvk7h](https://wa.link/ibvk7h)" target="_blank" class="social-icon"><i class="fab fa-whatsapp fa-lg"></i></a>
-            <a href="[https://fisiosem.my.canva.site/keto-origins-](https://fisiosem.my.canva.site/keto-origins-)" target="_blank" class="social-icon"><i class="fas fa-globe fa-lg"></i></a>
+            <a href="https://www.tiktok.com/@keto.origins" target="_blank" class="social-icon"><i class="fab fa-tiktok fa-lg"></i></a>
+            <a href="https://instagram.com/keto.origins" target="_blank" class="social-icon"><i class="fab fa-instagram fa-lg"></i></a>
+            <a href="https://wa.link/ibvk7h" target="_blank" class="social-icon"><i class="fab fa-whatsapp fa-lg"></i></a>
+            <a href="https://fisiosem.my.canva.site/keto-origins-" target="_blank" class="social-icon"><i class="fas fa-globe fa-lg"></i></a>
         </div>
     </footer>
 
@@ -235,12 +236,9 @@
 
             showCategory(categoryName) {
                 this.currentCategory = categoryName;
-                
-                // Foto exacta de qué había al entrar
                 this.initialCategoryState = new Set(
                     this.ingredientsData[categoryName].items.filter(i => this.selectedIngredients.has(i))
                 );
-                
                 this.tempSelectedCategoryIngredients = new Set(this.initialCategoryState);
                 
                 document.getElementById('category-title').textContent = categoryName;
@@ -263,15 +261,12 @@
                     list.appendChild(div);
                 });
                 
-                // Al entrar forzamos que el botón esté apagado
                 this.updateCategoryScreen();
                 this.showScreen('category-screen');
             },
 
             updateCategoryScreen() {
                 const addBtn = document.getElementById('add-ingredients-btn');
-                
-                // COMPROBACIÓN REAL DE CAMBIOS
                 const hasChanged = !this.areSetsEqual(this.initialCategoryState, this.tempSelectedCategoryIngredients);
                 
                 if (hasChanged) {
@@ -331,7 +326,6 @@
                     const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text;
                     if (!rawText) throw new Error("Google no devolvió texto.");
 
-                    // EXTRACTOR SEGURO DE JSON (Ignora textos extra)
                     const firstBrace = rawText.indexOf('{');
                     const lastBrace = rawText.lastIndexOf('}');
                     if (firstBrace === -1 || lastBrace === -1) throw new Error("La IA no generó el formato esperado.");
