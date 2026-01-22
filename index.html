@@ -61,7 +61,6 @@
             border: 1px solid #4a4a6a;
             transition: all 0.2s ease;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-            touch-action: manipulation;
         }
 
         .category-btn:hover, .ingredient-btn:hover {
@@ -195,8 +194,8 @@
             <button onclick="window.app.showMainScreen()" class="text-gray-400 hover:text-white mb-6 flex items-center font-bold">
                 <i class="fas fa-arrow-left mr-2"></i> Volver a Categorías
             </button>
-            <h2 id="category-title" class="text-3xl font-bold text-center mb-2 title-brand-color"></h2>
-            <p id="category-description" class="text-center text-gray-400 mb-6 text-sm max-w-md mx-auto"></p>
+            <h2 id="category-title" class="text-3xl font-bold text-center mb-2 title-brand-color text-balance"></h2>
+            <p id="category-description" class="text-center text-gray-400 mb-6 text-sm max-w-md mx-auto px-4"></p>
             <div id="ingredients-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8"></div>
             <button id="add-ingredients-btn" onclick="window.app.addIngredientsAndGoBack()" class="mx-auto block w-full p-4 rounded-full font-bold text-white text-lg btn-disabled active:scale-95 transition-transform" disabled>
                 Confirmar Selección
@@ -217,7 +216,6 @@
         </div>
     </main>
 
-    <!-- FOOTER CON REDES SOCIALES -->
     <footer class="text-center text-gray-500 mt-12 w-full font-bold">
         <p class="mb-4">Keto Origins Chile</p>
         <div class="flex justify-center space-x-6">
@@ -234,27 +232,27 @@
             lastRecipesText: [],
             ingredientsData: {
                 'Grasas': {
-                    description: 'Las grasas son nuestra principal fuente de energía. Priorizamos las de origen animal y aceites de primera presión.',
-                    items: ['Aceite de coco', 'Aceite de oliva', 'Aceitunas', 'Palta', 'Aceite de palta', 'Mayonesa casera', 'Mantequilla', 'Mantequilla de coco', 'Ghee', 'Cacao 100%', 'Chocolate negro puro', 'Chicharrones', 'Manteca de cerdo', 'Sebo de vaca', 'Aceite de MCT']
+                    description: 'Energía pura y estable. Priorizamos grasas animales puras y aceites de primera presión en frío.',
+                    items: ['Aceite de coco', 'Aceite de oliva', 'Aceitunas', 'Palta', 'Aceite de palta', 'Mayonesa casera', 'Mantequilla', 'Ghee', 'Manteca de cerdo', 'Sebo de vaca', 'Tuétano', 'Aceite MCT', 'Cacao 100%', 'Chocolate negro puro', 'Chicharrones']
                 },
                 'Proteínas': {
-                    description: 'Fundamentales para la reparación de tejidos. El libro destaca la densidad nutricional de las vísceras.',
-                    items: ['Salmón', 'Salmón ahumado', 'Sardinas', 'Caballa', 'Atún', 'Palometa', 'Bonito', 'Anguila', 'Pez espada', 'Mariscos', 'Huevos', 'Carne de res', 'Tocino', 'Pollo', 'Pavo', 'Cerdo', 'Cordero', 'Hígado de vacuno', 'Riñones', 'Lengua', 'Conejo', 'Codorniz']
+                    description: 'Fundamentales para reparar tejidos. Incluimos vísceras por su alta densidad nutricional.',
+                    items: ['Salmón', 'Salmón ahumado', 'Sardinas', 'Caballa', 'Atún', 'Palometa', 'Bonito', 'Anguila', 'Pez espada', 'Mariscos', 'Huevos', 'Carne de res', 'Tocino', 'Pollo', 'Pavo', 'Cerdo', 'Cordero', 'Hígado', 'Corazón', 'Riñones', 'Lengua', 'Mollejas', 'Sesos', 'Conejo', 'Codorniz']
                 },
                 'Frutos Secos y Semillas': {
-                    description: 'Aportan grasas saludables y minerales. Consumir con moderación según el protocolo.',
-                    items: ['Almendras', 'Avellanas', 'Nueces pecanas', 'Nueces de castilla', 'Nueces de Brasil', 'Nueces de macadamia', 'Pistachos', 'Semillas de maravilla', 'Semillas de zapallo', 'Chía', 'Cáñamo', 'Sésamo', 'Lino', 'Harina de almendras', 'Harina de coco', 'Harina de lino']
+                    description: 'Grasas saludables y saciedad. Consumir con moderación.',
+                    items: ['Almendras', 'Avellanas', 'Nueces pecanas', 'Nueces de castilla', 'Nueces de Brasil', 'Nueces de macadamia', 'Pistachos', 'Semillas de maravilla', 'Semillas de zapallo', 'Chía', 'Cáñamo', 'Sésamo', 'Lino', 'Harina de almendras', 'Harina de coco', 'Harina de lino', 'Castañas de cajú']
                 },
                 'Lácteos': {
-                    description: 'Grasas y proteínas de alta calidad. Preferir siempre los fermentados y curados.',
-                    items: ['Queso Mozzarella', 'Queso Gouda', 'Queso Crema', 'Queso Chanco', 'Queso Fresco', 'Queso Parmesano', 'Queso Dubliner', 'Queso Cheddar', 'Queso Brie', 'Queso Feta', 'Crema espesa / Nata de montar', 'Yogurt de pajaritos (Kéfir)', 'Queso de cabra', 'Queso de oveja']
+                    description: 'Grasas y proteínas de alta calidad nutricional. Preferir siempre quesos curados o fermentados.',
+                    items: ['Queso Mozzarella', 'Queso Gouda', 'Queso Crema', 'Queso Chanco', 'Queso Fresco', 'Queso Parmesano', 'Queso Dubliner', 'Queso Cheddar', 'Queso Brie', 'Queso Feta', 'Queso de cabra', 'Queso de oveja', 'Crema espesa / Nata de montar', 'Yogurt de pajaritos (Kéfir)']
                 },
                 'Carbohidratos (Verduras)': {
-                    description: 'Verduras de bajo índice glucémico y alta densidad en micronutrientes.',
-                    items: ['Acelga', 'Algas', 'Apio', 'Ajo', 'Ají', 'Alcachofa', 'Berenjena', 'Brócoli', 'Cebolla', 'Coliflor', 'Espárragos', 'Espinaca', 'Lechuga', 'Pimentón', 'Rúcula', 'Repollo fermentado', 'Setas y hongos', 'Tomates', 'Zapallo italiano', 'Pepino', 'Rábanos', 'Kale', 'Coles de Bruselas', 'Chucrut']
+                    description: 'Fibra, vitaminas y minerales de bajo índice glucémico. Los fermentados son herramientas clave.',
+                    items: ['Acelga', 'Algas', 'Apio', 'Ajo', 'Ají', 'Alcachofa', 'Berenjena', 'Brócoli', 'Cebolla', 'Coliflor', 'Espárragos', 'Espinaca', 'Lechuga', 'Pimentón', 'Rúcula', 'Repollo fermentado', 'Setas y hongos', 'Tomates', 'Zapallo italiano', 'Pepino', 'Rábanos', 'Kale', 'Coles de Bruselas', 'Endivias', 'Chucrut']
                 },
                 'Frutas y Bayas': {
-                    description: 'Solo bayas y frutas de bajísimo impacto glucémico permitidas en el protocolo.',
+                    description: 'Antioxidantes naturales con bajo impacto en azúcar.',
                     items: ['Coco', 'Limón', 'Frutillas', 'Moras', 'Frambuesas', 'Arándanos', 'Grosellas']
                 }
             },
@@ -297,7 +295,6 @@
                 
                 document.getElementById('category-title').textContent = cat;
                 document.getElementById('category-description').textContent = this.ingredientsData[cat].description;
-                
                 this.updateCategoryButtonStatus(false);
 
                 var list = document.getElementById('ingredients-list');
@@ -306,18 +303,13 @@
                     var isSel = self.tempSelectedCategoryIngredients.has(item);
                     var div = document.createElement('div');
                     div.className = 'ingredient-btn p-4 rounded-2xl flex items-center justify-start cursor-pointer transition-all active:scale-95 ' + (isSel ? 'selected' : '');
-                    div.innerHTML = '<input type="checkbox" class="custom-radio mr-4" ' + (isSel ? 'checked' : '') + '><label class="flex-grow cursor-pointer font-bold">' + item + '</label>';
+                    div.innerHTML = '<input type="checkbox" class="custom-radio mr-4" ' + (isSel ? 'checked' : '') + '><label class="flex-grow cursor-pointer font-bold text-white">' + item + '</label>';
                     
                     div.onclick = function() {
                         var cb = div.querySelector('input');
                         cb.checked = !cb.checked;
-                        if(cb.checked) { 
-                            self.tempSelectedCategoryIngredients.add(item); 
-                            div.classList.add('selected'); 
-                        } else { 
-                            self.tempSelectedCategoryIngredients.delete(item); 
-                            div.classList.remove('selected'); 
-                        }
+                        if(cb.checked) { self.tempSelectedCategoryIngredients.add(item); div.classList.add('selected'); }
+                        else { self.tempSelectedCategoryIngredients.delete(item); div.classList.remove('selected'); }
                         self.updateCategoryButtonStatus(true);
                     };
                     list.appendChild(div);
@@ -385,7 +377,7 @@
 
             copyToClipboard: function(index) {
                 var text = this.lastRecipesText[index];
-                const el = document.createElement('textarea');
+                var el = document.createElement('textarea');
                 el.value = text;
                 document.body.appendChild(el);
                 el.select();
@@ -406,7 +398,6 @@
             },
 
             callGeminiAPI: async function(prompt, systemInstruction) {
-                // LLAVE INTEGRADA
                 const apiKey = "AIzaSyDRToDMYsmiJFCjM3peTtFE3fQBnxXyxB4"; 
                 const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=" + apiKey;
                 const payload = {
@@ -416,12 +407,10 @@
                 };
                 
                 const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                
                 if (!res.ok) {
                     const errorData = await res.json();
-                    throw new Error("ERROR TÉCNICO (" + res.status + "): " + errorData.error.message);
+                    throw new Error(errorData.error.message);
                 }
-                
                 const data = await res.json();
                 return JSON.parse(data.candidates[0].content.parts[0].text);
             },
@@ -439,30 +428,29 @@
                 INGREDIENTES DISPONIBLES: [${ingredientsList}].
                 
                 REGLAS CRÍTICAS DE CANTIDADES:
-                1. Es OBLIGATORIO asignar cantidades exactas y realistas (gramos, tazas, unidades, ml) para CADA ingrediente de la lista según el número de personas (${this.numPeople}). No menciones el ingrediente solo; indica cuánto usar.
-                2. REGLA DE HUEVOS: Si usas huevos, utiliza exactamente ${this.numPeople * 3} unidades para garantizar saciedad.
-                3. REGLA DE PROTEÍNAS: Al lado de cada proteína principal o huevos, añade: '(puedes aumentar la cantidad si eres deportista o requieres más proteína)'.
-                4. NOMENCLATURA: Usa el nombre genérico del ingrediente. PROHIBIDO añadir adjetivos como "sin sal", "con sal" o "bajo en grasa". (Ej: "100g de Mantequilla").
-                5. INGREDIENTES EXCLUSIVOS: USA ÚNICAMENTE los ingredientes de la lista. Solo se permite añadir Sal y Pimienta.
-                6. Debes usar TODOS los ingredientes seleccionados en cada una de las 3 recetas generadas.
+                1. Es OBLIGATORIO asignar cantidades exactas y realistas (gramos, tazas, unidades, ml) para CADA ingrediente según ${this.numPeople} personas.
+                2. REGLA DE HUEVOS: Si usas huevos, utiliza exactamente ${this.numPeople * 3} unidades por receta.
+                3. REGLA DE PROTEÍNAS: Añade '(puedes aumentar la cantidad si eres deportista)' al lado de proteínas principales o huevos.
+                4. NOMENCLATURA: Usa solo nombres genéricos (ej: 'Mantequilla'). PROHIBIDO añadir adjetivos como 'sin sal', 'con sal' o 'bajo en grasa'.
+                5. EXCLUSIVIDAD: Solo usa ingredientes de la lista. Se permite Sal y Pimienta.
+                6. Debes usar TODOS los ingredientes seleccionados en cada receta.
                 
                 FORMATO JSON: { "recipes": [ { "title":"", "ingredients":["cantidad + nombre"], "instructions":[], "chef_tip":"" } ] }`;
 
-                var userPrompt = "Crea 3 platos gourmet de Keto Origins Chile para " + this.numPeople + " persona(s) usando EXCLUSIVAMENTE: " + ingredientsList + ". Incluye las cantidades exactas para que no falte comida.";
+                var userPrompt = "Chef, crea 3 platos gourmet de Keto Origins Chile para " + this.numPeople + " persona(s) usando EXCLUSIVAMENTE: " + ingredientsList + ". Incluye medidas precisas.";
 
                 try {
                     const data = await this.callGeminiAPI(userPrompt, systemPrompt);
                     this.lastRecipesText = data.recipes.map(function(r) { return self.formatRecipeText(r); });
                     this.renderRecipes(data.recipes);
                 } catch (e) {
-                    content.innerHTML = '<div class="bg-red-900/40 border border-red-500 text-white p-8 rounded-3xl text-center"><h3 class="font-bold text-xl mb-4">¡ERROR DE COMUNICACIÓN!</h3><p class="text-sm mb-6">' + e.message + '</p><button onclick="window.app.generateRecipes()" class="w-full bg-white text-red-900 font-bold py-4 rounded-full uppercase shadow-lg">Reintentar</button></div>';
+                    content.innerHTML = '<div class="bg-red-900/40 border border-red-500 text-white p-8 rounded-3xl text-center"><h3 class="font-bold text-xl mb-4">ERROR TÉCNICO</h3><p class="text-sm mb-6">' + e.message + '</p><button onclick="window.app.generateRecipes()" class="w-full bg-white text-red-900 font-bold py-4 rounded-full uppercase shadow-lg">Reintentar</button></div>';
                 }
             },
 
             renderRecipes: function(recipes) {
-                var self = this;
                 var content = document.getElementById('recipes-content');
-                content.innerHTML = '<div class="text-center mb-8"><span class="bg-white/10 text-white px-6 py-2 rounded-full text-sm font-extrabold border border-white/20 tracking-wider shadow-lg">🍽️ MENÚ GENERADO PARA ' + this.numPeople + ' PERSONA' + (this.numPeople > 1 ? 'S' : '') + '</span></div><h2 class="text-3xl font-extrabold text-center mb-8 title-brand-color title-3d text-balance">¡Tu Menú Keto Origins Chile!</h2>';
+                content.innerHTML = '<div class="text-center mb-8"><span class="bg-white/10 text-white px-6 py-2 rounded-full text-sm font-extrabold border border-white/20 tracking-wider shadow-lg">🍽️ MENÚ GENERADO PARA ' + this.numPeople + ' PERSONA' + (this.numPeople > 1 ? 'S' : '') + '</span></div><h2 class="text-3xl font-extrabold text-center mb-8 title-brand-color title-3d text-balance text-center">¡Tu Menú Keto Origins!</h2>';
                 
                 content.innerHTML += recipes.map(function(r, idx) {
                     return '<div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-3xl p-6 mb-10 shadow-2xl relative overflow-hidden text-balance"><div class="absolute top-0 right-0 bg-pink-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Plato ' + (idx + 1) + '</div><div class="mb-4 mt-2"><h3 class="text-2xl font-bold text-white leading-tight">' + r.title + '</h3></div><div class="mb-6"><h4 class="text-pink-400 font-bold text-xs uppercase mb-3 tracking-widest italic text-center">Ingredientes Utilizados:</h4><ul class="space-y-2">' + r.ingredients.map(function(i) { return '<li class="text-gray-300 text-sm flex items-start"><span class="mr-2 text-pink-500 font-bold">•</span>' + i + '</li>'; }).join('') + '</ul></div><div class="mb-6 border-t border-[#4a4a6a] pt-6"><h4 class="text-pink-400 font-bold text-xs uppercase mb-4 tracking-widest text-center">Preparación:</h4><ol class="space-y-4">' + r.instructions.map(function(s, i) { return '<li class="text-gray-300 text-sm flex items-start"><b class="mr-3 text-white bg-white/10 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold">' + (i + 1) + '</b> ' + s + '</li>'; }).join('') + '</ol></div><div class="chef-tip-box mb-6"><h4 class="keto-fuchsia-gradient-text font-bold text-sm mb-1 uppercase tracking-tighter">Secreto Keto Origins</h4><p class="text-gray-300 italic text-sm">"' + r.chef_tip + '"</p></div><div class="grid grid-cols-2 gap-3 mt-8"><button onclick="window.app.copyToClipboard(' + idx + ')" class="bg-[#4a4a6a] text-white font-bold py-4 rounded-2xl text-[10px] flex items-center justify-center transition active:scale-95 shadow-lg"><i class="fas fa-copy mr-2 text-sm"></i> COPIAR</button><button onclick="window.app.shareWhatsApp(' + idx + ')" class="bg-[#25D366] text-white font-bold py-4 rounded-2xl text-[10px] flex items-center justify-center transition active:scale-95 shadow-lg"><i class="fab fa-whatsapp mr-2 text-sm"></i> WHATSAPP</button></div></div>';
