@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recetas Keto Inteligentes - Keto Origins</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
+    <link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
+    <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap)" rel="stylesheet">
+    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css)">
 
     <style>
         body {
@@ -118,7 +118,7 @@
         <!-- PANTALLA PRINCIPAL -->
         <div id="main-screen">
             <header class="text-center mb-8">
-                <img src="https://i.ibb.co/20NypXdZ/ketoorigins.png" alt="Logo Keto Origins" class="w-24 h-24 mx-auto mb-4 rounded-full shadow-lg">
+                <img src="[https://i.ibb.co/20NypXdZ/ketoorigins.png](https://i.ibb.co/20NypXdZ/ketoorigins.png)" alt="Logo Keto Origins" class="w-24 h-24 mx-auto mb-4 rounded-full shadow-lg">
                 <h1 class="text-3xl sm:text-4xl font-extrabold text-white title-3d">Recetas Keto Inteligentes</h1>
                 <p class="text-lg text-gray-300 mt-4 mb-2">¿Qué tienes en tu cocina hoy?</p>
                 <p class="text-md text-gray-400 mt-2 italic">"Que la comida sea tu medicina y tu medicina tu alimento"</p>
@@ -134,7 +134,7 @@
             </div>
 
             <div class="text-center my-6 flex flex-col items-center">
-                <img src="https://i.ibb.co/xtWMQ9mm/Copia-de-Logo-500-x-500-px.png" alt="Gorro de Chef" class="w-16 mb-4">
+                <img src="[https://i.ibb.co/xtWMQ9mm/Copia-de-Logo-500-x-500-px.png](https://i.ibb.co/xtWMQ9mm/Copia-de-Logo-500-x-500-px.png)" alt="Gorro de Chef" class="w-16 mb-4">
                 <p class="text-white font-bold mb-3">¿Para cuántas personas cocinas?</p>
                 <div class="people-selector">
                     <button onclick="app.setPeople(1)" id="p-1" class="people-btn active">1</button>
@@ -172,10 +172,10 @@
     <footer class="text-center text-gray-500 mt-12 pb-8">
         <p class="font-bold text-sm">Keto Origins</p>
         <div class="flex justify-center space-x-6 mt-2">
-            <a href="https://www.tiktok.com/@keto.origins" target="_blank" class="social-icon"><i class="fab fa-tiktok fa-lg"></i></a>
-            <a href="https://instagram.com/keto.origins" target="_blank" class="social-icon"><i class="fab fa-instagram fa-lg"></i></a>
-            <a href="https://wa.link/ibvk7h" target="_blank" class="social-icon"><i class="fab fa-whatsapp fa-lg"></i></a>
-            <a href="https://fisiosem.my.canva.site/keto-origins-" target="_blank" class="social-icon"><i class="fas fa-globe fa-lg"></i></a>
+            <a href="[https://www.tiktok.com/@keto.origins](https://www.tiktok.com/@keto.origins)" target="_blank" class="social-icon"><i class="fab fa-tiktok fa-lg"></i></a>
+            <a href="[https://instagram.com/keto.origins](https://instagram.com/keto.origins)" target="_blank" class="social-icon"><i class="fab fa-instagram fa-lg"></i></a>
+            <a href="[https://wa.link/ibvk7h](https://wa.link/ibvk7h)" target="_blank" class="social-icon"><i class="fab fa-whatsapp fa-lg"></i></a>
+            <a href="[https://fisiosem.my.canva.site/keto-origins-](https://fisiosem.my.canva.site/keto-origins-)" target="_blank" class="social-icon"><i class="fas fa-globe fa-lg"></i></a>
         </div>
     </footer>
 
@@ -235,7 +235,12 @@
 
             showCategory(categoryName) {
                 this.currentCategory = categoryName;
-                this.initialCategoryState = new Set(this.ingredientsData[categoryName].items.filter(i => this.selectedIngredients.has(i)));
+                
+                // Foto exacta de qué había al entrar
+                this.initialCategoryState = new Set(
+                    this.ingredientsData[categoryName].items.filter(i => this.selectedIngredients.has(i))
+                );
+                
                 this.tempSelectedCategoryIngredients = new Set(this.initialCategoryState);
                 
                 document.getElementById('category-title').textContent = categoryName;
@@ -257,18 +262,28 @@
                     });
                     list.appendChild(div);
                 });
+                
+                // Al entrar forzamos que el botón esté apagado
                 this.updateCategoryScreen();
                 this.showScreen('category-screen');
             },
 
             updateCategoryScreen() {
                 const addBtn = document.getElementById('add-ingredients-btn');
+                
+                // COMPROBACIÓN REAL DE CAMBIOS
                 const hasChanged = !this.areSetsEqual(this.initialCategoryState, this.tempSelectedCategoryIngredients);
+                
                 if (hasChanged) {
-                    addBtn.disabled = false; addBtn.classList.remove('btn-disabled'); addBtn.classList.add('add-btn-gradient');
+                    addBtn.disabled = false;
+                    addBtn.classList.remove('btn-disabled');
+                    addBtn.classList.add('add-btn-gradient');
                 } else {
-                    addBtn.disabled = true; addBtn.classList.add('btn-disabled'); addBtn.classList.remove('add-btn-gradient');
+                    addBtn.disabled = true;
+                    addBtn.classList.add('btn-disabled');
+                    addBtn.classList.remove('add-btn-gradient');
                 }
+
                 document.querySelectorAll('#ingredients-list .ingredient-btn').forEach(div => {
                     const cb = div.querySelector('input');
                     if (this.tempSelectedCategoryIngredients.has(cb.value)) div.classList.add('selected');
@@ -306,24 +321,27 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                     });
-                    if (!response.ok) {
-                        const errData = await response.json();
-                        throw new Error(errData.error?.message || `HTTP ${response.status}`);
-                    }
-                    const result = await response.json();
-                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (!text) throw new Error("Google no envió respuesta.");
                     
-                    // DIFERENCIA CRUCIAL: Búsqueda segura de JSON
-                    const start = text.indexOf('{');
-                    const end = text.lastIndexOf('}');
-                    if (start === -1 || end === -1) throw new Error("La IA no generó un formato de receta válido.");
-                    const jsonStr = text.substring(start, end + 1);
-                    return JSON.parse(jsonStr);
+                    if (!response.ok) {
+                        const errBody = await response.json();
+                        throw new Error(`Google API: ${errBody.error?.message || response.statusText}`);
+                    }
+                    
+                    const result = await response.json();
+                    const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!rawText) throw new Error("Google no devolvió texto.");
+
+                    // EXTRACTOR SEGURO DE JSON (Ignora textos extra)
+                    const firstBrace = rawText.indexOf('{');
+                    const lastBrace = rawText.lastIndexOf('}');
+                    if (firstBrace === -1 || lastBrace === -1) throw new Error("La IA no generó el formato esperado.");
+                    
+                    const cleanJson = rawText.substring(firstBrace, lastBrace + 1);
+                    return JSON.parse(cleanJson);
 
                 } catch (error) {
-                    if (attempt < maxRetries && (error.message.includes("503") || error.message.includes("fetch"))) {
-                        await new Promise(res => setTimeout(res, 2000));
+                    if (attempt < maxRetries && (error.message.includes("503") || error.message.includes("Failed to fetch"))) {
+                        await new Promise(r => setTimeout(r, 1500));
                         return this.callGemini(prompt, attempt + 1);
                     }
                     throw error;
@@ -333,17 +351,17 @@
             async generateRecipes() {
                 this.showScreen('recipes-screen');
                 const content = document.getElementById('recipes-content');
-                content.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-center"><div class="loader mb-4"></div><p class="font-bold text-lg">Chef Keto Origins creando recetas...</p><p id="retry-msg" class="text-gray-400 text-sm mt-2"></p></div>`;
+                content.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-center"><div class="loader mb-4"></div><p class="font-bold text-lg">Chef Keto Origins trabajando...</p><p id="retry-msg" class="text-gray-400 text-sm mt-2"></p></div>`;
 
                 const ingredientsList = Array.from(this.selectedIngredients).join(', ');
                 const prompt = `
-                    SISTEMA DE CONTROL ESTRICTO KETO ORIGINS CHILE.
-                    OBJETIVO: Generar 3 recetas independientes para ${this.numPeople} persona(s).
-                    REGLA DE ORO: CADA una de las 3 recetas DEBE usar LA TOTALIDAD de estos ingredientes seleccionados: [${ingredientsList}]. No omitas ninguno.
-                    LUBRICANTES: Solo Sal y Pimienta a gusto. PROHIBIDO sugerir "Aceite" si no está en la lista. Si seleccionó "Mantequilla", usa solo Mantequilla.
-                    HUEVOS: Si es plato base, usa exactamente ${this.numPeople * 3} unidades.
-                    NOTA PROTEÍNA: Al lado de cada proteína o huevo, incluye siempre: "(puedes aumentar la cantidad si eres deportista o requieres más proteína)".
-                    TÍTULOS: Profesionales y limpios, sin raciones ni números.
+                    ACTÚA COMO CHEF KETO ORIGINS.
+                    OBJETIVO: 3 recetas independientes para ${this.numPeople} persona(s).
+                    INGREDIENTES OBLIGATORIOS: [${ingredientsList}]. USALOS TODOS EN CADA PLATO.
+                    LUBRICANTES: Solo Sal/Pimienta. PROHIBIDO "Aceite" si no está en la lista. Si seleccionó "Mantequilla", úsala.
+                    HUEVOS: Si es base, usa exactamente ${this.numPeople * 3} unidades.
+                    NOTA DEPORTISTA: Al lado de proteínas/huevos pon siempre: "(puedes aumentar la cantidad si eres deportista o requieres más proteína)".
+                    TITULOS: Profesionales, sin números ni raciones.
                     JSON: {"recipes": [{"title": "string", "ingredients": ["string"], "instructions": ["string"], "chef_tip": "string"}]}
                 `;
 
@@ -353,10 +371,9 @@
                     this.renderRecipes(data.recipes);
                 } catch (e) {
                     content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center border border-red-500 shadow-2xl">
-                        <p class="font-bold mb-2 text-white text-lg text-left">ERROR TÉCNICO EN TU TELÉFONO:</p>
-                        <p class="text-white mb-4 bg-black/30 p-4 rounded font-mono text-xs text-left overflow-auto">${e.message}</p>
-                        <p class="text-xs text-gray-300 mb-4">Si el texto de arriba dice 'API key not valid', revisa tu clave. Si dice '404', es el modelo regional.</p>
-                        <button onclick="app.generateRecipes()" class="bg-white text-red-900 px-8 py-2 rounded-full font-bold shadow-lg">Reintentar</button>
+                        <p class="font-bold mb-2 text-white text-lg">ERROR TÉCNICO DETECTADO:</p>
+                        <p class="text-white mb-4 bg-black/30 p-2 rounded font-mono text-xs overflow-auto max-h-32 text-left">${e.message}</p>
+                        <button onclick="app.generateRecipes()" class="bg-white text-red-900 px-8 py-2 rounded-full font-bold shadow-lg">Intentar de nuevo</button>
                     </div>`;
                 }
             },
@@ -391,6 +408,7 @@
             renderRecipes(recipes) {
                 const content = document.getElementById('recipes-content');
                 let html = `<h2 class="text-3xl font-bold text-center mb-6 title-brand-color">Recetas Keto (${this.numPeople} pers.)</h2><div class="text-center mb-8"><button onclick="app.generateRecipes()" class="regenerate-btn-gradient btn-3d text-white px-8 py-3 rounded-full font-bold shadow-lg"><i class="fas fa-sync-alt mr-2"></i> Generar otras 3</button></div>`;
+                
                 html += recipes.map((r, i) => `
                     <div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-xl p-6 mb-6 shadow-2xl">
                         <h3 class="text-2xl font-bold text-white mb-4">${r.title}</h3>
@@ -403,6 +421,7 @@
                         </div>
                     </div>
                 `).join('');
+
                 html += `<div class="disclaimer-box">🥑 Estas recetas son solo una sugerencia para guiarte, si quieres hacerle modificaciones siéntete libre de hacerlo a tu gusto y a tu forma. 🥓</div><div class="h-10"></div>`;
                 content.innerHTML = html;
             }
