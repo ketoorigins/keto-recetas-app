@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Recetas Keto Inteligentes - Keto Origins</title>
     
     <!-- Tailwind CSS -->
@@ -49,8 +49,8 @@
         }
 
         .btn-disabled {
-            background-image: none;
-            background-color: #4a4a6a;
+            background-image: none !important;
+            background-color: #4a4a6a !important;
             cursor: not-allowed;
             opacity: 0.6;
         }
@@ -373,9 +373,8 @@
             },
 
             async callGeminiAPI(prompt, systemInstruction) {
-                // ATENCIÓN: Pega tu API Key entre las comillas para que funcione en tu iPhone.
-                // Si estás en el computador "acá", funcionará automáticamente aunque esté vacío.
-                const apiKey = ""; 
+                // API KEY INTEGRADA PARA FUNCIONAMIENTO INDEPENDIENTE
+                const apiKey = "AIzaSyAfVIxfe64SF4DK15eGvo4pDgJq9D2VaA0"; 
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
                 
                 const payload = {
@@ -414,7 +413,10 @@
                             body: JSON.stringify(payload)
                         });
                         
-                        if (response.status === 403) throw new Error("API Key inválida o no configurada para iPhone.");
+                        if (response.status === 403 || response.status === 400) {
+                            throw new Error("La llave de Google parece no ser válida o ha sido desactivada. Por favor, revisa tu API Key en AI Studio.");
+                        }
+
                         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                         
                         const result = await response.json();
@@ -422,7 +424,7 @@
                         if (text) return JSON.parse(text);
                         throw new Error("Respuesta vacía de la IA.");
                     } catch (error) {
-                        if (i === 4) throw error;
+                        if (error.message.includes("llave") || i === 4) throw error;
                         await new Promise(r => setTimeout(r, delay));
                         delay *= 2;
                     }
@@ -471,8 +473,7 @@
                     contentDiv.innerHTML = `
                         <div class="bg-red-900/50 border border-red-600 text-white p-6 rounded-xl text-center">
                             <h3 class="text-xl font-bold mb-2">¡Ups! El horno se apagó</h3>
-                            <p>${error.message}</p>
-                            <p class="text-sm mt-2 text-gray-300">Si estás en el iPhone, asegúrate de haber pegado tu API Key en el código.</p>
+                            <p class="text-sm">${error.message}</p>
                             <button onclick="app.generateRecipes()" class="mt-4 bg-white text-red-900 px-6 py-2 rounded-full font-bold">Intentar de nuevo</button>
                         </div>
                     `;
