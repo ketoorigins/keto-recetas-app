@@ -79,7 +79,7 @@
             visibility: hidden; min-width: 250px; background-color: #ec4899; color: #fff;
             text-align: center; border-radius: 50px; padding: 12px; position: fixed;
             z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%);
-            font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-weight: bold; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
@@ -88,7 +88,7 @@
         .btn-action {
             display: inline-flex; align-items: center; justify-content: center;
             padding: 0.6rem 1.2rem; border-radius: 9999px; font-weight: 600;
-            font-size: 0.875rem; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.875rem; transition: all 0.2s; border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .people-selector {
             background-color: #3a2d57; border: 1px solid #4a4a6a;
@@ -181,8 +181,8 @@
     </footer>
 
     <script>
-        // Clave API restaurada
-        const apiKey = "AIzaSyAOaPYeNJkgha7mePKxV5zJhQuXZOFqK_s"; 
+        // Clave API actualizada con la proporcionada por el usuario
+        const apiKey = "AIzaSyCSqMiNiCf4WplFU3IrVv_gkNpu5a8XDhg"; 
 
         const app = {
             ingredientsData: {
@@ -214,7 +214,7 @@
             },
 
             showScreen(name) {
-                window.scrollTo(0,0);
+                window.scrollTo(0, 0);
                 ['main-screen', 'category-screen', 'recipes-screen'].forEach(s => document.getElementById(s).classList.add('hidden'));
                 document.getElementById(name).classList.remove('hidden');
             },
@@ -325,11 +325,11 @@
                     
                     const result = await response.json();
                     const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (!rawText) throw new Error("La IA no devolvió texto.");
+                    if (!rawText) throw new Error("La IA no devolvió respuesta.");
 
                     const firstBrace = rawText.indexOf('{');
                     const lastBrace = rawText.lastIndexOf('}');
-                    if (firstBrace === -1 || lastBrace === -1) throw new Error("Formato no válido.");
+                    if (firstBrace === -1 || lastBrace === -1) throw new Error("Respuesta no válida.");
                     
                     const cleanJson = rawText.substring(firstBrace, lastBrace + 1);
                     return JSON.parse(cleanJson);
