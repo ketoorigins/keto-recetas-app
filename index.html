@@ -373,8 +373,9 @@
             },
 
             async callGeminiAPI(prompt, systemInstruction) {
-                // API KEY INTEGRADA PARA FUNCIONAMIENTO EN DISPOSITIVOS MÓVILES
-                const apiKey = "AIzaSyA30xJfUenCKC7SKFspPRXqOpoNSyg0Rqw"; 
+                // ATENCIÓN: Pega tu API Key entre las comillas para que funcione en tu iPhone.
+                // Si estás en el computador "acá", funcionará automáticamente aunque esté vacío.
+                const apiKey = ""; 
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
                 
                 const payload = {
@@ -413,6 +414,7 @@
                             body: JSON.stringify(payload)
                         });
                         
+                        if (response.status === 403) throw new Error("API Key inválida o no configurada para iPhone.");
                         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                         
                         const result = await response.json();
@@ -469,7 +471,8 @@
                     contentDiv.innerHTML = `
                         <div class="bg-red-900/50 border border-red-600 text-white p-6 rounded-xl text-center">
                             <h3 class="text-xl font-bold mb-2">¡Ups! El horno se apagó</h3>
-                            <p>Hubo un problema al contactar con el Chef: ${error.message}</p>
+                            <p>${error.message}</p>
+                            <p class="text-sm mt-2 text-gray-300">Si estás en el iPhone, asegúrate de haber pegado tu API Key en el código.</p>
                             <button onclick="app.generateRecipes()" class="mt-4 bg-white text-red-900 px-6 py-2 rounded-full font-bold">Intentar de nuevo</button>
                         </div>
                     `;
