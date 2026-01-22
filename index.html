@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <style>
+        /* Kaypi llapa imayna rikukuynin kachkan - Estilos generales */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #1f143a;
@@ -115,7 +116,7 @@
     <div id="toast">¡Receta copiada al portapapeles!</div>
 
     <main id="app-container" class="w-full max-w-2xl mx-auto flex-grow">
-        <!-- PANTALLA PRINCIPAL -->
+        <!-- QALLARIY P’ANQA - PANTALLA PRINCIPAL -->
         <div id="main-screen">
             <header class="text-center mb-8">
                 <img src="https://i.ibb.co/20NypXdZ/ketoorigins.png" alt="Logo Keto Origins" class="w-24 h-24 mx-auto mb-4 rounded-full shadow-lg">
@@ -152,7 +153,7 @@
             <p id="generate-recipes-hint" class="text-center text-gray-500 mt-2 text-sm">Selecciona al menos 2 ingredientes</p>
         </div>
 
-        <!-- PANTALLA CATEGORIA -->
+        <!-- CATEGORIA P’ANQA - PANTALLA CATEGORIA -->
         <div id="category-screen" class="hidden">
             <button onclick="app.showMainScreen()" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Categorías</button>
             <h2 id="category-title" class="text-3xl font-bold text-center mb-6 title-brand-color title-3d"></h2>
@@ -162,7 +163,7 @@
             </button>
         </div>
 
-        <!-- PANTALLA RECETAS -->
+        <!-- RECETAS P’ANQA - PANTALLA RECETAS -->
         <div id="recipes-screen" class="hidden">
              <button onclick="app.showMainScreen(true)" class="text-gray-400 hover:text-white mb-6"><i class="fas fa-arrow-left mr-2"></i>Volver a Empezar</button>
              <div id="recipes-content"></div>
@@ -180,7 +181,8 @@
     </footer>
 
     <script type="module">
-        const apiKey = ""; 
+        /* Google AI Studio nisqamanta llaviyki kachkan kaypi */
+        const apiKey = "AIzaSyAOaPYeNJkgha7mePKxV5zJhQuXZOFqK_s"; 
 
         const app = {
             ingredientsData: {
@@ -198,6 +200,7 @@
             lastGeneratedRecipes: [],
             numPeople: 1,
 
+            /* Qallariy ruwaykuna - Inicialización */
             init() {
                 this.updateMainScreen();
                 document.getElementById('add-ingredients-btn').addEventListener('click', () => this.addIngredientsAndGoBack());
@@ -226,6 +229,7 @@
                 this.updateMainScreen();
             },
 
+            /* Imaymana tantiyaykuna - Lógica de comparación */
             areSetsEqual(setA, setB) {
                 if (setA.size !== setB.size) return false;
                 for (const item of setA) if (!setB.has(item)) return false;
@@ -235,12 +239,12 @@
             showCategory(categoryName) {
                 this.currentCategory = categoryName;
                 
-                // Foto exacta de la selección al entrar
+                // Kaypi qallariyninpi kaqkunata hap’inchik - Captura el estado inicial al entrar
                 this.initialCategoryState = new Set(
                     this.ingredientsData[categoryName].items.filter(i => this.selectedIngredients.has(i))
                 );
                 
-                // Copia temporal para editar en pantalla
+                // Llamk’anapaq copia temporal - Copia para trabajar en pantalla
                 this.tempSelectedCategoryIngredients = new Set(this.initialCategoryState);
                 
                 document.getElementById('category-title').textContent = categoryName;
@@ -273,7 +277,7 @@
             updateCategoryScreen() {
                 const addBtn = document.getElementById('add-ingredients-btn');
                 
-                // El botón solo se activa si hay diferencias reales con el inicio
+                // Hukniray kaspallan botón llipllimun - Botón se activa solo si hay cambios reales
                 const hasChanged = !this.areSetsEqual(this.initialCategoryState, this.tempSelectedCategoryIngredients);
                 
                 if (hasChanged) {
@@ -286,7 +290,6 @@
                     addBtn.classList.remove('add-btn-gradient');
                 }
 
-                // Sincronizar estilo visual
                 document.querySelectorAll('#ingredients-list .ingredient-btn').forEach(div => {
                     const cb = div.querySelector('input');
                     if (this.tempSelectedCategoryIngredients.has(cb.value)) div.classList.add('selected');
@@ -320,9 +323,10 @@
                 }
             },
 
+            /* Google Gemini llamk’achiy - Conexión con IA */
             async callGemini(prompt, attempt = 0) {
                 const maxRetries = 5;
-                // Usamos 1.5 flash para evitar el error de "colapso" en móviles
+                // gemini-1.5-flash nisqawanmi allin t’ikraku - Usamos modelo estable para evitar errores
                 const model = "gemini-1.5-flash"; 
                 try {
                     if (!apiKey) throw new Error("Falta la API Key en el código.");
@@ -380,9 +384,9 @@
                     this.renderRecipes(data.recipes);
                 } catch (e) {
                     content.innerHTML = `<div class="bg-red-900/50 p-6 rounded-xl text-center border border-red-500 shadow-2xl">
-                        <p class="font-bold mb-2 text-white text-lg">MENSAJE TÉCNICO:</p>
+                        <p class="font-bold mb-2 text-white text-lg">DETALLE DEL ERROR:</p>
                         <p class="text-white mb-4 bg-black/30 p-2 rounded font-mono text-sm">${e.message}</p>
-                        <p class="text-xs text-gray-300 mb-4">Si dice 'API key not valid', verifica tu clave. Si dice '404', es el modelo regional.</p>
+                        <p class="text-xs text-gray-300 mb-4">Si dice 'API key not valid', revisa tu clave. Si dice '404', es el modelo regional.</p>
                         <button onclick="app.generateRecipes()" class="bg-white text-red-900 px-8 py-2 rounded-full font-bold shadow-lg">Intentar de nuevo</button>
                     </div>`;
                 }
