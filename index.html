@@ -61,6 +61,7 @@
             border: 1px solid #4a4a6a;
             transition: all 0.2s ease;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            touch-action: manipulation;
         }
 
         .category-btn:hover, .ingredient-btn:hover {
@@ -236,11 +237,11 @@
                     items: ['Aceite de coco', 'Aceite de oliva', 'Aceitunas', 'Palta', 'Aceite de palta', 'Mayonesa casera', 'Mantequilla', 'Ghee', 'Manteca de cerdo', 'Sebo de vaca', 'Tuétano', 'Aceite MCT', 'Cacao 100%', 'Chocolate negro puro', 'Chicharrones']
                 },
                 'Proteínas': {
-                    description: 'Fundamentales para reparar tejidos. Incluimos vísceras por su alta densidad nutricional.',
+                    description: 'Fundamentales para reparar tejidos. Incluimos vísceras por su alta densidad nutricional según el protocolo ancestral.',
                     items: ['Salmón', 'Salmón ahumado', 'Sardinas', 'Caballa', 'Atún', 'Palometa', 'Bonito', 'Anguila', 'Pez espada', 'Mariscos', 'Huevos', 'Carne de res', 'Tocino', 'Pollo', 'Pavo', 'Cerdo', 'Cordero', 'Hígado', 'Corazón', 'Riñones', 'Lengua', 'Mollejas', 'Sesos', 'Conejo', 'Codorniz']
                 },
                 'Frutos Secos y Semillas': {
-                    description: 'Grasas saludables y saciedad. Consumir con moderación.',
+                    description: 'Grasas saludables y saciedad. Consumir con moderación para no exceder los carbohidratos.',
                     items: ['Almendras', 'Avellanas', 'Nueces pecanas', 'Nueces de castilla', 'Nueces de Brasil', 'Nueces de macadamia', 'Pistachos', 'Semillas de maravilla', 'Semillas de zapallo', 'Chía', 'Cáñamo', 'Sésamo', 'Lino', 'Harina de almendras', 'Harina de coco', 'Harina de lino', 'Castañas de cajú']
                 },
                 'Lácteos': {
@@ -248,7 +249,7 @@
                     items: ['Queso Mozzarella', 'Queso Gouda', 'Queso Crema', 'Queso Chanco', 'Queso Fresco', 'Queso Parmesano', 'Queso Dubliner', 'Queso Cheddar', 'Queso Brie', 'Queso Feta', 'Queso de cabra', 'Queso de oveja', 'Crema espesa / Nata de montar', 'Yogurt de pajaritos (Kéfir)']
                 },
                 'Carbohidratos (Verduras)': {
-                    description: 'Fibra, vitaminas y minerales de bajo índice glucémico. Los fermentados son herramientas clave.',
+                    description: 'Fibra, vitaminas y minerales de bajo índice glucémico. Los fermentados naturales son herramientas nutricionales clave.',
                     items: ['Acelga', 'Algas', 'Apio', 'Ajo', 'Ají', 'Alcachofa', 'Berenjena', 'Brócoli', 'Cebolla', 'Coliflor', 'Espárragos', 'Espinaca', 'Lechuga', 'Pimentón', 'Rúcula', 'Repollo fermentado', 'Setas y hongos', 'Tomates', 'Zapallo italiano', 'Pepino', 'Rábanos', 'Kale', 'Coles de Bruselas', 'Endivias', 'Chucrut']
                 },
                 'Frutas y Bayas': {
@@ -398,8 +399,8 @@
             },
 
             callGeminiAPI: async function(prompt, systemInstruction) {
-                // LLAVE ACTUALIZADA
-                const apiKey = "AIzaSyBhIqQ7PbfXLurVuol-R4yyS9-MGO-wlio"; 
+                // LLAVE ACTUALIZADA POR EL CHEF
+                const apiKey = "AIzaSyDjjw1wMgLlOrz52MzzGFJXWPXTBzep6uE"; 
                 const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=" + apiKey;
                 const payload = {
                     contents: [{ parts: [{ text: prompt }] }],
@@ -451,7 +452,7 @@
 
             renderRecipes: function(recipes) {
                 var content = document.getElementById('recipes-content');
-                content.innerHTML = '<div class="text-center mb-8"><span class="bg-white/10 text-white px-6 py-2 rounded-full text-sm font-extrabold border border-white/20 tracking-wider shadow-lg">🍽️ MENÚ GENERADO PARA ' + this.numPeople + ' PERSONA' + (this.numPeople > 1 ? 'S' : '') + '</span></div><h2 class="text-3xl font-extrabold text-center mb-8 title-brand-color title-3d text-balance text-center">¡Tu Menú Keto Origins!</h2>';
+                content.innerHTML = '<div class="text-center mb-8"><span class="bg-white/10 text-white px-6 py-2 rounded-full text-sm font-extrabold border border-white/20 tracking-wider shadow-lg">🍽️ MENÚ GENERADO PARA ' + this.numPeople + ' PERSONA' + (this.numPeople > 1 ? 'S' : '') + '</span></div><h2 class="text-3xl font-extrabold text-center mb-8 title-brand-color title-3d text-balance text-center">¡Tu Menú Keto Origins Chile!</h2>';
                 
                 content.innerHTML += recipes.map(function(r, idx) {
                     return '<div class="bg-[#3a2d57] border border-[#4a4a6a] rounded-3xl p-6 mb-10 shadow-2xl relative overflow-hidden text-balance"><div class="absolute top-0 right-0 bg-pink-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Plato ' + (idx + 1) + '</div><div class="mb-4 mt-2"><h3 class="text-2xl font-bold text-white leading-tight">' + r.title + '</h3></div><div class="mb-6"><h4 class="text-pink-400 font-bold text-xs uppercase mb-3 tracking-widest italic text-center">Ingredientes Utilizados:</h4><ul class="space-y-2">' + r.ingredients.map(function(i) { return '<li class="text-gray-300 text-sm flex items-start"><span class="mr-2 text-pink-500 font-bold">•</span>' + i + '</li>'; }).join('') + '</ul></div><div class="mb-6 border-t border-[#4a4a6a] pt-6"><h4 class="text-pink-400 font-bold text-xs uppercase mb-4 tracking-widest text-center">Preparación:</h4><ol class="space-y-4">' + r.instructions.map(function(s, i) { return '<li class="text-gray-300 text-sm flex items-start"><b class="mr-3 text-white bg-white/10 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold">' + (i + 1) + '</b> ' + s + '</li>'; }).join('') + '</ol></div><div class="chef-tip-box mb-6"><h4 class="keto-fuchsia-gradient-text font-bold text-sm mb-1 uppercase tracking-tighter">Secreto Keto Origins</h4><p class="text-gray-300 italic text-sm">"' + r.chef_tip + '"</p></div><div class="grid grid-cols-2 gap-3 mt-8"><button onclick="window.app.copyToClipboard(' + idx + ')" class="bg-[#4a4a6a] text-white font-bold py-4 rounded-2xl text-[10px] flex items-center justify-center transition active:scale-95 shadow-lg"><i class="fas fa-copy mr-2 text-sm"></i> COPIAR</button><button onclick="window.app.shareWhatsApp(' + idx + ')" class="bg-[#25D366] text-white font-bold py-4 rounded-2xl text-[10px] flex items-center justify-center transition active:scale-95 shadow-lg"><i class="fab fa-whatsapp mr-2 text-sm"></i> WHATSAPP</button></div></div>';
